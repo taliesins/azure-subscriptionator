@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Manage-AzureRMBlueprint</id>
+    <version>2.0.0</version>
+    <authors>jbritt@microsoft.com</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://aka.ms/ManageARMBlueprints/Video</projectUrl>
+    <description>To learn how to use this script, please watch this video: https://aka.ms/ManageARMBlueprints/Video 
+
+This script takes a SubscriptionID, ManagementGroupID, BlueprintName, Mode switch, and an optional 
+NewBluePrintName as a parameter.  This script is meant to provide the ability to export an Azure
+ARM Blueprint for backup or import into an other Management Group.  You can also report on what artifacts are configured
+for a specific blueprint using the report mode.
+
+Use of "-Force" provides the ability to launch this script without prompting, if all required parameters are provided.
+
+NOTE: This version currently only supports exporting a latest full published version or current draft of a blueprint and
+related artifacts.
+
+ADDITIONAL NOTE: This script currently also does not export custom policies.</description>
+    <releaseNotes>November 20, 2018 - version 2.0    * Added function for standard error    * Added function for building REST PUT payload    * Updated error to indicate clear-AzureRMContext (to replace Logout-AzureRMAccount) to resolve 401      Thanks https://twitter.com/JFE_CH (Jonas Feller) for the recommendation at this site:       https://www.jfe.cloud/export-import-azure-blueprints/     * Removed "ID" and "Name" fields from the export    * Building "Name" and "ID" for imports dynamically based on folder and file name for blueprint and artifacts    * Added proper order handling for import of blueprint first, then all artifacts    * Added APIVersion variable     * Thanks Alexander Frankel[MSFT] for your thoughts and feedback here across this release!</releaseNotes>
+    <copyright>Microsoft</copyright>
+    <tags>PSScript PSIncludes_Function PSFunction_Add-IndexNumberToArray PSFunction_StandardError PSFunction_build-PutContent PSCommand_Add-IndexNumberToArray PSCommand_StandardError PSCommand_build-PutContent</tags>
+  </metadata>
+</package>

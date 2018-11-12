@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>AzureRM.ManagementGroups</id>
+    <version>0.0.1-preview</version>
+    <authors>Microsoft Corporation</authors>
+    <owners>Microsoft Corporation</owners>
+    <licenseUrl>https://aka.ms/azps-license</licenseUrl>
+    <projectUrl>https://github.com/Azure/azure-powershell</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Microsoft Azure PowerShell - GroupsRP cmdlets for Azure Resource Manager</description>
+    <releaseNotes>First Preview Release of MangementGroups Powershell</releaseNotes>
+    <copyright>Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Azure ResourceManager ARM GroupsRP Management ManagementGroups PSModule PSIncludes_Cmdlet PSCmdlet_Get-AzureRmManagementGroup PSCmdlet_New-AzureRmManagementGroup PSCmdlet_Update-AzureRmManagementGroup PSCmdlet_Remove-AzureRmManagementGroup PSCmdlet_New-AzureRmManagementGroupSubscription PSCmdlet_Remove-AzureRmManagementGroupSubscription PSCommand_Get-AzureRmManagementGroup PSCommand_New-AzureRmManagementGroup PSCommand_Update-AzureRmManagementGroup PSCommand_Remove-AzureRmManagementGroup PSCommand_New-AzureRmManagementGroupSubscription PSCommand_Remove-AzureRmManagementGroupSubscription</tags>
+    <dependencies>
+      <dependency id="AzureRM.Profile" version="4.3.0" />
+    </dependencies>
+  </metadata>
+</package>
