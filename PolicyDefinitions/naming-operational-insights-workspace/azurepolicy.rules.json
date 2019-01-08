@@ -1,0 +1,19 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "Microsoft.OperationalInsights/workspaces"
+                             },
+                             {
+                                 "not":  {
+                                             "field":  "name",
+                                             "match":  "................................"
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

@@ -1,0 +1,23 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "[parameters(\u0027type\u0027)]"
+                             },
+                             {
+                                 "not":  {
+                                             "anyOf":  [
+                                                           {
+                                                               "field":  "[concat(\u0027tags[\u0027,\u0027resource_owner\u0027, \u0027]\u0027)]",
+                                                               "match":  "#######"
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

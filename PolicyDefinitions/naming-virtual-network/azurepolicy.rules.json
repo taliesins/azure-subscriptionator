@@ -1,0 +1,63 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "Microsoft.Network/virtualNetworks"
+                             },
+                             {
+                                 "not":  {
+                                             "allOf":  [
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-*"
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-.."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-..."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-...."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-....."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-......"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-......."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-VN-........"
+                                                                             }
+                                                                         ]
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

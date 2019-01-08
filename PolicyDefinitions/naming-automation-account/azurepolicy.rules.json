@@ -1,0 +1,63 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "Microsoft.Automation/automationAccounts"
+                             },
+                             {
+                                 "not":  {
+                                             "allOf":  [
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-AA-*"
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-.."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-..."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-...."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-....."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-......"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-......."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AA-........"
+                                                                             }
+                                                                         ]
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

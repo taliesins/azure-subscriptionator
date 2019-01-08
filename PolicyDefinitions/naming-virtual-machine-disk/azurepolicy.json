@@ -1,0 +1,132 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-virtual-machine-disk",
+   "properties": {
+      "displayName": "Naming of Azure virtual machine disks",
+      "description": "Naming of Azure virtual machine disks. Example virtual machine disk name MLWMGTJENKINS01-OSDISK or MLWMGTJENKINS01-DATADISK-BACKUPS",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/disks"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "M*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "?T*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?N*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?R*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?L*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "??B*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "??L*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "??W*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "???............-OSDISK"  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-.."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-..."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-...."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-....."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-......"  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-......."  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???............-DATADISK-........"  
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

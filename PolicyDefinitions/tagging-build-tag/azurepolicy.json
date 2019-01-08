@@ -1,0 +1,60 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "tagging-build-tag",
+   "properties": {
+      "displayName": "Build tag on Azure resource",
+      "description": "Build tag on Azure resource. Example tag would look like build_tag=https://jenkins-dt-azure.service.test.group/job/master/lastBuild/console",
+      "metadata":  {
+         "category": "Tagging"
+      },
+      "mode": "All",
+      "parameters": {
+         "type": {
+            "type": "array",
+            "metadata": {
+                "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+                "displayName": "type",
+                "strongType": "resourceTypes"
+            }
+        },
+        "effect": {
+          "type": "string",
+          "allowedValues": [
+            "Append",
+            "Audit",
+            "AuditIfNotExists",
+            "Deny",
+            "DeployIfNotExists",
+            "Disabled"
+          ],
+          "metadata": {
+            "displayName": "effect",
+            "description": "Effect of policy, such as audit or deny"
+          }
+        }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "[parameters('type')]"
+               },
+               {
+                  "not": {
+                     "anyOf": [
+                        {
+                           "field": "[concat('tags[','build_tag', ']')]",
+                           "match": "https://*"  
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

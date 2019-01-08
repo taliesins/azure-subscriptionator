@@ -1,0 +1,151 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "[parameters(\u0027type\u0027)]"
+                             },
+                             {
+                                 "not":  {
+                                             "anyOf":  [
+                                                           {
+                                                               "allOf":  [
+                                                                             {
+                                                                                 "field":  "type",
+                                                                                 "equals":  "Microsoft.KeyVault/vaults"
+                                                                             },
+                                                                             {
+                                                                                 "anyOf":  [
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-.."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-..."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-...."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-....."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-......"
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-......."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-KV-........"
+                                                                                               }
+                                                                                           ]
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "allOf":  [
+                                                                             {
+                                                                                 "field":  "type",
+                                                                                 "equals":  "Microsoft.Storage/storageAccounts"
+                                                                             },
+                                                                             {
+                                                                                 "anyOf":  [
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-.."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-..."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-...."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-....."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-......"
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-......."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-SA-........"
+                                                                                               }
+                                                                                           ]
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "allOf":  [
+                                                                             {
+                                                                                 "field":  "type",
+                                                                                 "equals":  "Microsoft.OperationalInsights/workspaces"
+                                                                             },
+                                                                             {
+                                                                                 "anyOf":  [
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-.."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-..."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-...."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-....."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-......"
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-......."
+                                                                                               },
+                                                                                               {
+                                                                                                   "field":  "[concat(\u0027tags[\u0027,\u0027real_name\u0027, \u0027]\u0027)]",
+                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-WS-........"
+                                                                                               }
+                                                                                           ]
+                                                                             }
+                                                                         ]
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

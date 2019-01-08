@@ -1,0 +1,63 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "Microsoft.Compute/availabilitySets"
+                             },
+                             {
+                                 "not":  {
+                                             "allOf":  [
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-AS-*"
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-.."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-..."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-...."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-....."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-......"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-......."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-AS-........"
+                                                                             }
+                                                                         ]
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

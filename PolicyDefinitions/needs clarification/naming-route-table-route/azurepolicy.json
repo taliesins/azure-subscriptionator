@@ -1,0 +1,252 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-route-table-route",
+   "properties": {
+      "displayName": "Naming of Azure route table routes",
+      "description": "Naming of Azure route table routes. Example route table route name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND-RT",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Network/routeTables/routes"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": ".-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "..-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "...-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "....-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".....-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "......-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".......-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "........-M-UKS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "..-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "...-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "....-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".....-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "......-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".......-M-UKW-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "........-M-UKW-*"
+                              }                             
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": ".-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "..-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "...-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "....-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".....-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "......-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".......-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "........-?-???-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "..-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "...-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "....-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".....-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "......-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".......-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "........-?-???-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "..-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "...-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "....-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".....-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "......-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": ".......-?-???-T##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "........-?-???-T##-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "*-."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-.."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-..."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-...."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-....."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-......"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-......."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-........"
+                              }
+                           ]  
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

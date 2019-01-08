@@ -1,0 +1,96 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-virtual-machine-image",
+   "properties": {
+      "displayName": "Naming of Azure virtual machine images",
+      "description": "Naming of Azure virtual machine images. Example virtual machine image name M-UKS-L01-MGMT01-RG-BASEIMG-WIN-WEBSERVER-20180911-1300",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/images"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-IMG-WIN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-IMG-RHEL-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "*-.-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-..-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-...-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-....-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-.....-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-......-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-.......-########-####"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-........-########-####"
+                              }
+                           ]  
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

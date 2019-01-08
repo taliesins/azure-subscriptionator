@@ -1,0 +1,91 @@
+{
+    "if":  {
+               "allOf":  [
+                             {
+                                 "field":  "type",
+                                 "equals":  "Microsoft.Network/virtualNetworkGateways"
+                             },
+                             {
+                                 "not":  {
+                                             "allOf":  [
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-..-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-...-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-....-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.....-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-......-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.......-GW-*"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-........-GW-*"
+                                                                             }
+                                                                         ]
+                                                           },
+                                                           {
+                                                               "anyOf":  [
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-.."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-..."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-...."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-....."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-......"
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-......."
+                                                                             },
+                                                                             {
+                                                                                 "field":  "name",
+                                                                                 "match":  "*-GW-........"
+                                                                             }
+                                                                         ]
+                                                           }
+                                                       ]
+                                         }
+                             }
+                         ]
+           },
+    "then":  {
+                 "effect":  "[parameters(\u0027effect\u0027)]"
+             }
+}

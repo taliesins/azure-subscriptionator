@@ -1,0 +1,104 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-subscription",
+   "properties": {
+      "displayName": "Naming of Azure subscriptions",
+      "description": "Naming of Azure subscriptions. Example subscription name ITS-SS-L01-MGMT01",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Resources/subscriptions"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "ITS-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "???-SS-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-BA-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "???-??-L##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-??-R##-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-??-T##-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "???-??-?##-.##"  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-??-?##-..##"  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-??-?##-...##"  
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "???-??-?##-....##"  
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

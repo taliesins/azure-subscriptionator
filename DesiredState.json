@@ -7,6 +7,28 @@
             "ObjectType": "Group"
         }
     ],
+    "PolicyAssignments" : [
+        {
+            "Name": "",
+            "NotScope": [""],
+            "DisplayName" : "",
+            "Description" : "",
+            "PolicyDefinitionName": "",
+            "PolicyParameter" : {
+            }
+        }
+    ],
+    "PolicySetAssignments" : [
+        {
+            "Name": "",
+            "NotScope": [""],
+            "DisplayName" : "",
+            "Description" : "",
+            "PolicySetDefinitionName": "",
+            "PolicyParameter" : {
+            }
+        }
+    ],
     "ADGroups" : [
         {
             "DisplayName": "test2",

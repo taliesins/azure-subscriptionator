@@ -1,0 +1,120 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-subnet",
+   "properties": {
+      "displayName": "Naming of Azure subnets",
+      "description": "Naming of Azure subnets. Example subnet name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Network/virtualNetworks/subnets"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-.."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-..."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-...."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-....."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-......"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-......."
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "*-SN-........"
+                              }
+                           ]  
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

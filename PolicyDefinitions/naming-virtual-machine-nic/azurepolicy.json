@@ -1,0 +1,100 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-virtual-machine-nic",
+   "properties": {
+      "displayName": "Naming of Azure network interfaces",
+      "description": "Naming of Azure network interfaces. Example network interface name MLWMGTJENKINS01-NIC1",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Network/networkInterfaces"
+               },
+               {
+                  "not": {
+                     "allOf": [
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "M*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "?T*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?N*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?R*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "?L*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "??B*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "??L*"
+                              },
+                              {
+                                 "field": "name",
+                                 "match": "??W*"
+                              }
+                           ]  
+                        },
+                        {
+                           "anyOf": [
+                              {
+                                 "field": "name",
+                                 "match": "???............-NIC#"  
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}

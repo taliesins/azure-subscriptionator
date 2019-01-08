@@ -1,0 +1,48 @@
+{
+   "type": "Microsoft.Authorization/policyDefinitions",
+   "name": "naming-storage-account",
+   "properties": {
+      "displayName": "Naming of Azure storage accounts",
+      "description": "Naming of Azure storage accounts. Example storage account name MD5(M-UKS-L01-MGMT0101-RG-TOOL-SA-BACKUP) = EAE83A012157E08BDB833FF4B5FA9BA5",
+      "metadata":  {
+         "category": "Naming"
+      },
+      "mode": "All",
+      "parameters": {
+         "effect": {
+            "type": "string",
+            "allowedValues": [
+              "Append",
+              "Audit",
+              "AuditIfNotExists",
+              "Deny",
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "effect",
+              "description": "Effect of policy, such as audit or deny"
+            }
+          }
+      },
+      "policyRule": {
+         "if": {
+            "allOf": [
+               {
+                  "field": "type",
+                  "equals": "Microsoft.Storage/storageAccounts"
+               },
+               {
+                  "not": {
+                     "field": "name",
+                     "match": "................................"
+                  }
+               }
+            ]
+         },
+         "then": {
+            "effect": "[parameters('effect')]"
+         }
+      }
+   }
+}
