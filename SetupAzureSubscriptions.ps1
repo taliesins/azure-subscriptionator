@@ -1,28 +1,7 @@
-#UnInstall-Module -Name AzureRM
-#Install-Module -Name AzureRM
-
-#UnInstall-Module -Name AzureAD
-#Install-Module -Name AzureAD
-
-$tenantAdminAccount = 'tali@talifuntest.onmicrosoft.com'
-$tenantId = 'e8815a32-7f83-417f-852b-36ac13dec95d'
-$tenantAdminCredential = Get-Credential -UserName $tenantAdminAccount -Message "Credentials for global adminstrator for tenant"
-
-Connect-AzureRmAccount -Credential $tenantAdminCredential -Environment $rootEnvironment
-Connect-AzureAD -Credential $tenantAdminCredential -AzureEnvironmentName $rootEnvironment
-#Get-AzureRmEnrollmentAccount
 
 $parentIdPrefix = '/providers/Microsoft.Management/managementGroups/'
 $subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 $subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
-
-#ensure there is an AD Tenant
-#https://portal.azure.com/#create/Microsoft.AzureActiveDirectory
-
-#ensure you are logged in with user that has rights to manage subscriptions and management groups
-#https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Properties
-#Under Access management for Azure resources
-#select  "yes" for can manage access to all azure subscriptions and management groups in this directory
 
 $scriptPath = Split-Path -parent $PSCommandPath
 $AzPath = Join-Path $scriptPath "modules\az\1.0.1\Az.psd1"
@@ -38,6 +17,25 @@ $AzureRMBlueprintPath = Join-Path $scriptPath "modules\manage-azurermblueprint.2
 $AzSubscriptionPath = Join-Path $scriptPath "modules\az.subscription.0.7.1-preview\Az.Subscription.psd1"
 if (!(Get-Module Az.Subscription)){
     Import-Module -Name $AzSubscriptionPath
+}
+
+function Connect-Context {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string] $TenantId
+    )
+
+    $selectedTenantId = Get-AzTenant |?{$_.Id -eq $TenantId } | %{$_.Id}
+
+    if ($selectedTenantId){
+        $result = Select-AzSubscription -TenantId $selectedTenantId
+        if ($result.Tenant.Id -eq $selectedTenantId){
+            $ManagementGroupName = Get-AzManagementGroup | ?{ $_.Name -eq $_.TenantId } | %{ $_.TenantId}
+            $EnrollmentAccountId = Get-AzEnrollmentAccount | %{$_.ObjectId}
+        }
+    }
+
+    @{'TenantId'=$TenantId;'EnrollmentAccountId'=$EnrollmentAccountId;'ManagementGroupName'=$ManagementGroupName;}
 }
 
 function Get-ClonedObject {
@@ -287,6 +285,70 @@ function Get-TopologicalSortedAzManagementGroups {
     $topologicalSortedAzureRmManagementGroups
 }
 
+Function Delete-DscRoleDefinition {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Name,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $DeleteRecursively = $true
+    )
+
+    Write-Host "Remove-AzRoleDefinition -Name '$Name' -Force"
+    $result = Remove-AzRoleDefinition -Name $Name -Force
+}
+
+Function Delete-DscPolicySetDefinition {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Name,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $DeleteRecursively = $true
+    )
+
+    Write-Host "Remove-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$Name' -Force"
+    $result = Remove-AzPolicySetDefinition -ManagementGroupName $ManagementGroupName -Name $Name -Force
+}
+
+Function Delete-DscPolicyDefinition {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Name,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $DeleteRecursively = $true
+    )
+
+    Write-Host "Remove-AzPolicyDefinition -ManagementGroupName '$ManagementGroupName' -Name '$Name' -Force"
+    $result = Remove-AzPolicyDefinition -ManagementGroupName $ManagementGroupName -Name $Name -Force
+}
+
+Function Delete-DscManagementGroup {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $DeleteRecursively = $true
+    )
+    
+    if ($DeleteRecursively){
+        $ManagementGroup = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand
+        $ManagementGroup.Children | %{
+            $type = $_.Type
+            if ($type -eq '/providers/Microsoft.Management/managementGroups'){
+                Update-AzManagementGroup -GroupName $_.Name -ParentId $ManagementGroup.ParentId
+            } elseif ($type -eq '/subscriptions') {
+                New-AzManagementGroupSubscription -GroupName $ManagementGroup.ParentName -SubscriptionId $_.Name
+            }
+        }
+    }
+
+    Write-Host "Remove-AzManagementGroup -GroupName '$ManagementGroupName'"
+    $result = Remove-AzManagementGroup -GroupName $ManagementGroupName
+}
+
 Function Set-DscManagementGroup {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -369,8 +431,7 @@ Function Set-DscManagementGroup {
         $deleteManagementGroupNames = Get-TopologicalSortedAzManagementGroups -AzureRmManagementGroups @($currentManagementGroups | ?{$null -ne $_.ParentId -and !($ManagementGroups -and $ManagementGroups.Name.Contains($_.Name))}) | %{$_.Name}
         [array]::Reverse($deleteManagementGroupNames)
         $deleteManagementGroupNames | %{
-            Write-Host "Remove-AzManagementGroup -GroupName '$_'"
-            $result = Remove-AzManagementGroup -GroupName $_
+            Delete-DscManagementGroup -ManagementGroupName $_
         }
     }
 
@@ -496,8 +557,7 @@ Set-AzRoleDefinition -Role ([Microsoft.Azure.Commands.Resources.Models.Authoriza
     if ($DeleteUnknownRoleDefinition) {
         $deleteRoleDefinitionNames = @($currentRoleDefinitions | ?{!($RoleDefinitions -and $RoleDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deleteRoleDefinitionNames | %{
-            Write-Host "Remove-AzRoleDefinition -Name '$_'"
-            $result = Remove-AzRoleDefinition -Name $_ -Force
+            Delete-DscPolicyDefinition -Name $_
         }
     }
 
@@ -656,8 +716,7 @@ Set-AzPolicyDefinition -ManagementGroupName '$ManagementGroupName' -Name '$name'
     if ($DeleteUnknownPolicyDefinition) {
         $deletePolicyDefinitionNames = @($currentPolicyDefinitions | ?{!($PolicyDefinitions -and $PolicyDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deletePolicyDefinitionNames | %{
-            Write-Host "Remove-AzPolicyDefinition -ManagementGroupName '$ManagementGroupName' -Name '$_'"
-            $result = Remove-AzPolicyDefinition -ManagementGroupName $ManagementGroupName -Name $_ -Force
+            Delete-DscPolicyDefinition -ManagementGroupName $ManagementGroupName -Name $_
         }
     }
 
@@ -832,8 +891,7 @@ Set-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$na
     if ($DeleteUnknownPolicySetDefinition) {
         $deletePolicySetDefinitionNames = @($currentPolicySetDefinitions | ?{!($PolicySetDefinitions -and $PolicySetDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deletePolicySetDefinitionNames | %{
-            Write-Host "Remove-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$_'"
-            $result = Remove-AzPolicySetDefinition -ManagementGroupName $ManagementGroupName -Name $_ -Force
+            Delete-DscPolicySetDefinition -ManagementGroupName $ManagementGroupName -Name $_
         }
     }
 
@@ -1178,6 +1236,37 @@ Function Set-DscPolicySetAssignment {
     #New-AzPolicyAssignment -PolicySetDefinition
 }
 
+#ensure there is an AD Tenant
+#https://portal.azure.com/#create/Microsoft.AzureActiveDirectory
+
+#ensure you are logged in with user that has rights to manage subscriptions and management groups
+#https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Properties
+#Under Access management for Azure resources
+#select  "yes" for can manage access to all azure subscriptions and management groups in this directory
+
+#ensure you are logged in with a user that has rights to create subscriptions:
+#https://docs.microsoft.com/bs-latn-ba/azure/azure-resource-manager/grant-access-to-create-subscription?tabs=azure-powershell
+# $EnrollmentAccountId = Get-AzEnrollmentAccount | %{$_.ObjectId}
+# $UserObjectId =  Get-AzADUser -UserPrincipalName "taliesins@TaliTest01.onmicrosoft.com" | %{$_.Id}
+# New-AzureRmRoleAssignment -RoleDefinitionName Owner -ObjectId $UserObjectId -Scope "/providers/Microsoft.Billing/enrollmentAccounts/$EnrollmentAccountId"
+
+#ensure that you are logged in
+#Connect-AzAccount
+
+#ensure the Az Context has been set for the tenant
+$TenantId = "1931b7d3-bd07-4b36-9814-adf4ad406860"
+$FullyManage = $true
+
+$tenantContext = Connect-Context -TenantId $TenantId
+
+if (!$tenantContext.ManagementGroupName) {
+    throw "The tenant $TenantId does not exist or is not accessible to this user"
+}
+
+if (!$tenantContext.EnrollmentAccountId) {
+    Write-Host "No enrollment account, will not be able to create subscriptions"
+}
+
 $DesiredState = [System.IO.File]::ReadAllLines((Resolve-Path 'DesiredState.json')) | ConvertFrom-Json
 
 $AdGroups = $DesiredState.AdGroups
@@ -1190,22 +1279,15 @@ $ManagementGroups = $ManagementGroups | %{
     $_
 }
 
-
-Connect-AzAccount -Credential $tenantAdminCredential -Environment $rootEnvironment
-
-#Is this needed now that we are using Az
-#Connect-AzureAD -Credential $tenantAdminCredential -AzureEnvironmentName $rootEnvironment
-
 #Create definitions at root, then all management groups can apply them at any level
 
-$ManagementGroups = Set-DscManagementGroup -ManagementGroups $ManagementGroups
-$Subscriptions = Set-DscSubscription -ManagementGroups $ManagementGroups
-
-$AdGroups = Set-DscAdGroup -AdGroups $AdGroups
+$ManagementGroups = Set-DscManagementGroup -ManagementGroups $ManagementGroups -DeleteUnknownManagementGroups $FullyManage
+#$Subscriptions = Set-DscSubscription -ManagementGroups $ManagementGroups
+$AdGroups = Set-DscAdGroup -AdGroups $AdGroups -DeleteUnknownAdGroups $FullyManage -DeleteUnknownAdGroupMembers $FullyManage
 
 $RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'RoleDefinitions')
-$PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantId -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
-$PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantId -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
+$PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
+$PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
 
 #Create blue print at root, then all management groups can apply them at any level
 #Resource Manager templates
