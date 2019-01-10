@@ -9,6 +9,10 @@
              },
     "effect":  {
                    "type":  "string",
+                   "metadata":  {
+                                    "displayName":  "effect",
+                                    "description":  "Effect of policy, such as audit or deny"
+                                },
                    "allowedValues":  [
                                          "Append",
                                          "Audit",
@@ -16,10 +20,6 @@
                                          "Deny",
                                          "DeployIfNotExists",
                                          "Disabled"
-                                     ],
-                   "metadata":  {
-                                    "displayName":  "effect",
-                                    "description":  "Effect of policy, such as audit or deny"
-                                }
+                                     ]
                }
 }

@@ -582,6 +582,56 @@ New-AzPolicyDefinition -ManagementGroupName '$ManagementGroupName' -Name '$name'
                 $desiredMetadata = $desiredPolicyDefinition.Metadata
                 $desiredPolicy = $desiredPolicyDefinition.Policy
                 $desiredParameter = $desiredPolicyDefinition.Parameter
+
+                if ($desiredDescription -ne $description){
+                    Write-Host @"
+                    Desired Description:
+                    $desiredDescription
+
+                    Current Description:
+                    $description
+"@
+                }
+
+                if ($desiredDisplayName -ne $displayName){
+                    Write-Host @"
+                    Desired Display Name:
+                    $desiredDisplayName
+
+                    Actual Display Name:
+                    $displayName
+"@
+                }
+
+                if ($desiredMetadata -ne $metadata){
+                    Write-Host @"
+                    Desired Metadata:
+                    $desiredMetadata
+
+                    Actual Metadata:
+                    $metadata
+"@
+                }     
+                
+                if ($desiredPolicy -ne $policy){
+                    Write-Host @"
+                    Desired Policy:
+                    $desiredPolicy
+
+                    Actual Policy:
+                    $policy
+"@
+                }      
+                
+                if ($desiredParameter -ne $parameter){
+                    Write-Host @"
+                    Desired Parameters:
+                    $desiredParameter
+
+                    Actual Parameters:
+                    $parameter
+"@
+                }
         
                 if ($desiredDescription -ne $description -or $desiredDisplayName -ne $displayName -or $desiredMetadata -ne $metadata -or $desiredPolicy -ne $policy -or $desiredParameter -ne $parameter) {
                     Write-Host @"
@@ -635,6 +685,9 @@ Function Set-DscPolicySetDefinition {
             $displayName = $inputFileObject.properties.displayName
             $metadata = $inputFileObject.properties.metadata | ConvertTo-Json -Depth 99
             $policyDefinitions = $inputFileObject.properties.policyDefinitions | %{
+                #Dynamically created, so we have to ignore it
+                $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
+
                 if (!$_.policyDefinitionId.Contains('/')){
                     $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
                 }
@@ -653,6 +706,9 @@ Function Set-DscPolicySetDefinition {
         $displayName = $_.properties.displayName
         $metadata = $_.properties.metadata | ConvertTo-Json -Depth 99
         $policyDefinitions = $_.properties.policyDefinitions | %{
+            #Dynamically created, so we have to ignore it
+            $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
+
             if (!$_.policyDefinitionId.Contains('/')){
                 $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
             }
@@ -702,7 +758,57 @@ New-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$na
                 $desiredMetadata = $desiredPolicySetDefinition.Metadata
                 $desiredPolicyDefinitions = $desiredPolicySetDefinition.PolicyDefinitions
                 $desiredParameter = $desiredPolicySetDefinition.Parameter
-        
+
+                if ($desiredDescription -ne $description){
+                    Write-Host @"
+                    Desired Description:
+                    $desiredDescription
+
+                    Current Description:
+                    $description
+"@
+                }
+
+                if ($desiredDisplayName -ne $displayName){
+                    Write-Host @"
+                    Desired Display Name:
+                    $desiredDisplayName
+
+                    Actual Display Name:
+                    $displayName
+"@
+                }
+
+                if ($desiredMetadata -ne $metadata){
+                    Write-Host @"
+                    Desired Metadata:
+                    $desiredMetadata
+
+                    Actual Metadata:
+                    $metadata
+"@
+                }     
+                
+                if ($desiredPolicyDefinitions -ne $policyDefinitions){
+                    Write-Host @"
+                    Desired Policy Definitions:
+                    $desiredPolicyDefinitions
+
+                    Actual Policy Definitions:
+                    $policyDefinitions
+"@
+                }      
+                
+                if ($desiredParameter -ne $parameter){
+                    Write-Host @"
+                    Desired Parameters:
+                    $desiredParameter
+
+                    Actual Parameters:
+                    $parameter
+"@
+                }
+
                 if ($desiredDescription -ne $description -or $desiredDisplayName -ne $displayName -or $desiredMetadata -ne $metadata -or $desiredPolicyDefinitions -ne $policyDefinitions -or $desiredParameter -ne $parameter) {
                     Write-Host @"
 `$metadata=@'

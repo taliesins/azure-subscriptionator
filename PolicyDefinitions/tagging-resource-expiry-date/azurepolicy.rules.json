@@ -3,7 +3,7 @@
                "allOf":  [
                              {
                                  "field":  "type",
-                                 "equals":  "[parameters(\u0027type\u0027)]"
+                                 "in":  "[parameters(\u0027type\u0027)]"
                              },
                              {
                                  "not":  {
