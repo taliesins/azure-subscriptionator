@@ -1,28 +1,28 @@
 [
-    {
-        "policyDefinitionId":  "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
-        "parameters":  {
-                           "type":  {
-                                        "value":  [
-                                                      "Microsoft.Resources/resourceGroups"
-                                                  ]
-                                    },
-                           "effect":  {
-                                          "value":  "Audit"
-                                      }
-                       }
-    },
-    {
-        "policyDefinitionId":  "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
-        "parameters":  {
-                           "type":  {
-                                        "value":  [
-                                                      "Microsoft.Resources/resourceGroups"
-                                                  ]
-                                    },
-                           "effect":  {
-                                          "value":  "Audit"
-                                      }
-                       }
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
     }
+  },
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
+    }
+  }
 ]

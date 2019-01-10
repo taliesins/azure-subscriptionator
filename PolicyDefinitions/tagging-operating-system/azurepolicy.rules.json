@@ -1,51 +1,51 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "in":  "[parameters(\u0027type\u0027)]"
-                             },
-                             {
-                                 "not":  {
-                                             "anyOf":  [
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "RHEL #"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "Windows Server ####"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "Imperva SecureSphere v##.#"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "Imperva SecureSphere v##.##"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "F5 BIG-IP Best ##.##.##"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "F5 BIG-IP Best ##.#.##"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "F5 BIG-IP Best ##.##.#"
-                                                           },
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027operating_system\u0027, \u0027]\u0027)]",
-                                                               "match":  "F5 BIG-IP Best ##.#.#"
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+      "in": "[parameters('type')]"
+      },
+      {
+        "not": {
+          "anyOf": [
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "RHEL #"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "Windows Server ####"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "Imperva SecureSphere v##.#"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "Imperva SecureSphere v##.##"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "F5 BIG-IP Best ##.##.##"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "F5 BIG-IP Best ##.#.##"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "F5 BIG-IP Best ##.##.#"
+            },
+            {
+            "field": "[concat('tags[','operating_system', ']')]",
+              "match": "F5 BIG-IP Best ##.#.#"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

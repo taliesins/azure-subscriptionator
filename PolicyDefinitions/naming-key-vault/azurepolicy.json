@@ -1,48 +1,48 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-key-vault",
-   "properties": {
-      "displayName": "Naming of Azure key vaults",
-      "description": "Naming of Azure key vaults. Example key vault name MD5(M-UKS-L01-VS0101-RG-KV-KV-IDVF) = 8AF985B7CEB700A671FB36CBAC39CDD3",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.KeyVault/vaults"
-               },
-               {
-                  "not": {
-                     "field": "name",
-                     "match": "................................"
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-key-vault",
+  "properties": {
+    "displayName": "Naming of Azure key vaults",
+    "description": "Naming of Azure key vaults. Example key vault name MD5(M-UKS-L01-VS0101-RG-KV-KV-IDVF) = 8AF985B7CEB700A671FB36CBAC39CDD3",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.KeyVault/vaults"
+          },
+          {
+            "not": {
+              "field": "name",
+              "match": "................................"
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

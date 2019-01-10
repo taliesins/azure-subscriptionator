@@ -1,48 +1,48 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-operational-insights-workspace",
-   "properties": {
-      "displayName": "Naming of Azure operation insights workspaces",
-      "description": "Naming of Azure operation insights workspaces. Example operation insights workspace name MD5(M-UKS-L01-MGMT01-RG-OMS-WS-AIP) = 67232A3AFC87904C19D33EAFC9C7B0B0",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.OperationalInsights/workspaces"
-               },
-               {
-                  "not": {
-                     "field": "name",
-                     "match": "................................"
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-operational-insights-workspace",
+  "properties": {
+    "displayName": "Naming of Azure operation insights workspaces",
+    "description": "Naming of Azure operation insights workspaces. Example operation insights workspace name MD5(M-UKS-L01-MGMT01-RG-OMS-WS-AIP) = 67232A3AFC87904C19D33EAFC9C7B0B0",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.OperationalInsights/workspaces"
+          },
+          {
+            "not": {
+              "field": "name",
+              "match": "................................"
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

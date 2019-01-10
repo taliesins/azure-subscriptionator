@@ -1,75 +1,75 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Resources/subscriptions"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ITS-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-SS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-BA-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-T##-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-?##-.##"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-?##-..##"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-?##-...##"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???-??-?##-....##"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "ITS-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "???-SS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "???-BA-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "???-??-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "???-??-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "???-??-T##-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "???-??-?##-.##"
+                },
+                {
+                  "field": "name",
+                  "match": "???-??-?##-..##"
+                },
+                {
+                  "field": "name",
+                  "match": "???-??-?##-...##"
+                },
+                {
+                  "field": "name",
+                  "match": "???-??-?##-....##"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

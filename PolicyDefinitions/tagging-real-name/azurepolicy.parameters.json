@@ -1,25 +1,25 @@
 {
-    "type":  {
-                 "type":  "array",
-                 "metadata":  {
-                                  "description":  "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
-                                  "displayName":  "type",
-                                  "strongType":  "resourceTypes"
-                              }
-             },
-    "effect":  {
-                   "type":  "string",
-                   "metadata":  {
-                                    "displayName":  "effect",
-                                    "description":  "Effect of policy, such as audit or deny"
-                                },
-                   "allowedValues":  [
-                                         "Append",
-                                         "Audit",
-                                         "AuditIfNotExists",
-                                         "Deny",
-                                         "DeployIfNotExists",
-                                         "Disabled"
-                                     ]
-               }
+  "type": {
+    "type": "array",
+    "metadata": {
+      "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+      "displayName": "type",
+      "strongType": "resourceTypes"
+    }
+  },
+  "effect": {
+    "type": "string",
+    "metadata": {
+      "displayName": "effect",
+      "description": "Effect of policy, such as audit or deny"
+    },
+    "allowedValues": [
+      "Append",
+      "Audit",
+      "AuditIfNotExists",
+      "Deny",
+      "DeployIfNotExists",
+      "Disabled"
+    ]
+  }
 }

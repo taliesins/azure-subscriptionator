@@ -1,64 +1,64 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "tagging-lbg-cost-center",
-   "properties": {
-      "displayName": "LBG cost center tag on Azure resource",
-      "description": "LBG cost center tag on Azure resource. Example tag would look like lbg_cost_center=COC677 or lbg_cost_center=630153",
-      "metadata":  {
-         "category": "Tagging"
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "tagging-lbg-cost-center",
+  "properties": {
+    "displayName": "LBG cost center tag on Azure resource",
+    "description": "LBG cost center tag on Azure resource. Example tag would look like lbg_cost_center=COC677 or lbg_cost_center=630153",
+    "metadata": {
+      "category": "Tagging"
+    },
+    "mode": "All",
+    "parameters": {
+      "type": {
+        "type": "array",
+        "metadata": {
+          "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+          "displayName": "type",
+          "strongType": "resourceTypes"
+        }
       },
-      "mode": "All",
-      "parameters": {
-         "type": {
-            "type": "array",
-            "metadata": {
-               "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
-               "displayName": "type",
-               "strongType": "resourceTypes"
-            }
-         },
-         "effect": {
-            "type": "string",
-            "metadata": {
-               "displayName": "effect",
-               "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "in": "[parameters('type')]"
-               },
-               {
-                  "not": {
-                     "anyOf": [
-                        {
-                           "field": "[concat('tags[','lbg_cost_center', ']')]",
-                           "match": "???###"  
-                        },
-                        {
-                           "field": "[concat('tags[','lbg_cost_center', ']')]",
-                           "match": "######"  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+          "in": "[parameters('type')]"
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                "field": "[concat('tags[','lbg_cost_center', ']')]",
+                  "match": "???###"
+                },
+                {
+                "field": "[concat('tags[','lbg_cost_center', ']')]",
+                  "match": "######"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

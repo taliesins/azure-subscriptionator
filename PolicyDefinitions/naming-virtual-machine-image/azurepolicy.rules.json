@@ -1,67 +1,67 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Compute/images"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-IMG-WIN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-IMG-RHEL-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-.-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-..-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-...-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-....-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-.....-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-......-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-.......-########-####"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-........-########-####"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/images"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-IMG-WIN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-IMG-RHEL-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "*-.-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-..-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-...-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-....-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-.....-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-......-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-.......-########-####"
+                },
+                {
+                  "field": "name",
+                  "match": "*-........-########-####"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

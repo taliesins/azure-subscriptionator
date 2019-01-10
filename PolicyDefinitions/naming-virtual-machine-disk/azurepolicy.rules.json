@@ -1,103 +1,103 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Compute/disks"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "M*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "?T*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "?N*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "?R*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "?L*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "??B*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "??L*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "??W*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-OSDISK"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-.."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-..."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-...."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-....."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-......"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-......."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "???............-DATADISK-........"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/disks"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "M*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "?T*"
+                },
+                {
+                  "field": "name",
+                  "match": "?N*"
+                },
+                {
+                  "field": "name",
+                  "match": "?R*"
+                },
+                {
+                  "field": "name",
+                  "match": "?L*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "??B*"
+                },
+                {
+                  "field": "name",
+                  "match": "??L*"
+                },
+                {
+                  "field": "name",
+                  "match": "??W*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "???............-OSDISK"
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-.."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-..."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-...."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-....."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-......"
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-......."
+                },
+                {
+                  "field": "name",
+                  "match": "???............-DATADISK-........"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

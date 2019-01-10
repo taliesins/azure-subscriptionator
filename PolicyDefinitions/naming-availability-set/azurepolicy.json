@@ -1,92 +1,92 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-availability-set",
-   "properties": {
-      "displayName": "Naming of Azure availability sets",
-      "description": "Naming of Azure availability sets. Example availability set name M-UKS-L01-VS0501-RG-AIP-AS-AIPWEB",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Compute/availabilitySets"
-               },
-               {
-                  "not": {
-                     "allOf": [
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-AS-*"
-                              }
-                           ]  
-                        },
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-.."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-..."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-...."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-....."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-......"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-......."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AS-........"
-                              }
-                           ]  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-availability-set",
+  "properties": {
+    "displayName": "Naming of Azure availability sets",
+    "description": "Naming of Azure availability sets. Example availability set name M-UKS-L01-VS0501-RG-AIP-AS-AIPWEB",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/availabilitySets"
+          },
+          {
+            "not": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-AS-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-AS-."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-.."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-..."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-...."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-....."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-......"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-......."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AS-........"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

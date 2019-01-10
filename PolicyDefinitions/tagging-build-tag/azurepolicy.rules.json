@@ -1,23 +1,23 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "in":  "[parameters(\u0027type\u0027)]"
-                             },
-                             {
-                                 "not":  {
-                                             "anyOf":  [
-                                                           {
-                                                               "field":  "[concat(\u0027tags[\u0027,\u0027build_tag\u0027, \u0027]\u0027)]",
-                                                               "match":  "https://*"
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+      "in": "[parameters('type')]"
+      },
+      {
+        "not": {
+          "anyOf": [
+            {
+            "field": "[concat('tags[','build_tag', ']')]",
+              "match": "https://*"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

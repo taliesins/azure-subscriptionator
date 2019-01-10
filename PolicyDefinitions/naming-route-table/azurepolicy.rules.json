@@ -1,91 +1,91 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Network/routeTables"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-.-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-..-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-...-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-....-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-.....-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-......-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-.......-RT"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-SN-........-RT"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/routeTables"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
+                },
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "*-SN-.-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-..-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-...-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-....-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-.....-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-......-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-.......-RT"
+                },
+                {
+                  "field": "name",
+                  "match": "*-SN-........-RT"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

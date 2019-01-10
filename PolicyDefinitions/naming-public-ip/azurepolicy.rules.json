@@ -1,63 +1,63 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Network/publicIPAddresses"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "[uniqueString(resourceGroup().id)]-PIP-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-.."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-..."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-...."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-....."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-......"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-......."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-PIP-........"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/publicIPAddresses"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                "match": "[uniqueString(resourceGroup().id)]-PIP-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "*-PIP-."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-.."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-..."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-...."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-....."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-......"
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-......."
+                },
+                {
+                  "field": "name",
+                  "match": "*-PIP-........"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

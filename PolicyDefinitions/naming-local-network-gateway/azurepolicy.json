@@ -1,120 +1,120 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-local-network-gateway",
-   "properties": {
-      "displayName": "Naming of Azure local network gateways",
-      "description": "Naming of Azure local network gateways. Example local network gateway name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-GW-HUB",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Network/localNetworkGateways"
-               },
-               {
-                  "not": {
-                     "allOf": [
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-.-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-..-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-...-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-....-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-.....-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-......-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-.......-GW-*"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-VN-........-GW-*"
-                              }
-                           ]  
-                        },
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-.."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-..."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-...."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-....."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-......"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-......."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-GW-........"
-                              }
-                           ]  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-local-network-gateway",
+  "properties": {
+    "displayName": "Naming of Azure local network gateways",
+    "description": "Naming of Azure local network gateways. Example local network gateway name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-GW-HUB",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/localNetworkGateways"
+          },
+          {
+            "not": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-..-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-...-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-....-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.....-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-......-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.......-GW-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-........-GW-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-GW-."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-.."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-..."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-...."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-....."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-......"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-......."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-GW-........"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

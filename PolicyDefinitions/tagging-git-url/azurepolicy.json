@@ -1,60 +1,60 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "tagging-git-url",
-   "properties": {
-      "displayName": "Git url tag on Azure resource",
-      "description": "Git url tag on Azure resource. Example tag would look like git_url=https://github.lbg.eu-gb.bluemix.net/POC69-PCE/PCE-subscriptions/commit/4026f528e907f72906320aadc3751",
-      "metadata":  {
-         "category": "Tagging"
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "tagging-git-url",
+  "properties": {
+    "displayName": "Git url tag on Azure resource",
+    "description": "Git url tag on Azure resource. Example tag would look like git_url=https://github.lbg.eu-gb.bluemix.net/POC69-PCE/PCE-subscriptions/commit/4026f528e907f72906320aadc3751",
+    "metadata": {
+      "category": "Tagging"
+    },
+    "mode": "All",
+    "parameters": {
+      "type": {
+        "type": "array",
+        "metadata": {
+          "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+          "displayName": "type",
+          "strongType": "resourceTypes"
+        }
       },
-      "mode": "All",
-      "parameters": {
-         "type": {
-            "type": "array",
-            "metadata": {
-               "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
-               "displayName": "type",
-               "strongType": "resourceTypes"
-            }
-         },
-         "effect": {
-            "type": "string",
-            "metadata": {
-               "displayName": "effect",
-               "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "in": "[parameters('type')]"
-               },
-               {
-                  "not": {
-                     "anyOf": [
-                        {
-                           "field": "[concat('tags[','git_url', ']')]",
-                           "match": "https://*"  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+          "in": "[parameters('type')]"
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                "field": "[concat('tags[','git_url', ']')]",
+                  "match": "https://*"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

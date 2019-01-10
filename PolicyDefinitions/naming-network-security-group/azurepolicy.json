@@ -1,180 +1,180 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-network-security-group",
-   "properties": {
-      "displayName": "Naming of Azure network security groups",
-      "description": "Naming of Azure network security groups. Example network security group name for subnet is M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND-NSG. Example network security group name for NIC is MUKWLWEB0010-NIC1-NSG",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Network/networkSecurityGroups"
-               },
-               {
-                  "not": {
-                     "anyOf": [
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-network-security-group",
+  "properties": {
+    "displayName": "Naming of Azure network security groups",
+    "description": "Naming of Azure network security groups. Example network security group name for subnet is M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND-NSG. Example network security group name for NIC is MUKWLWEB0010-NIC1-NSG",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups"
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "allOf": [
+                    {
+                      "anyOf": [
                         {
-                           "allOf": [
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
-                                    }
-                                 ]  
-                              },
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-.-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-..-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-...-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-....-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-.....-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-......-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-.......-NSG"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "*-SN-........-NSG"
-                                    }
-                                 ]  
-                              }
-                           ]
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
                         },
                         {
-                           "allOf": [
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "M*"
-                                    }
-                                 ]  
-                              },
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "?T*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "?N*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "?R*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "?L*"
-                                    }
-                                 ]  
-                              },
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "??B*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "??L*"
-                                    },
-                                    {
-                                       "field": "name",
-                                       "match": "??W*"
-                                    }
-                                 ]  
-                              },
-                              {
-                                 "anyOf": [
-                                    {
-                                       "field": "name",
-                                       "match": "???............-NIC#-NSG"  
-                                    }
-                                 ]
-                              }
-                           ]                          
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
+                        },
+                        {
+                          "field": "name",
+                        "match": "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
                         }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+                      ]
+                    },
+                    {
+                      "anyOf": [
+                        {
+                          "field": "name",
+                          "match": "*-SN-.-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-..-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-...-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-....-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-.....-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-......-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-.......-NSG"
+                        },
+                        {
+                          "field": "name",
+                          "match": "*-SN-........-NSG"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "anyOf": [
+                        {
+                          "field": "name",
+                          "match": "M*"
+                        }
+                      ]
+                    },
+                    {
+                      "anyOf": [
+                        {
+                          "field": "name",
+                          "match": "?T*"
+                        },
+                        {
+                          "field": "name",
+                          "match": "?N*"
+                        },
+                        {
+                          "field": "name",
+                          "match": "?R*"
+                        },
+                        {
+                          "field": "name",
+                          "match": "?L*"
+                        }
+                      ]
+                    },
+                    {
+                      "anyOf": [
+                        {
+                          "field": "name",
+                          "match": "??B*"
+                        },
+                        {
+                          "field": "name",
+                          "match": "??L*"
+                        },
+                        {
+                          "field": "name",
+                          "match": "??W*"
+                        }
+                      ]
+                    },
+                    {
+                      "anyOf": [
+                        {
+                          "field": "name",
+                          "match": "???............-NIC#-NSG"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
       }
-   }
+    }
+  }
 }

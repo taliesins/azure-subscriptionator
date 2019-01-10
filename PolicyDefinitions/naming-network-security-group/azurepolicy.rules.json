@@ -1,151 +1,151 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Network/networkSecurityGroups"
-                             },
-                             {
-                                 "not":  {
-                                             "anyOf":  [
-                                                           {
-                                                               "allOf":  [
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
-                                                                                               }
-                                                                                           ]
-                                                                             },
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-.-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-..-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-...-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-....-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-.....-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-......-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-.......-NSG"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "*-SN-........-NSG"
-                                                                                               }
-                                                                                           ]
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "allOf":  [
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "M*"
-                                                                                               }
-                                                                                           ]
-                                                                             },
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "?T*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "?N*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "?R*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "?L*"
-                                                                                               }
-                                                                                           ]
-                                                                             },
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "??B*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "??L*"
-                                                                                               },
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "??W*"
-                                                                                               }
-                                                                                           ]
-                                                                             },
-                                                                             {
-                                                                                 "anyOf":  [
-                                                                                               {
-                                                                                                   "field":  "name",
-                                                                                                   "match":  "???............-NIC#-NSG"
-                                                                                               }
-                                                                                           ]
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/networkSecurityGroups"
+      },
+      {
+        "not": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-..-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-...-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-....-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.....-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-......-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-.......-SN-*"
+                    },
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-VN-........-SN-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-SN-.-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-..-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-...-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-....-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-.....-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-......-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-.......-NSG"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-SN-........-NSG"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "M*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "?T*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "?N*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "?R*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "?L*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "??B*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "??L*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "??W*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "???............-NIC#-NSG"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

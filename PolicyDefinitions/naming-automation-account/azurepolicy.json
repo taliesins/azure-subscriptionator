@@ -1,92 +1,92 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-automation-account",
-   "properties": {
-      "displayName": "Naming of Azure automation accounts",
-      "description": "Naming of Azure automation accounts. Example automation account name M-UKS-L01-MGMT01-RG-VNET-AA-CORE",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Automation/automationAccounts"
-               },
-               {
-                  "not": {
-                     "allOf": [
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-AA-*"
-                              }
-                           ]  
-                        },
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-.."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-..."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-...."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-....."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-......"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-......."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-AA-........"
-                              }
-                           ]  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-automation-account",
+  "properties": {
+    "displayName": "Naming of Azure automation accounts",
+    "description": "Naming of Azure automation accounts. Example automation account name M-UKS-L01-MGMT01-RG-VNET-AA-CORE",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Automation/automationAccounts"
+          },
+          {
+            "not": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-AA-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-AA-."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-.."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-..."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-...."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-....."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-......"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-......."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-AA-........"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

@@ -1,92 +1,92 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-public-ip",
-   "properties": {
-      "displayName": "Naming of Azure public ips",
-      "description": "Naming of Azure public ips. Example public ip name M-UKS-L01-MGMT01-RG-VNET-PIP-IDVERIFY",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Network/publicIPAddresses"
-               },
-               {
-                  "not": {
-                     "allOf": [
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "[uniqueString(resourceGroup().id)]-PIP-*"
-                              }
-                           ]  
-                        },
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-.."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-..."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-...."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-....."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-......"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-......."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-PIP-........"
-                              }
-                           ]  
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-public-ip",
+  "properties": {
+    "displayName": "Naming of Azure public ips",
+    "description": "Naming of Azure public ips. Example public ip name M-UKS-L01-MGMT01-RG-VNET-PIP-IDVERIFY",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/publicIPAddresses"
+          },
+          {
+            "not": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                    "match": "[uniqueString(resourceGroup().id)]-PIP-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-PIP-."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-.."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-..."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-...."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-....."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-......"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-......."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-PIP-........"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }
