@@ -1,4 +1,4 @@
-$azureDefinitionManagementGroup='Bob'
+$azureDefinitionManagementGroup='StorePolicy'
 
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
@@ -21,7 +21,7 @@ $azurePolicyPaths = Get-ChildItem PolicyDefinitions | ?{ $_.PSIsContainer } | %{
 
 $azurePolicyPaths | %{
     $azurePolicyPath = $_
-    $azurePolicy = [System.IO.File]::ReadAllLines($azurePolicyPath) | ConvertFrom-Json
+    $azurePolicy = ([System.IO.File]::ReadAllLines($azurePolicyPath)) | ConvertFrom-Json
     $azurePolicyJson = $azurePolicy | ConvertTo-Json -Depth 99 | Format-Json
     [System.IO.File]::WriteAllLines($azurePolicyPath, $azurePolicyJson)
 
@@ -38,7 +38,7 @@ $azurePolicySetPaths = Get-ChildItem PolicySetDefinitions | ?{ $_.PSIsContainer 
 
 $azurePolicySetPaths | %{
     $azurePolicySetPath = $_
-    $azurePolicySet = [System.IO.File]::ReadAllLines($azurePolicySetPath) | ConvertFrom-Json
+    $azurePolicySet = ([System.IO.File]::ReadAllLines($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($azureDefinitionManagementGroup)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
     $azurePolicySetJson = $azurePolicySet | ConvertTo-Json -Depth 99 | Format-Json
     [System.IO.File]::WriteAllLines($azurePolicySetPath, $azurePolicySetJson)
 
