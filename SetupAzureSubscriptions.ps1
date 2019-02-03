@@ -1,23 +1,21 @@
-
-$parentIdPrefix = '/providers/Microsoft.Management/managementGroups/'
 $subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 $subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
-$scriptPath = Split-Path -parent $PSCommandPath
-$AzPath = Join-Path $scriptPath "modules\az\1.0.1\Az.psd1"
-if (!(Get-Module Az.Resources)){
-    Import-Module -Name $AzPath
-}
+# $scriptPath = Split-Path -parent $PSCommandPath
+# $AzPath = Join-Path $scriptPath "modules\az\1.0.1\Az.psd1"
+# if (!(Get-Module Az.Resources)){
+#     Import-Module -Name $AzPath
+# }
 
-$AzureRMBlueprintPath = Join-Path $scriptPath "modules\manage-azurermblueprint.2.0.0\Manage-AzureRMBlueprint.ps1"
-#if (!(Get-Module AzureRM.Blueprint)){
-#    Import-Module -Name $AzureRMBlueprintPath
-#}
+# $AzureRMBlueprintPath = Join-Path $scriptPath "modules\manage-azurermblueprint.2.0.0\Manage-AzureRMBlueprint.ps1"
+# #if (!(Get-Module AzureRM.Blueprint)){
+# #    Import-Module -Name $AzureRMBlueprintPath
+# #}
 
-$AzSubscriptionPath = Join-Path $scriptPath "modules\az.subscription.0.7.1-preview\Az.Subscription.psd1"
-if (!(Get-Module Az.Subscription)){
-    Import-Module -Name $AzSubscriptionPath
-}
+# $AzSubscriptionPath = Join-Path $scriptPath "modules\az.subscription.0.7.1-preview\Az.Subscription.psd1"
+# if (!(Get-Module Az.Subscription)){
+#     Import-Module -Name $AzSubscriptionPath
+# }
 
 function Connect-Context {
     param(
@@ -129,6 +127,10 @@ function Get-TopologicalSortedAzAdGroups {
         $AzureRmAdGroups
     )
 
+    if (!$AzureRmAdGroups){
+        return @()
+    }
+
     $azureRmAdGroupNames = @{} 
     $AzureRmAdGroups | %{
         $value = $_.DisplayName
@@ -138,7 +140,7 @@ function Get-TopologicalSortedAzAdGroups {
         }
         $azureRmAdGroupNames[$value]+=@()
     }
-    $topologicalSortedAzureRmAdGroupNames = Get-TopologicalSort -edgeList $azureRmAdGroupNames | ?{$_ -and $AzureRmAdGroups.DisplayName.Contains($_)}
+    $topologicalSortedAzureRmAdGroupNames = @(Get-TopologicalSort -edgeList $azureRmAdGroupNames | ?{$_ -and $AzureRmAdGroups.DisplayName.Contains($_)})
     [array]::Reverse($topologicalSortedAzureRmAdGroupNames)
     $topologicalSortedAzureRmAdGroups = @()
 
@@ -153,33 +155,33 @@ function Get-TopologicalSortedAzAdGroups {
 Function Set-DscAdGroup {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $AdGroups,
+        $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
         $DeleteUnknownAdGroupMembers = $false,
         [Parameter(Mandatory = $false, Position = 2)]
         $DeleteUnknownAdGroups = $false
     )
 
+    $AdGroups = $DesiredState.AdGroups
+
     $currentAdGroups = @(Get-AzADGroup | ?{ $_.ObjectType -eq 'Group'} | %{
-        $objectId = $_.ObjectId
+        $id = $_.Id
         $displayName = $_.DisplayName
-        $description = $_.Description
-        $members = @(Get-AzADGroupMember -ObjectId $objectId | ?{ $_.ObjectType -eq 'Group'} | %{
-            @{'ObjectId'=$_.ObjectId;'DisplayName'=$_.DisplayName;}    
+        $members = @(Get-AzADGroupMember -GroupObjectId $id | ?{ $_.ObjectType -eq 'Group'} | %{
+            @{'Id'=$_.Id;'DisplayName'=$_.DisplayName;}    
         })
 
-        @{'ObjectId'=$objectId;'DisplayName'=$displayName;'Description'=$description;'Members'=$members;}
+        @{'Id'=$id;'DisplayName'=$displayName;'Members'=$members;}
     })
 
     $updateAdGroups = @($currentAdGroups | ?{$AdGroups -and $AdGroups.DisplayName.Contains($_.DisplayName)})
 
     $createAdGroups = @($AdGroups | ?{!($updateAdGroups -and $updateAdGroups.DisplayName.Contains($_.DisplayName))} | %{
         $displayName = $_.DisplayName
-        $description = $_.Description
         $members = @($_.Members | %{
-            @{'ObjectId'='';'DisplayName'=$_;}    
+            @{'Id'='';'DisplayName'=$_;}    
         })
-        @{'ObjectId'=$objectId;'DisplayName'=$displayName;'Description'=$description;'Members'=$members;}
+        @{'Id'=$id;'DisplayName'=$displayName;'Members'=$members;}
     })
 
     $desiredAdGroups = @()
@@ -187,62 +189,58 @@ Function Set-DscAdGroup {
     $desiredAdGroups += $updateAdGroups
 
     $desiredAdGroupResults = @(Get-TopologicalSortedAzAdGroups -AzureRmAdGroups $desiredAdGroups) | %{
-        $objectId = $_.ObjectId
+        $objectId = $_.Id
         $displayName = $_.DisplayName
-        $description = $_.Description
         $members = @($_.Members)
 
         if ($createAdGroups -and $createAdGroups.DisplayName.Contains($displayName)){
             $mailNickName = [guid]::NewGuid().Guid
-            Write-Host "New-AzADGroup -Description '$description' -DisplayName '$displayName' -MailNickName '$mailNickName' -MailEnabled `$false -SecurityEnabled `$true"
-            $currentAdGroup = New-AzADGroup -Description $description -DisplayName $displayName -MailNickName $mailNickName -MailEnabled $false -SecurityEnabled $true
-            $_.ObjectId = $currentAdGroup.ObjectId
-
+            Write-Host "New-AzADGroup -DisplayName '$displayName' -MailNickName '$mailNickName'"
+            $currentAdGroup = New-AzADGroup -DisplayName $displayName -MailNickName $mailNickName
+            $objectId = $currentAdGroup.Id
+            
             $currentMembers = $members | %{
-                $memberObjectId = $_.ObjectId
-                $memberDisplayName = $_.DisplayName
-                if (!$memberObjectId){
-                    $_.ObjectId = Get-AzADGroup -Searchstring $memberDisplayName | ?{ $_.DisplayName -eq $memberDisplayName } | %{ $_.ObjectId }
-                    Write-Host "Add-AzADGroupMember -ObjectId '$($currentAdGroup.ObjectId)' -RefObjectId '$($memberObjectId)'"
-                    $result = Add-AzADGroupMember -ObjectId $currentAdGroup.ObjectId -RefObjectId $memberObjectId
-                }
-                $_
+                $memberObjectId = Get-AzADGroup -Searchstring $memberDisplayName | ?{ $_.DisplayName -eq $memberDisplayName } | %{ $_.Id }
+                Write-Host "Add-AzADGroupMember -TargetGroupObjectId '$($objectId)' -MemberObjectId '$memberObjectId'"
+                $result = Add-AzADGroupMember -TargetGroupObjectId $objectId -MemberObjectId $memberObjectId
+                @{'Id'=$result.Id;'DisplayName'=$memberDisplayName;}
             }
+
+            $_.Id = $objectId
             $_.Members = $currentMembers
             $_
         } elseif ($updateAdGroups -and $updateAdGroups.DisplayName.Contains($displayName)) {
             $desiredAdGroup = $AdGroups | ?{$_.DisplayName -eq $displayName}
             if ($desiredAdGroup)
             {
-                $desiredDescription = $desiredAdGroup.Description
                 $desiredMembers = @($desiredAdGroup.Members)
 
-                if ($desiredDescription -ne $description) {
-                    Write-Host "Set-AzADGroup -ObjectId '$objectId' -Description '$desiredDescription'"    
-                    $result = Set-AzADGroup -ObjectId $objectId -Description $desiredDescription
+                $currentMembers = @($desiredMembers |?{!$members -or !$members.DisplayName.Contains($_.DisplayName) } | %{
+                    #add
+                    $memberDisplayName = $_
+
+                    $memberObjectId = Get-AzADGroup -Searchstring $memberDisplayName | ?{ $_.DisplayName -eq $memberDisplayName } | %{ $_.Id }
+                    Write-Host "Add-AzADGroupMember -TargetGroupObjectId '$($objectId)' -MemberObjectId '$memberObjectId'"
+                    $result = Add-AzADGroupMember -TargetGroupObjectId $objectId -MemberObjectId $memberObjectId
+                
+                    @{'Id'=$result.Id;'DisplayName'=$memberDisplayName;} 
+                })
+
+                $currentMembers += @($members |?{$desiredMembers -or $desiredMembers.Contains($_.DisplayName) }) | %{
+                    #update
+                    $_
                 }
 
-                $currentMembers = @($members | %{
-                    $memberObjectId = $_.ObjectId
-                    $memberDisplayName = $_.DisplayName
-                    if (!$memberObjectId){
-                        #add
-                        $_.ObjectId = Get-AzADGroup -Searchstring $memberDisplayName | ?{ $_.DisplayName -eq $memberDisplayName } | %{ $_.ObjectId }
-                        Write-Host "Add-AzADGroupMember -ObjectId '$($currentAdGroup.ObjectId)' -RefObjectId '$memberObjectId'"
-                        $result = Add-AzureADGroupMember -ObjectId $currentAdGroup.ObjectId -RefObjectId $memberObjectId
-                        $_
-                    } elseif ($desiredMembers -and $desiredMembers.Contains($memberDisplayName)) {
-                        #update
-                        $_
-                    } else {
+                if ($DeleteUnknownAdGroupMembers) {
+                    @($members |?{!$desiredMembers -or !$desiredMembers.Contains($_.DisplayName) }) | %{
+                        $memberObjectId = $_.Id
+                        
                         #delete
-                        if ($DeleteUnknownAdGroupMembers) {
-                            Write-Host "Remove-AzADGroupMember -ObjectId '$($currentAdGroup.ObjectId)' -RefObjectId '$memberObjectId'"
-                            $result = Remove-AzADGroupMember -ObjectId $currentAdGroup.ObjectId -RefObjectId $memberObjectId
-                        }
+                        Write-Host "Remove-AzADGroupMember -GroupObjectId '$($currentAdGroup.Id)' -MemberObjectId '$memberObjectId'"
+                        $result = Remove-AzADGroupMember -GroupObjectId $currentAdGroup.Id -MemberObjectId $memberObjectId
                     }
-                })
-                
+                }
+                              
                 $_.Members = $currentMembers
                 $_
             }
@@ -250,11 +248,13 @@ Function Set-DscAdGroup {
     }
 
     if ($DeleteUnknownAdGroups) {
-        $deleteAdGroupObjectIds = Get-TopologicalSortedAzAdGroups -AzureRmAdGroups @($currentAdGroups | ?{!($AdGroups -and $AdGroups.DisplayName.Contains($_.DisplayName))}) | %{$_.ObjectId}
-        [array]::Reverse($deleteAdGroupObjectIds)
-        $deleteAdGroupObjectIds | %{
-            Write-Host "Remove-AzADGroup -ObjectId '$_'"
-            $result = Remove-AzADGroup -ObjectId $_
+        $deleteAdGroupObjectIds = Get-TopologicalSortedAzAdGroups -AzureRmAdGroups @($currentAdGroups | ?{!($AdGroups -and $AdGroups.DisplayName.Contains($_.DisplayName))}) | %{$_.Id}
+        if ($deleteAdGroupObjectIds) {
+            [array]::Reverse($deleteAdGroupObjectIds)
+            $deleteAdGroupObjectIds | %{
+                Write-Host "Remove-AzADGroup -ObjectId '$_' -PassThru:`$false -Force"
+                $result = Remove-AzADGroup -ObjectId $_ -PassThru:$false -Force
+            }
         }
     }
 
@@ -267,6 +267,9 @@ function Get-TopologicalSortedAzManagementGroups {
         $AzureRmManagementGroups
     )
 
+    if (!$AzureRmManagementGroups){
+        return @()
+    }
     $azureRmManagementGroupNames = @{} 
     $AzureRmManagementGroups | %{
         $key = $_.Name
@@ -352,17 +355,28 @@ Function Delete-DscManagementGroup {
 Function Set-DscManagementGroup {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $ManagementGroups,
+        $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
         $DeleteUnknownManagementGroups = $false
     )
+
+    $ManagementGroups = $DesiredState.ManagementGroups
+
+    $parentIdPrefix = '/providers/Microsoft.Management/managementGroups/'
+
+    $ManagementGroups = $ManagementGroups | %{
+        if (!$_.ParentId.Contains('/')){
+            $_.ParentId = $parentIdPrefix + $_.ParentId
+        }
+        $_
+    }
 
     $currentManagementGroups = @(Get-AzManagementGroup | %{
         $name = $_.Name
         $displayName = $_.DisplayName
         $parentId = (Get-AzManagementGroup -GroupName $name -Expand).ParentId
         #if ($parentId){
-        #    $parentId = $parentId.TrimStart('/providers/Microsoft.Management/managementGroups/')
+        #    $parentId = $parentId.TrimStart($parentIdPrefix)
         #}
         @{'Name'=$name;'DisplayName'=$displayName;'ParentId'=$parentId;}
     })
@@ -375,7 +389,7 @@ Function Set-DscManagementGroup {
         $displayName = $_.DisplayName
         $parentId = $_.ParentId
         if ($parentId){
-            $parentId = $parentId.TrimStart('/providers/Microsoft.Management/managementGroups/')
+            $parentId = $parentId.TrimStart($parentIdPrefix)
         } 
         
         if (!$parentId) {
@@ -394,7 +408,7 @@ Function Set-DscManagementGroup {
         $displayName = $_.DisplayName
         $parentId = $_.ParentId
         if ($parentId){
-            $parentId = $parentId.TrimStart('/providers/Microsoft.Management/managementGroups/')
+            $parentId = $parentId.TrimStart($parentIdPrefix)
         } 
         if (!$parentId) {
             #Non specified parent id means root management group is parent
@@ -402,8 +416,8 @@ Function Set-DscManagementGroup {
         }
 
         if ($createManagementGroups -and $createManagementGroups.Name.Contains($name)){
-            Write-Host "New-AzManagementGroup -GroupName '$name' -DisplayName '$displayName' -ParentId '/providers/Microsoft.Management/managementGroups/$parentId'"
-            $result = New-AzManagementGroup -GroupName $name -DisplayName $displayName -ParentId "/providers/Microsoft.Management/managementGroups/$parentId"
+            Write-Host "New-AzManagementGroup -GroupName '$name' -DisplayName '$displayName' -ParentId '$($parentIdPrefix)$($parentId)'"
+            $result = New-AzManagementGroup -GroupName $name -DisplayName $displayName -ParentId "$($parentIdPrefix)$($parentId)"
             $_
         } elseif ($updateManagementGroups -and $updateManagementGroups.Name.Contains($name)) {
             $desiredManagementGroup = $ManagementGroups | ?{$_.Name -eq $name}
@@ -412,15 +426,15 @@ Function Set-DscManagementGroup {
                 $desiredDisplayName = $desiredManagementGroup.DisplayName
                 $desiredParentId = $desiredManagementGroup.ParentId
                 if ($desiredParentId){
-                    $desiredParentId = $desiredParentId.TrimStart('/providers/Microsoft.Management/managementGroups/')
+                    $desiredParentId = $desiredParentId.TrimStart($parentIdPrefix)
                 } 
                 if (!$desiredParentId) {
                     #Non specified parent id means root management group is parent
                     $desiredParentId = $rootManagementGroupName
                 }
                 if ($desiredDisplayName -ne $displayName -or $desiredParentId -ne $parentId) {
-                    Write-Host "Update-AzManagementGroup -GroupName '$name' -DisplayName '$desiredDisplayName' -ParentId '/providers/Microsoft.Management/managementGroups/$desiredParentId'"
-                    $result = Update-AzManagementGroup -GroupName $name -DisplayName $desiredDisplayName -ParentId "/providers/Microsoft.Management/managementGroups/$desiredParentId"
+                    Write-Host "Update-AzManagementGroup -GroupName '$name' -DisplayName '$desiredDisplayName' -ParentId '$($parentIdPrefix)$($desiredParentId)'"
+                    $result = Update-AzManagementGroup -GroupName $name -DisplayName $desiredDisplayName -ParentId "$($parentIdPrefix)$($desiredParentId)"
                 }
                 $_
             }
@@ -429,9 +443,12 @@ Function Set-DscManagementGroup {
 
     if ($DeleteUnknownManagementGroups) {
         $deleteManagementGroupNames = Get-TopologicalSortedAzManagementGroups -AzureRmManagementGroups @($currentManagementGroups | ?{$null -ne $_.ParentId -and !($ManagementGroups -and $ManagementGroups.Name.Contains($_.Name))}) | %{$_.Name}
-        [array]::Reverse($deleteManagementGroupNames)
-        $deleteManagementGroupNames | %{
-            Delete-DscManagementGroup -ManagementGroupName $_
+        
+        if ($deleteManagementGroupNames) {
+            [array]::Reverse($deleteManagementGroupNames)
+            $deleteManagementGroupNames | %{
+                Delete-DscManagementGroup -ManagementGroupName $_
+            }
         }
     }
 
@@ -452,6 +469,45 @@ function Get-SubscriptionForManagementGroupHiearchy {
 
 function Get-SubscriptionForTenants {
     @(Get-AzSubscription | %{"/subscriptions/$($_.Id)"})
+}
+
+Function Set-DscSubscription {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $CancelUnknownSubscriptions = $false
+    )
+
+    
+    #Create subscription and assign owner
+    #https://docs.microsoft.com/en-us/azure/azure-resource-manager/programmatically-create-subscription?tabs=azure-powershell
+    #https://docs.microsoft.com/en-us/powershell/module/azurerm.subscription/new-azurermsubscription?view=azurermps-6.10.0
+    #Set-AzureSubscription
+    #Get-AzureSubscription
+
+    #Add subscription to management group
+    #$ManagementGroupName = "ProductionHub1LOB2CICDBYOP"
+    #$SubscriptionId = "87c5bf6c-dcba-43d2-bf32-6f16f072b472"
+    #New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $SubscriptionId
+
+    Write-Host "Set-DscSubscription is not implemented yet"
+}
+
+Function Set-DscBlueprintDefinition {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroups,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $DeleteUnknownBlueprints = $false
+    )
+
+    #Create blue print at root, then all management groups can apply them at any level
+    #Resource Manager templates
+    #https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
+    #BluePrintDefinitions
+
+    Write-Host "Set-DscBlueprintDefinition is not implemented yet"
 }
 
 Function Set-DscRoleDefinition {
@@ -937,12 +993,13 @@ function Get-RoleAssignmentFromConfig {
 Function Set-DscRoleAssignment {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $RootRoleAssignments,
-        [Parameter(Mandatory = $true, Position = 1)]
-        $ManagementGroups,
-        [Parameter(Mandatory = $false, Position = 2)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
         $DeleteUnknownRoleAssignment = $false
     )
+
+    $RootRoleAssignments = $DesiredState.RoleAssignments 
+    $ManagementGroups = $DesiredState.ManagementGroups
 
     $RoleAssignments = $RootRoleAssignments | %{
         $scope = "/"
@@ -1078,42 +1135,51 @@ function Get-PolicyAssignmentFromConfig {
     
     $displayName = $ConfigItem.DisplayName
     $description = $ConfigItem.Description
+    $metadata = $ConfigItem.Metadata
     $policyDefinitionName = $ConfigItem.PolicyDefinitionName
     $policySetDefinitionName = $ConfigItem.PolicySetDefinitionName
     $policyParameter = $ConfigItem.PolicyParameter
 
-    @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;}   
+    $assignIdentity = $ConfigItem.AssignIdentity
+    $location = $ConfigItem.Location
+
+    @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'Metadata'=$metadata;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;'AssignIdentity'=$assignIdentity;'Location'=$location;}   
 }
 
 Function Set-DscPolicyAssignment {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $RootPolicyAssignments,
-        [Parameter(Mandatory = $true, Position = 1)]
-        $ManagementGroups,
-        [Parameter(Mandatory = $false, Position = 2)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
         $DeleteUnknownPolicyAssignment = $false
     )
 
-    $PolicyAssignments = $RootPolicyAssignments | %{
+    $RootPolicyAssignments = $DesiredState.PolicyAssignments 
+    $ManagementGroups = $DesiredState.ManagementGroups
+
+    $PolicyAssignments = $RootPolicyAssignments | ?{$_} | %{
         $scope = "/"
         Get-PolicyAssignmentFromConfig -Scope $scope -ConfigItem $_
     }
 
     $PolicyAssignments += $ManagementGroups | %{
         $ManagementGroupName = $_.Name
-        $_.PolicyAssignments | %{
+        $_.PolicyAssignments | ?{$_} | %{
             $scope = "/providers/Microsoft.Management/managementGroups/$ManagementGroupName"
             Get-PolicyAssignmentFromConfig -Scope $scope -ConfigItem $_
         }  
         $_.Subscriptions | %{
-            $subscriptionName = $_.Name
-            $subscription = Get-AzSubscription -SubscriptionName $subscriptionName
-            $subscriptionId = $subscription.Id
+            $PolicyAssignmentsForSubscription = $_.PolicyAssignments | ?{$_}
 
-            $_.PolicyAssignments | %{
-                $scope = "/subscriptions/$subscriptionId"
-                Get-PolicyAssignmentFromConfig -Scope $scope -ConfigItem $_
+            if ($PolicyAssignmentsForSubscription) {
+                $subscriptionName = $_.Name
+                $subscription = Get-AzSubscription -SubscriptionName $subscriptionName
+                $subscriptionId = $subscription.Id
+
+                $PolicyAssignmentsForSubscription | %{
+                    $scope = "/subscriptions/$subscriptionId"
+                    Get-PolicyAssignmentFromConfig -Scope $scope -ConfigItem $_
+                }
             }
         }
     }
@@ -1127,11 +1193,14 @@ Function Set-DscPolicyAssignment {
         $notScope = $_.NotScope
         $displayName = $_.DisplayName
         $description = $_.Description
+        $metadata = $_.Metadata
         $policyDefinitionName = $_.PolicyDefinitionName
         $policySetDefinitionName = ""
         $policyParameter = $_.PolicyParameter
+        $assignIdentity = $_.AssignIdentity
+        $location = $_.Location
  
-        @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;}
+        @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'Metadata'=$metadata;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;'AssignIdentity'=$assignIdentity;'Location'=$location;}
     })
 
     $updatePolicyAssignments = @($currentPolicyAssignments | %{
@@ -1156,6 +1225,74 @@ Function Set-DscPolicyAssignment {
     $desiredPolicyAssignments += $createPolicyAssignments
     $desiredPolicyAssignments += $updatePolicyAssignments
 
+    $desiredRoleAssignmentResults = $desiredPolicyAssignments | %{
+        $name = $_.Name
+        $scope = $_.Scope
+        $notScope = $_.NotScope
+        $displayName = $_.DisplayName
+        $description = $_.Description
+        $metadata = $_.Metadata
+        $policyDefinitionName = $_.PolicyDefinitionName
+        #$policySetDefinitionName = $_.PolicySetDefinitionName
+        $policyParameter = $_.PolicyParameter
+        $assignIdentity = $_.AssignIdentity
+        $location = $_.Location
+   
+        if ($createPolicyAssignments | ?{$_.Name -eq $name}){
+            Write-Host @"
+`$metadata=@'
+$metadata
+'@
+`$policyParameter=@'
+$policyParameter
+'@
+
+`$policyDefinition = Get-AzPolicyDefinition -Name '$policyDefinitionName'
+New-AzPolicyAssignment -Name '$name' -Scope '$scope' -NotScope $notScope -DisplayName '$displayName' -Description '$description' -Metadata `$metadata -PolicyDefinition `$policyDefinition -PolicyParameter `$policyParameter -AssignIdentity:$assignIdentity -Location '$location' 
+"@
+            $policyDefinition = Get-AzPolicyDefinition -Name $policyDefinitionName
+            $result = New-AzPolicyAssignment -Name $name -Scope $scope -NotScope $notScope -DisplayName $displayName -Description $description -Metadata $metadata -PolicyDefinition $policyDefinition -PolicyParameter $policyParameter -AssignIdentity:$assignIdentity -Location $location
+            $_
+        } elseif ($updatePolicyAssignments | ?{$_.Name -eq $name}) {
+            $desiredPolicyAssignment = $PolicyAssignments | ?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId}
+            if ($desiredPolicyAssignment)
+            {
+                $desiredName = $_.Name
+                $desiredScope = $_.Scope
+                $desiredNotScope = $_.NotScope
+                $desiredDisplayName = $_.DisplayName
+                $desiredDescription = $_.Description
+                $desiredMetadata = $_.Metadata
+                $desiredPolicyDefinitionName = $_.PolicyDefinitionName
+                #$desiredPolicySetDefinitionName = $_.PolicySetDefinitionName
+                $desiredPolicyParameter = $_.PolicyParameter
+                $desiredAssignIdentity = $_.AssignIdentity
+                $desiredLocation = $_.Location
+
+                if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location ) {
+                    Write-Host @"
+Get-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' | 
+?{`$_.Scope -eq '$desiredScope' -and `$_.RoleDefinitionName -eq '$desiredRoleDefinitionName' -and `$_.ObjectId -eq '$desiredObjectId'} |
+Remove-AzRoleAssignment
+
+New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' -AllowDelegation:`$$desiredCanDelegate 
+"@
+                    #Scope and ObjectId are not honoured as filters :<
+                    $result = Get-AzRoleAssignment -Scope $desiredScope -RoleDefinitionName $desiredRoleDefinitionName -ObjectId $desiredObjectId | 
+                    ?{$_.Scope -eq $desiredScope -and $_.RoleDefinitionName -eq $desiredRoleDefinitionName -and $_.ObjectId -eq $desiredObjectId} |
+                    Remove-AzRoleAssignment 
+
+                    $result = New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' -AllowDelegation:`$$desiredCanDelegate
+
+                    Set-AzPolicyAssignment -Name $name -Scope $scope -NotScope $notScope -DisplayName $displayName -Description $description -Metadata $metadata -AssignIdentity:$assignIdentity -Location $location
+                
+                    $_
+                }
+            }
+        }
+    }
+
+
     
     #New-AzPolicyAssignment -PolicyDefinition
 }
@@ -1163,12 +1300,13 @@ Function Set-DscPolicyAssignment {
 Function Set-DscPolicySetAssignment {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $RootPolicySetAssignments,
-        [Parameter(Mandatory = $true, Position = 1)]
-        $ManagementGroups,
-        [Parameter(Mandatory = $false, Position = 2)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
         $DeleteUnknownPolicySetAssignment = $false
     )
+
+    $RootRoleAssignments = $DesiredState.RoleAssignments 
+    $ManagementGroups = $DesiredState.ManagementGroups
 
     #The same powershell commandlet is used for policy and policy sets
 
@@ -1196,7 +1334,7 @@ Function Set-DscPolicySetAssignment {
     }
 
     #Only deal with role assignments against root, management groups and subscriptions. Role assignments directly to providers should be abstracted by RoleDefinition applied at management group or subscription
-    $currentRoleSetAssignments = @(Get-AzRoleAssignment | ?{$_.Scope -eq '/' -or $_.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Scope.StartsWith('/subscriptions/')} %{
+    $currentRoleSetAssignments = @(Get-AzPolicySetDefinition | ?{$_.Scope -eq '/' -or $_.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Scope.StartsWith('/subscriptions/')} %{
         #TODO work out how to filter out policy assignments
         
         $name = $_.Name
@@ -1250,11 +1388,12 @@ Function Set-DscPolicySetAssignment {
 # $UserObjectId =  Get-AzADUser -UserPrincipalName "taliesins@TaliTest01.onmicrosoft.com" | %{$_.Id}
 # New-AzureRmRoleAssignment -RoleDefinitionName Owner -ObjectId $UserObjectId -Scope "/providers/Microsoft.Billing/enrollmentAccounts/$EnrollmentAccountId"
 
-#ensure that you are logged in
-#Connect-AzAccount
-
 #ensure the Az Context has been set for the tenant
 $TenantId = "1931b7d3-bd07-4b36-9814-adf4ad406860"
+
+#ensure that you are logged in
+#Connect-AzAccount -TenantId $TenantId
+
 $FullyManage = $true
 
 $tenantContext = Connect-Context -TenantId $TenantId
@@ -1269,50 +1408,25 @@ if (!$tenantContext.EnrollmentAccountId) {
 
 $DesiredState = [System.IO.File]::ReadAllLines((Resolve-Path 'DesiredState.json')) | ConvertFrom-Json
 
-$AdGroups = $DesiredState.AdGroups
-
-$ManagementGroups = $DesiredState.ManagementGroups
-$ManagementGroups = $ManagementGroups | %{
-    if (!$_.ParentId.Contains('/')){
-        $_.ParentId = $parentIdPrefix + $_.ParentId
-    }
-    $_
-}
 
 #Create definitions at root, then all management groups can apply them at any level
-
-$ManagementGroups = Set-DscManagementGroup -ManagementGroups $ManagementGroups -DeleteUnknownManagementGroups $FullyManage
-#$Subscriptions = Set-DscSubscription -ManagementGroups $ManagementGroups
-$AdGroups = Set-DscAdGroup -AdGroups $AdGroups -DeleteUnknownAdGroups $FullyManage -DeleteUnknownAdGroupMembers $FullyManage
+$ManagementGroups = Set-DscManagementGroup -DesiredState $DesiredState -DeleteUnknownManagementGroups $FullyManage
+$Subscriptions = Set-DscSubscription -DesiredState $DesiredState -CancelUnknownSubscriptions $FullyManage
+$AdGroups = Set-DscAdGroup -DesiredState $DesiredState -DeleteUnknownAdGroups $FullyManage -DeleteUnknownAdGroupMembers $FullyManage
 
 $RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'RoleDefinitions')
 $PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
 $PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
-
-#Create blue print at root, then all management groups can apply them at any level
-#Resource Manager templates
-#https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
-#BluePrintDefinitions
-
-#Create subscription and assign owner
-#https://docs.microsoft.com/en-us/azure/azure-resource-manager/programmatically-create-subscription?tabs=azure-powershell
-#https://docs.microsoft.com/en-us/powershell/module/azurerm.subscription/new-azurermsubscription?view=azurermps-6.10.0
-#Set-AzureSubscription
-#Get-AzureSubscription
-
-#Add subscription to management group
-#$ManagementGroupName = "ProductionHub1LOB2CICDBYOP"
-#$SubscriptionId = "87c5bf6c-dcba-43d2-bf32-6f16f072b472"
-#New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $SubscriptionId
+$BlueprintDefinitions = Set-DscBlueprintDefinition -ManagementGroupName $tenantContext.ManagementGroupName
 
 #Add role to management group or subscription
-$RoleAssignments = Set-DscRoleAssignment -RootRoleAssignments $DesiredState.RoleAssignments -ManagementGroups $ManagementGroups
+$RoleAssignments = Set-DscRoleAssignment -DesiredState $DesiredState
 
 #Add policy to management group or subscription
-$PolicyAssignments = Set-DscPolicyAssignment -RootPolicyAssignments $DesiredState.PolicyAssignments -ManagementGroups $ManagementGroups
+$PolicyAssignments = Set-DscPolicyAssignment -DesiredState $DesiredState
 
 #Add policy set to management group or subscription
-$PolicySetAssignments = Set-DscPolicySetAssignment -RootPolicySetAssignments $DesiredState.PolicySetAssignments -ManagementGroups $ManagementGroups
+$PolicySetAssignments = Set-DscPolicySetAssignment -DesiredState $DesiredState
 
 #BluePrintAssignments
 
@@ -1345,6 +1459,4 @@ $PolicySetAssignments = Set-DscPolicySetAssignment -RootPolicySetAssignments $De
 #New-AzRoleAssignment -ObjectId $EnvironmentAdminsManagementGroupADGroup.ObjectId -RoleDefinitionName "Owner" -Scope $SubscriptionGroupId
 #New-AzRoleAssignment -ObjectId $EnvironmentDevelopersManagementGroupADGroup.ObjectId -RoleDefinitionName "Management Group Reader" -Scope $BYOPManagementGroupId
 #New-AzRoleAssignment -ObjectId $EnvironmentDevelopersManagementGroupADGroup.ObjectId -RoleDefinitionName "Reader" -Scope $SubscriptionGroupId
-
-
 

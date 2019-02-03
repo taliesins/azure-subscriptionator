@@ -1,4 +1,4 @@
-$azureDefinitionManagementGroup='StorePolicy'
+$azureDefinitionManagementGroup='1931b7d3-bd07-4b36-9814-adf4ad406860'
 
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;

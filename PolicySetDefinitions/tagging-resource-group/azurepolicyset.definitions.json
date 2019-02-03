@@ -1,6 +1,6 @@
 [
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
     "parameters": {
       "type": {
         "value": [
@@ -13,7 +13,7 @@
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/StorePolicy/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
     "parameters": {
       "type": {
         "value": [

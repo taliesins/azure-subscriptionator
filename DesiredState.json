@@ -1,653 +1,88 @@
 {
     "RoleAssignments" : [
-        {
-            "RoleDefinitionName": "",
-            "AllowDelegation": false,
-            "ObjectName": "Owner",
-            "ObjectType": "Group"
-        }
+
     ],
     "PolicyAssignments" : [
-        {
-            "Name": "",
-            "NotScope": [""],
-            "DisplayName" : "",
-            "Description" : "",
-            "PolicyDefinitionName": "",
-            "PolicyParameter" : {
-            }
-        }
+
     ],
     "PolicySetAssignments" : [
-        {
-            "Name": "",
-            "NotScope": [""],
-            "DisplayName" : "",
-            "Description" : "",
-            "PolicySetDefinitionName": "",
-            "PolicyParameter" : {
-            }
-        }
+
     ],
     "ADGroups" : [
         {
-            "DisplayName": "test2",
-            "Description": "Test 2",
+            "DisplayName": "DevTest",
             "Members": []
         },
         {
-            "DisplayName": "TestGroup",
-            "Description": "Test Group",
-            "Members": ["OwnsEverything"]
+            "DisplayName": "Production",
+            "Members": []
         },
         {
-            "DisplayName": "OwnsEverything",
-            "Description": "Owns Everything",
-            "Members": []
+            "DisplayName": "DevTestTenant1",
+            "Members": ["DevTest"]
         }
     ],
     "ManagementGroups" : [
         {
-            "ParentId":  "e8815a32-7f83-417f-852b-36ac13dec95d",
+            "ParentId":  "",
             "Name":  "DevTest",
-            "DisplayName":  "DevTest"
+            "DisplayName":  "Dev Test"
+        },
+        {
+            "ParentId":  "",
+            "Name":  "Production",
+            "DisplayName":  "Production"
         },
         {
             "ParentId":  "DevTest",
-            "Name":  "DevTestHub1",
-            "DisplayName":  "DevTest - Hub 1"
-        },
-        {
-            "ParentId":  "DevTestHub1",
-            "Name":  "DevTestHub1Core",
-            "DisplayName":  "DevTest - Hub1 - Core"
-        },
-        {
-            "ParentId":  "DevTestHub1Core",
-            "Name":  "DevTestHub1DMZRTL",
-            "DisplayName":  "DevTest - Hub1 - Landing Zone - RTL",
+            "Name":  "DevTestTenant1",
+            "DisplayName":  "DevTest - Tenant 1",
             "RoleAssignments" : [
                 {
-                    "RoleDefinitionName": "",
+                    "RoleDefinitionName": "Virtual Machine Operator",
                     "AllowDelegation": false,
-                    "ObjectName": "Owner",
+                    "ObjectName": "DevTestTenant1",
                     "ObjectType": "Group"
                 }
             ],
             "PolicyAssignments" : [
                 {
-                    "Name": "",
-                    "NotScope": [""],
-                    "DisplayName" : "",
-                    "Description" : "",
-                    "PolicyDefinitionName": "",
+                    "Name": "tagging-resource-owner-assignment",
+                    "NotScope": ["/providers/Microsoft.Management/managementGroups/DoesNotExist"],
+                    "DisplayName" : "Tagging resource owner assignment",
+                    "Description" : "Ensure that resource owner tag is set",
+                    "PolicyDefinitionName": "tagging-resource-owner",
                     "PolicyParameter" : {
+                        "type" : ["resourceGroups"],
+                        "effect" : "Audit"
                     }
                 }
             ],
             "PolicySetAssignments" : [
                 {
-                    "Name": "",
-                    "NotScope": [""],
-                    "DisplayName" : "",
-                    "Description" : "",
-                    "PolicySetDefinitionName": "",
+                    "Name": "tagging-resource-group-assignment",
+                    "NotScope": ["/providers/Microsoft.Management/managementGroups/DoesNotExist"],
+                    "DisplayName" : "Tagging resource group assignment",
+                    "Description" : "Ensure that tagging is applied on resource group",
+                    "PolicySetDefinitionName": "tagging-resource-group",
                     "PolicyParameter" : {
+                        "effect" : "Audit"
                     }
                 }
             ],
             "Subscriptions": [
                 {
-                    "Name": "",
+                    "Name": "DevTestTenant1",
                     "OfferType":  "MS-AZR-0148P",
-                    "RoleAssignments":[],
-                    "PolicyAssignments" : [],
-                    "PolicySetAssignments" : []
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1Core",
-            "Name":  "DevTestHub1DMZLive",
-            "DisplayName":  "DevTest - Hub1 - Landing Zone - Live",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1Core",
-            "Name":  "DevTestHub1ManagementPlane",
-            "DisplayName":  "DevTest - Hub1 - Management Plane",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1",
-            "Name":  "DevTestHub1LOBs",
-            "DisplayName":  "DevTest - Hub1 - Value Streams"
-        },
-        {
-            "ParentId":  "DevTestHub1LOBs",
-            "Name":  "DevTestHub1LOB1",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1",
-            "Name":  "DevTestHub1LOB1Dev",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Dev"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1Dev",
-            "Name":  "DevTestHub1LOB1DevBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1",
-            "Name":  "DevTestHub1LOB1Test",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Test"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1Test",
-            "Name":  "DevTestHub1LOB1TestBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1",
-            "Name":  "DevTestHub1LOB1Live",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Live"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1Live",
-            "Name":  "DevTestHub1LOB1LiveBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1",
-            "Name":  "DevTestHub1LOB1CICD",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - CICD"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB1CICD",
-            "Name":  "DevTestHub1LOB1CICDBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 1 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOBs",
-            "Name":  "DevTestHub1LOB2",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2",
-            "Name":  "DevTestHub1LOB2Dev",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Dev"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2Dev",
-            "Name":  "DevTestHub1LOB2DevBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2",
-            "Name":  "DevTestHub1LOB2Test",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Test"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2Test",
-            "Name":  "DevTestHub1LOB2TestBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2",
-            "Name":  "DevTestHub1LOB2Live",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Live"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2Live",
-            "Name":  "DevTestHub1LOB2LiveBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2",
-            "Name":  "DevTestHub1LOB2CICD",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - CICD"
-        },
-        {
-            "ParentId":  "DevTestHub1LOB2CICD",
-            "Name":  "DevTestHub1LOB2CICDBYOP",
-            "DisplayName":  "DevTest - Hub1 - Value Stream 2 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTest",
-            "Name":  "DevTestHub2",
-            "DisplayName":  "DevTest - Hub 2"
-        },
-        {
-            "ParentId":  "DevTestHub2",
-            "Name":  "DevTestHub2Core",
-            "DisplayName":  "DevTest - Hub2 - Core"
-        },
-        {
-            "ParentId":  "DevTestHub2Core",
-            "Name":  "DevTestHub2DMZRTL",
-            "DisplayName":  "DevTest - Hub2 - Landing Zone - RTL",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2Core",
-            "Name":  "DevTestHub2DMZLive",
-            "DisplayName":  "DevTest - Hub2 - Landing Zone - Live",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2Core",
-            "Name":  "DevTestHub2ManagementPlane",
-            "DisplayName":  "DevTest - Hub2 - Management Plane",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2",
-            "Name":  "DevTestHub2LOBs",
-            "DisplayName":  "DevTest - Hub2 - Value Streams"
-        },
-        {
-            "ParentId":  "DevTestHub2LOBs",
-            "Name":  "DevTestHub2LOB1",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1",
-            "Name":  "DevTestHub2LOB1Dev",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Dev"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1Dev",
-            "Name":  "DevTestHub2LOB1DevBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1",
-            "Name":  "DevTestHub2LOB1Test",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Test"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1Test",
-            "Name":  "DevTestHub2LOB1TestBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1",
-            "Name":  "DevTestHub2LOB1Live",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Live"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1Live",
-            "Name":  "DevTestHub2LOB1LiveBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1",
-            "Name":  "DevTestHub2LOB1CICD",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - CICD"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB1CICD",
-            "Name":  "DevTestHub2LOB1CICDBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 1 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOBs",
-            "Name":  "DevTestHub2LOB2",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2",
-            "Name":  "DevTestHub2LOB2Dev",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Dev"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2Dev",
-            "Name":  "DevTestHub2LOB2DevBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2",
-            "Name":  "DevTestHub2LOB2Test",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Test"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2Test",
-            "Name":  "DevTestHub2LOB2TestBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2",
-            "Name":  "DevTestHub2LOB2Live",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Live"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2Live",
-            "Name":  "DevTestHub2LOB2LiveBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2",
-            "Name":  "DevTestHub2LOB2CICD",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - CICD"
-        },
-        {
-            "ParentId":  "DevTestHub2LOB2CICD",
-            "Name":  "DevTestHub2LOB2CICDBYOP",
-            "DisplayName":  "DevTest - Hub2 - Value Stream 2 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "e8815a32-7f83-417f-852b-36ac13dec95d",
-            "Name":  "Production",
-            "DisplayName":  "Production"
-        },
-        {
-            "ParentId":  "Production",
-            "Name":  "ProductionHub1",
-            "DisplayName":  "Production - Hub 1"
-        },
-        {
-            "ParentId":  "ProductionHub1",
-            "Name":  "ProductionHub1Core",
-            "DisplayName":  "Production - Hub1 - Core"
-        },
-        {
-            "ParentId":  "ProductionHub1Core",
-            "Name":  "ProductionHub1DMZRTL",
-            "DisplayName":  "Production - Hub1 - Landing Zone - RTL",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1Core",
-            "Name":  "ProductionHub1DMZLive",
-            "DisplayName":  "Production - Hub1 - Landing Zone - Live",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1Core",
-            "Name":  "ProductionHub1ManagementPlane",
-            "DisplayName":  "Production - Hub1 - Management Plane",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1",
-            "Name":  "ProductionHub1LOBs",
-            "DisplayName":  "Production - Hub1 - Value Streams"
-        },
-        {
-            "ParentId":  "ProductionHub1LOBs",
-            "Name":  "ProductionHub1LOB1",
-            "DisplayName":  "Production - Hub1 - Value Stream 1"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1",
-            "Name":  "ProductionHub1LOB1Dev",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Dev"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1Dev",
-            "Name":  "ProductionHub1LOB1DevBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1",
-            "Name":  "ProductionHub1LOB1Test",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Test"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1Test",
-            "Name":  "ProductionHub1LOB1TestBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1",
-            "Name":  "ProductionHub1LOB1Live",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Live"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1Live",
-            "Name":  "ProductionHub1LOB1LiveBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1",
-            "Name":  "ProductionHub1LOB1CICD",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - CICD"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB1CICD",
-            "Name":  "ProductionHub1LOB1CICDBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 1 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOBs",
-            "Name":  "ProductionHub1LOB2",
-            "DisplayName":  "Production - Hub1 - Value Stream 2"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2",
-            "Name":  "ProductionHub1LOB2Dev",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Dev"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2Dev",
-            "Name":  "ProductionHub1LOB2DevBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Dev - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2",
-            "Name":  "ProductionHub1LOB2Test",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Test"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2Test",
-            "Name":  "ProductionHub1LOB2TestBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Test - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2",
-            "Name":  "ProductionHub1LOB2Live",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Live"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2Live",
-            "Name":  "ProductionHub1LOB2LiveBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - Live - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2",
-            "Name":  "ProductionHub1LOB2CICD",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - CICD"
-        },
-        {
-            "ParentId":  "ProductionHub1LOB2CICD",
-            "Name":  "ProductionHub1LOB2CICDBYOP",
-            "DisplayName":  "Production - Hub1 - Value Stream 2 - CICD - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0017P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1",
-            "Name":  "ProductionHub1POCs",
-            "DisplayName":  "Production - Hub1 - Proof of concepts"
-        },
-        {
-            "ParentId":  "ProductionHub1POCs",
-            "Name":  "ProductionHub1POC1",
-            "DisplayName":  "Production - Hub1 - Proof of concept 1"
-        },
-        {
-            "ParentId":  "ProductionHub1POC1",
-            "Name":  "ProductionHub1POC1BYOP",
-            "DisplayName":  "Production - Hub1 - Proof of concept 1 - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
-                }
-            ]
-        },
-        {
-            "ParentId":  "ProductionHub1POCs",
-            "Name":  "ProductionHub1POC2",
-            "DisplayName":  "Production - Hub1 - Proof of concept 2"
-        },
-        {
-            "ParentId":  "ProductionHub1POC2",
-            "Name":  "ProductionHub1POC2BYOP",
-            "DisplayName":  "Production - Hub1 - Proof of concept 2 - BYOP",
-            "Subscriptions": [
-                {
-                    "OfferType":  "MS-AZR-0148P"
+                    "RoleAssignments":[
+
+                    ],
+                    "PolicyAssignments" : [
+
+                    ],
+                    "PolicySetAssignments" : [
+
+                    ]
                 }
             ]
         }
