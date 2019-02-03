@@ -12,7 +12,7 @@
               "anyOf": [
                 {
                   "field": "name",
-                "match": "[uniqueString(resourceGroup().id)]-VN-*"
+                "match": "[resourceGroup().id]-VN-*"
                 }
               ]
             },

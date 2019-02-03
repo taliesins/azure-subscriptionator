@@ -39,11 +39,11 @@
                   "anyOf": [
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-IMG-WIN-*"
+                    "match": "[resourceGroup().id]-IMG-WIN-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-IMG-RHEL-*"
+                    "match": "[resourceGroup().id]-IMG-RHEL-*"
                     }
                   ]
                 },

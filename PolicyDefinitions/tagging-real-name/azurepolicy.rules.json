@@ -18,35 +18,35 @@
                   "anyOf": [
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-."
+                    "match": "[resourceGroup().id]-KV-."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-.."
+                    "match": "[resourceGroup().id]-KV-.."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-..."
+                    "match": "[resourceGroup().id]-KV-..."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-...."
+                    "match": "[resourceGroup().id]-KV-...."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-....."
+                    "match": "[resourceGroup().id]-KV-....."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-......"
+                    "match": "[resourceGroup().id]-KV-......"
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-......."
+                    "match": "[resourceGroup().id]-KV-......."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-KV-........"
+                    "match": "[resourceGroup().id]-KV-........"
                     }
                   ]
                 }
@@ -62,35 +62,35 @@
                   "anyOf": [
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-."
+                    "match": "[resourceGroup().id]-SA-."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-.."
+                    "match": "[resourceGroup().id]-SA-.."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-..."
+                    "match": "[resourceGroup().id]-SA-..."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-...."
+                    "match": "[resourceGroup().id]-SA-...."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-....."
+                    "match": "[resourceGroup().id]-SA-....."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-......"
+                    "match": "[resourceGroup().id]-SA-......"
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-......."
+                    "match": "[resourceGroup().id]-SA-......."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-SA-........"
+                    "match": "[resourceGroup().id]-SA-........"
                     }
                   ]
                 }
@@ -106,35 +106,35 @@
                   "anyOf": [
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-."
+                    "match": "[resourceGroup().id]-WS-."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-.."
+                    "match": "[resourceGroup().id]-WS-.."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-..."
+                    "match": "[resourceGroup().id]-WS-..."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-...."
+                    "match": "[resourceGroup().id]-WS-...."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-....."
+                    "match": "[resourceGroup().id]-WS-....."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-......"
+                    "match": "[resourceGroup().id]-WS-......"
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-......."
+                    "match": "[resourceGroup().id]-WS-......."
                     },
                     {
                     "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[uniqueString(resourceGroup().id)]-WS-........"
+                    "match": "[resourceGroup().id]-WS-........"
                     }
                   ]
                 }

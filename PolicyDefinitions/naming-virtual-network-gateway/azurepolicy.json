@@ -39,35 +39,35 @@
                   "anyOf": [
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-.-GW-*"
+                    "match": "[resourceGroup().id]-VN-.-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-..-GW-*"
+                    "match": "[resourceGroup().id]-VN-..-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-...-GW-*"
+                    "match": "[resourceGroup().id]-VN-...-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-....-GW-*"
+                    "match": "[resourceGroup().id]-VN-....-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-.....-GW-*"
+                    "match": "[resourceGroup().id]-VN-.....-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-......-GW-*"
+                    "match": "[resourceGroup().id]-VN-......-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-.......-GW-*"
+                    "match": "[resourceGroup().id]-VN-.......-GW-*"
                     },
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-VN-........-GW-*"
+                    "match": "[resourceGroup().id]-VN-........-GW-*"
                     }
                   ]
                 },

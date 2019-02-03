@@ -39,7 +39,7 @@
                   "anyOf": [
                     {
                       "field": "name",
-                    "match": "[uniqueString(resourceGroup().id)]-AA-*"
+                    "match": "[resourceGroup().id]-AA-*"
                     }
                   ]
                 },
