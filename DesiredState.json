@@ -53,8 +53,14 @@
                     "Description" : "Ensure that resource owner tag is set",
                     "PolicyDefinitionName": "tagging-resource-owner",
                     "PolicyParameter" : {
-                        "type" : ["resourceGroups"],
-                        "effect" : "Audit"
+                        "type": {
+                            "value": [
+                              "Microsoft.Resources/subscriptions/resourceGroups"
+                            ]
+                          },
+                          "effect": {
+                            "value": "Audit"
+                          }
                     }
                 }
             ],
@@ -66,7 +72,6 @@
                     "Description" : "Ensure that tagging is applied on resource group",
                     "PolicySetDefinitionName": "tagging-resource-group",
                     "PolicyParameter" : {
-                        "effect" : "Audit"
                     }
                 }
             ],
