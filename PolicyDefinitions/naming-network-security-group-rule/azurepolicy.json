@@ -1,216 +1,216 @@
 {
-   "type": "Microsoft.Authorization/policyDefinitions",
-   "name": "naming-network-security-group-rule",
-   "properties": {
-      "displayName": "Naming of Azure network security group rules",
-      "description": "Naming of Azure network security group rules. Example network security group rule name for subnet is ALLOW-INBOUND-HTTPS-INTERNET. Example network security group name for NIC is DENY-OUTBOUND-HTTP-INTERNET",
-      "metadata":  {
-         "category": "Naming"
-      },
-      "mode": "All",
-      "parameters": {
-         "effect": {
-            "type": "string",
-            "metadata": {
-              "displayName": "effect",
-              "description": "Effect of policy, such as audit or deny"
-            },
-            "allowedValues": [
-               "Append",
-               "Audit",
-               "AuditIfNotExists",
-               "Deny",
-               "DeployIfNotExists",
-               "Disabled"
-            ]
-         }
-      },
-      "policyRule": {
-         "if": {
-            "allOf": [
-               {
-                  "field": "type",
-                  "equals": "Microsoft.Network/networkSecurityGroups"
-               },
-               {
-                  "not": {
-                     "allOf": [
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-.-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-.-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-.-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-.-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-..-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-..-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-..-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-..-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-...-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-...-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-...-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-...-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-.....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-.....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-.....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-.....-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-.......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-.......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-.......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-.......-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-INBOUND-........-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "ALLOW-OUTBOUND-........-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-INBOUND-........-*"  
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "DENY-OUTBOUND-........-*"  
-                              }                              
-                           ]
-                        },
-                        {
-                           "anyOf": [
-                              {
-                                 "field": "name",
-                                 "match": "*-."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-.."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-..."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-...."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-....."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-......"
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-......."
-                              },
-                              {
-                                 "field": "name",
-                                 "match": "*-........"
-                              }
-                           ]
-                        }
-                     ]
-                  }
-               }
-            ]
-         },
-         "then": {
-            "effect": "[parameters('effect')]"
-         }
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "naming-network-security-group-rule",
+  "properties": {
+    "displayName": "Naming of Azure network security group rules",
+    "description": "Naming of Azure network security group rules. Example network security group rule name for subnet is ALLOW-INBOUND-HTTPS-INTERNET. Example network security group name for NIC is DENY-OUTBOUND-HTTP-INTERNET",
+    "metadata": {
+      "category": "Naming"
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect",
+          "description": "Effect of policy, such as audit or deny"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
       }
-   }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups"
+          },
+          {
+            "not": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-.-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-.-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-.-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-.-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-..-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-..-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-..-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-..-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-...-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-...-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-...-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-...-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-.....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-.....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-.....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-.....-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-.......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-.......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-.......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-.......-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-INBOUND-........-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "ALLOW-OUTBOUND-........-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-INBOUND-........-*"
+                    },
+                    {
+                      "field": "name",
+                      "match": "DENY-OUTBOUND-........-*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "name",
+                      "match": "*-."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-.."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-..."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-...."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-....."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-......"
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-......."
+                    },
+                    {
+                      "field": "name",
+                      "match": "*-........"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+      "effect": "[parameters('effect')]"
+      }
+    }
+  }
 }

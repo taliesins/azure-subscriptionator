@@ -1,223 +1,223 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Network/routeTables/routes"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "..-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "...-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "....-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".....-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "......-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".......-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "........-M-UKS-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "..-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "...-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "....-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".....-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "......-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".......-M-UKW-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "........-M-UKW-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "..-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "...-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "....-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".....-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "......-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".......-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "........-?-???-L##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "..-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "...-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "....-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".....-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "......-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".......-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "........-?-???-R##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "..-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "...-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "....-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".....-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "......-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  ".......-?-???-T##-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "........-?-???-T##-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-.."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-..."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-...."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-....."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-......"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-......."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-........"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/routeTables/routes"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": ".-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "..-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "...-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "....-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".....-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "......-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".......-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": "........-M-UKS-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": "..-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": "...-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": "....-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".....-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": "......-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".......-M-UKW-*"
+                },
+                {
+                  "field": "name",
+                  "match": "........-M-UKW-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": ".-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "..-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "...-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "....-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".....-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "......-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".......-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "........-?-???-L##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "..-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "...-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "....-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".....-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "......-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".......-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "........-?-???-R##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "..-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "...-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "....-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".....-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "......-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": ".......-?-???-T##-*"
+                },
+                {
+                  "field": "name",
+                  "match": "........-?-???-T##-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "*-."
+                },
+                {
+                  "field": "name",
+                  "match": "*-.."
+                },
+                {
+                  "field": "name",
+                  "match": "*-..."
+                },
+                {
+                  "field": "name",
+                  "match": "*-...."
+                },
+                {
+                  "field": "name",
+                  "match": "*-....."
+                },
+                {
+                  "field": "name",
+                  "match": "*-......"
+                },
+                {
+                  "field": "name",
+                  "match": "*-......."
+                },
+                {
+                  "field": "name",
+                  "match": "*-........"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }

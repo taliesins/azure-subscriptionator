@@ -4,7 +4,33 @@
     "parameters": {
       "type": {
         "value": [
-          "Microsoft.Resources/resourceGroups"
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
+    }
+  },
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-git-commit",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
+    }
+  },
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-git-url",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
       "effect": {
@@ -17,7 +43,33 @@
     "parameters": {
       "type": {
         "value": [
-          "Microsoft.Resources/resourceGroups"
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
+    }
+  },
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-expiry-date",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
+        ]
+      },
+      "effect": {
+        "value": "Audit"
+      }
+    }
+  },
+  {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-owner",
+    "parameters": {
+      "type": {
+        "value": [
+          "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
       "effect": {

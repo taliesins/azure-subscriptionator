@@ -1,187 +1,187 @@
 {
-    "if":  {
-               "allOf":  [
-                             {
-                                 "field":  "type",
-                                 "equals":  "Microsoft.Network/networkSecurityGroups"
-                             },
-                             {
-                                 "not":  {
-                                             "allOf":  [
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-.-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-.-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-.-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-.-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-..-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-..-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-..-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-..-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-...-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-...-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-...-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-...-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-.....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-.....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-.....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-.....-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-.......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-.......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-.......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-.......-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-INBOUND-........-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "ALLOW-OUTBOUND-........-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-INBOUND-........-*"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "DENY-OUTBOUND-........-*"
-                                                                             }
-                                                                         ]
-                                                           },
-                                                           {
-                                                               "anyOf":  [
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-.."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-..."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-...."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-....."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-......"
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-......."
-                                                                             },
-                                                                             {
-                                                                                 "field":  "name",
-                                                                                 "match":  "*-........"
-                                                                             }
-                                                                         ]
-                                                           }
-                                                       ]
-                                         }
-                             }
-                         ]
-           },
-    "then":  {
-                 "effect":  "[parameters(\u0027effect\u0027)]"
-             }
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/networkSecurityGroups"
+      },
+      {
+        "not": {
+          "allOf": [
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-.-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-.-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-.-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-.-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-..-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-..-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-..-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-..-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-...-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-...-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-...-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-...-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-.....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-.....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-.....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-.....-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-.......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-.......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-.......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-.......-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-INBOUND-........-*"
+                },
+                {
+                  "field": "name",
+                  "match": "ALLOW-OUTBOUND-........-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-INBOUND-........-*"
+                },
+                {
+                  "field": "name",
+                  "match": "DENY-OUTBOUND-........-*"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "name",
+                  "match": "*-."
+                },
+                {
+                  "field": "name",
+                  "match": "*-.."
+                },
+                {
+                  "field": "name",
+                  "match": "*-..."
+                },
+                {
+                  "field": "name",
+                  "match": "*-...."
+                },
+                {
+                  "field": "name",
+                  "match": "*-....."
+                },
+                {
+                  "field": "name",
+                  "match": "*-......"
+                },
+                {
+                  "field": "name",
+                  "match": "*-......."
+                },
+                {
+                  "field": "name",
+                  "match": "*-........"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+  "effect": "[parameters('effect')]"
+  }
 }
