@@ -47,10 +47,10 @@
             ],
             "PolicyAssignments" : [
                 {
-                    "Name": "tagging-resource-owner-assignment",
-                    "NotScope": ["/providers/Microsoft.Management/managementGroups/DoesNotExist"],
+                    "Name": "tagging-resource-owner-a",
+                    "NotScope": [],
                     "DisplayName" : "Tagging resource owner assignment",
-                    "Description" : "Ensure that resource owner tag is set",
+                    "Description" : "Ensure that resource owner tag is set not",
                     "PolicyDefinitionName": "tagging-resource-owner",
                     "PolicyParameter" : {
                         "type": {
@@ -66,7 +66,7 @@
             ],
             "PolicySetAssignments" : [
                 {
-                    "Name": "tagging-resource-group-assignment",
+                    "Name": "tagging-resource-group-a",
                     "NotScope": ["/providers/Microsoft.Management/managementGroups/DoesNotExist"],
                     "DisplayName" : "Tagging resource group assignment",
                     "Description" : "Ensure that tagging is applied on resource group",
