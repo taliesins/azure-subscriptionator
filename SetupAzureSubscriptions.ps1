@@ -1201,7 +1201,7 @@ Function Set-DscPolicyAssignment {
     $PolicyDefinitions = Get-AzPolicyDefinition
 
     #Only deal with policy assignments against root, management groups and subscriptions. 
-    $currentPolicyAssignments = @(Get-AzPolicyAssignment |?{$_.ExtensionResourceType -eq 'Microsoft.Authorization/policyAssignments' -and $_.Properties -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
+    $currentPolicyAssignments = @(Get-AzPolicyAssignment |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policyDefinitions/' -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
         $scope = $_.Properties.Scope
         $notScope = @($_.Properties.NotScope) |? {$_}
@@ -1212,13 +1212,15 @@ Function Set-DscPolicyAssignment {
             $metadata = ConvertTo-Json @{}
         }
         $policyDefinitionId = $_.Properties.policyDefinitionId
+
         $policyDefinitionName = "" 
-        if ($policyDefinitionId) {
+        if ($policyDefinitionId -and $_.Properties.policyDefinitionId -match '/policyDefinitions/') {
             $policyDefinition = $PolicyDefinitions |? {$_.PolicyDefinitionId -eq $policyDefinitionId}
             $policyDefinitionName = $policyDefinition.Name
         }
 
         $policySetDefinitionName = ""
+       
         $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99
         if ([string]::IsNullOrWhitespace($policyParameter)){
             $policyParameter = ConvertTo-Json @{}
@@ -1550,10 +1552,8 @@ Function Set-DscPolicySetAssignment {
         $DeleteUnknownPolicySetAssignment = $false
     )
 
-    $RootRoleAssignments = $DesiredState.RoleAssignments 
+    $RootPolicySetAssignments = $DesiredState.PolicySetAssignments 
     $ManagementGroups = $DesiredState.ManagementGroups
-
-    #The same powershell commandlet is used for policy and policy sets
 
     $PolicySetAssignments = $RootPolicySetAssignments | ?{$_} | %{
         $scope = "/"
@@ -1567,7 +1567,7 @@ Function Set-DscPolicySetAssignment {
             Get-PolicyAssignmentFromConfig -Scope $scope -ConfigItem $_
         }  
         $_.Subscriptions | %{
-            $PolicySetAssignmentsForSubscription = $_.PolicySetAssignments | ?{$_} | ?{$_}
+            $PolicySetAssignmentsForSubscription = $_.PolicySetAssignments | ?{$_}
 
             if ($PolicySetAssignmentsForSubscription) {
                 $subscriptionName = $_.Name
@@ -1582,36 +1582,61 @@ Function Set-DscPolicySetAssignment {
         }
     }
 
-    #Only deal with role assignments against root, management groups and subscriptions. Role assignments directly to providers should be abstracted by RoleDefinition applied at management group or subscription
-    $currentRoleSetAssignments = @(Get-AzPolicySetDefinition | ?{$_.Scope -eq '/' -or $_.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Scope.StartsWith('/subscriptions/')} %{
-        #TODO work out how to filter out policy assignments
-        
+    $PolicySetDefinitions = Get-AzPolicySetDefinition
+
+    #Only deal with policy set assignments against root, management groups and subscriptions. 
+    $currentPolicySetAssignments = @(Get-AzPolicyAssignment |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/' -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
-        $scope = $_.Scope
-        $notScope = $_.NotScope
-        $displayName = $_.DisplayName
-        $description = $_.Description
-        $policyDefinitionName = ""
-        $policySetDefinitionName = $_.PolicyDefinitionName 
-        $policyParameter = $_.PolicyParameter
+        $scope = $_.Properties.Scope
+        $notScope = @($_.Properties.NotScope) |? {$_}
+        $displayName = $_.Properties.DisplayName
+        $description = $_.Properties.Description
+        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
+        if ([string]::IsNullOrWhitespace($metadata)){
+            $metadata = ConvertTo-Json @{}
+        }
+        $policyDefinitionId = $_.Properties.policyDefinitionId
+
+        $policyDefinitionName = "" 
         
-        @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;}
+        $policySetDefinitionName = ""
+        if ($policyDefinitionId -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/') {
+            $policySetDefinition = $PolicySetDefinitions |? {$_.PolicyDefinitionId -eq $policyDefinitionId}
+            $policySetDefinitionName = $policySetDefinition.Name
+        }
+
+        $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99
+        if ([string]::IsNullOrWhitespace($policyParameter)){
+            $policyParameter = ConvertTo-Json @{}
+        }
+
+        if ($_.Properties.AssignIdentity -eq ''){
+            $assignIdentity = $false
+        } else {
+            $assignIdentity = [System.Convert]::ToBoolean($_.Properties.AssignIdentity) 
+        }
+
+        $location = $_.Properties.Location
+ 
+        @{'Name'=$name;'Scope'=$scope;'NotScope'=$notScope;'DisplayName'=$displayName;'Description'=$description;'Metadata'=$metadata;'PolicyDefinitionName'=$policyDefinitionName;'PolicySetDefinitionName'=$policySetDefinitionName;'PolicyParameter'=$policyParameter;'AssignIdentity'=$assignIdentity;'Location'=$location;}
     })
 
     $updatePolicySetAssignments = @($currentPolicySetAssignments | %{
-        $scope = $_.Scope
         $name = $_.Name
-
-        if ($PolicySetAssignments | ?{$_.Scope -eq $scope -and $_.Name -eq $name}){
+        $scope = $_.Scope
+        $policySetDefinitionName = $_.PolicySetDefinitionName 
+        
+        if ($PolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName}){
            $_ 
         }
     })
 
     $createPolicySetAssignments = @($PolicySetAssignments | %{
-        $scope = $_.Scope
         $name = $_.Name
-
-        if (!($updatePolicySetAssignments | ?{$_.Scope -eq $scope -and $_.Name -eq $name})){
+        $scope = $_.Scope
+        $policySetDefinitionName = $_.PolicySetDefinitionName
+        
+        if (!($updatePolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName})){
             $_ 
          }
     })
@@ -1619,8 +1644,288 @@ Function Set-DscPolicySetAssignment {
     $desiredPolicySetAssignments = @()
     $desiredPolicySetAssignments += $createPolicySetAssignments
     $desiredPolicySetAssignments += $updatePolicySetAssignments
+
+    $desiredPolicySetAssignmentResults = $desiredPolicySetAssignments | %{
+        $name = $_.Name
+        $scope = $_.Scope
+        $notScope = $_.NotScope
+        $displayName = $_.DisplayName
+        $description = $_.Description
+        $metadata = $_.Metadata
+        #$policyDefinitionName = $_.PolicyDefinitionName
+        $policySetDefinitionName = $_.PolicySetDefinitionName
+        $policyParameter = $_.PolicyParameter
+        $assignIdentity = $_.AssignIdentity
+        $location = $_.Location
+   
+        if ($createPolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName}){
+            #Get-AzPolicySetDefinition -Name 'xxx' seems faulty :<
+            Write-Host @"
+`$metadata=@'
+$metadata
+'@
+`$policyParameter=@'
+$policyParameter
+'@
+`$notScope=@'
+$(ConvertTo-Json $notScope -Depth 99)
+'@ 
+`$notScope = ConvertFrom-Json `$notScope 
+
+`$assignIdentity = [System.Convert]::ToBoolean('$assignIdentity')
+
+`$policySetDefinition = Get-AzPolicySetDefinition |? {`$_.Name -eq '$policySetDefinitionName'}
+
+if (!`$policySetDefinition) {
+    throw "Policy set definition '$policySetDefinitionName' does not exist"
+}
+
+if (`$policySetDefinition) {
+    New-AzPolicyAssignment -Name '$name' -Scope '$scope' -NotScope `$notScope -DisplayName '$displayName' -Description '$description' -Metadata `$metadata -PolicySetDefinition `$policySetDefinition -PolicyParameter `$policyParameter -AssignIdentity:`$assignIdentity -Location '$location' 
+}
+"@
+            $policySetDefinition = $PolicySetDefinitions |? {$_.Name -eq $policySetDefinitionName}
+
+            if (!$policySetDefinition) {
+                throw "Policy definition '$policySetDefinitionName' does not exist"
+            }
+
+            if ($policySetDefinition) {
+                $result = New-AzPolicyAssignment -Name $name -Scope $scope -NotScope $notScope -DisplayName $displayName -Description $description -Metadata $metadata -PolicySetDefinition $policySetDefinition -PolicyParameter $policyParameter -AssignIdentity:$assignIdentity -Location $location
+                $_
+            }
+        } elseif ($updatePolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName}) {
+            $desiredPolicySetAssignment = $PolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName}
+            if ($desiredPolicySetAssignment)
+            {
+                $desiredName = $desiredPolicySetAssignment.Name
+                $desiredScope = $desiredPolicySetAssignment.Scope
+                $desiredNotScope = $desiredPolicySetAssignment.NotScope
+                $desiredDisplayName = $desiredPolicySetAssignment.DisplayName
+                $desiredDescription = $desiredPolicySetAssignment.Description
+                $desiredMetadata = $desiredPolicySetAssignment.Metadata
+                #$desiredPolicyDefinitionName = $desiredPolicySetAssignment.PolicyDefinitionName
+                $desiredPolicySetDefinitionName = $desiredPolicySetAssignment.PolicySetDefinitionName
+                $desiredPolicyParameter = $desiredPolicySetAssignment.PolicyParameter
+                $desiredAssignIdentity = $desiredPolicySetAssignment.AssignIdentity
+                $desiredLocation = $desiredPolicySetAssignment.Location
+
+                if ($desiredName -ne $name){
+                    Write-Host @"
+                    Desired Name:
+                    $desiredName
+
+                    Actual Name:
+                    $name
+"@
+                }                    
+
+                if ($desiredScope -ne $scope){
+                    Write-Host @"
+                    Desired Scope:
+                    $desiredScope
+
+                    Actual Scope:
+                    $scope
+"@
+                }
+
+                if ($desiredNotScope -ne $notScope){
+                    Write-Host @"
+                    Desired Not Scope:
+                    $(ConvertTo-Json $desiredNotScope -Depth 99)
+
+                    Actual Not Scope:
+                    $(ConvertTo-Json $notScope -Depth 99)
+"@
+                }
+
+                if ($desiredDisplayName -ne $displayName){
+                    Write-Host @"
+                    Desired Display Name:
+                    $desiredDisplayName
+
+                    Actual Display Name:
+                    $displayName
+"@
+                }
+
+                if ($desiredDescription -ne $description){
+                    Write-Host @"
+                    Desired Description:
+                    $desiredDescription
+
+                    Current Description:
+                    $description
+"@
+                }
+
+                if ($desiredMetadata -ne $metadata){
+                    Write-Host @"
+                    Desired Metadata:
+                    $desiredMetadata
+
+                    Actual Metadata:
+                    $metadata
+"@
+                }     
+
+                if ($desiredPolicySetDefinitionName -ne $policySetDefinitionName){
+                    Write-Host @"
+                    Desired Policy Set Definition Name:
+                    $desiredPolicySetDefinitionName
+
+                    Actual Policy Set Definition Name:
+                    $policySetDefinitionName
+"@
+                }     
+
+                if ($desiredPolicyParameter -ne $policyParameter){
+                    Write-Host @"
+                    Desired Policy Parameter:
+                    $desiredPolicyParameter
+
+                    Actual Policy Parameter:
+                    $policyParameter
+"@
+                }     
+
+                if ($desiredAssignIdentity -ne $assignIdentity){
+                    Write-Host @"
+                    Desired Assign Identity:
+                    $desiredAssignIdentity
+
+                    Actual Assign Identity:
+                    $assignIdentity
+"@
+                }     
+
+                if ($desiredLocation -ne $location){
+                    Write-Host @"
+                    Desired Location:
+                    $desiredLocation
+
+                    Actual Location:
+                    $location
+"@
+                }
+
+                if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredPolicySetDefinitionName -ne $policySetDefinitionName -or $desiredPolicyParameter -ne $policyParameter -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location ) {
+                    #Get-AzPolicySetDefinition -Name 'xxx' seems faulty :<
+                    Write-Host @"
+`$metadata=@'
+$metadata
+'@
+`$desiredMetadata=@'
+$desiredMetadata
+'@
+`$policyParameter=@'
+$policyParameter
+'@
+`$desiredPolicyParameter=@'
+$desiredPolicyParameter
+'@
+`$notScope=@'
+$(ConvertTo-Json $notScope -Depth 99)
+'@ 
+`$notScope = ConvertFrom-Json `$notScope 
+
+`$desiredNotScope=@'
+$(ConvertTo-Json $desiredNotScope -Depth 99)
+'@ 
+`$desiredNotScope = ConvertFrom-Json `$desiredNotScope
+
+`$assignIdentity = [System.Convert]::ToBoolean('$assignIdentity')
+`$desiredAssignIdentity = [System.Convert]::ToBoolean('$desiredAssignIdentity')
+
+`$policySetDefinition = Get-AzPolicySetDefinition |? {`$_.Name -eq '$policySetDefinitionName'}
+if ('$policySetDefinitionName' -eq '$desiredPolicySetDefinitionName'){
+    `$desiredPolicySetDefinition = `$policySetDefinition
+} else {
+    `$desiredPolicySetDefinition = Get-AzPolicySetDefinition |? {`$_.Name -eq '$desiredPolicySetDefinitionName'}
+}
+
+if (!`$policySetDefinition) {
+    throw "Policy set definition '$policySetDefinitionName' does not exist"
+}
+
+if (!`$desiredPolicySetDefinition) {
+    throw "Desired policy set definition '$desiredPolicySetDefinitionName' does not exist"
+}
+
+if (`$policySetDefinition -and `$desiredPolicySetDefinition) {
+    if ('$desiredName' -ne '$name' -or '$desiredScope' -ne '$scope' -or '$desiredPolicySetDefinitionName' -ne '$policySetDefinitionName' -or `$desiredPolicySetDefinition -ne `$policySetDefinition -or `$desiredPolicyParameter -ne `$policyParameter){
+        Get-AzPolicyAssignment -Name '$name' -Scope '$scope' -PolicyDefinitionId `$policySetDefinition.PolicyDefinitionId | ?{`$_.Name -eq '$name' -and `$_.Scope -eq '$scope' -and `$_.PolicyDefinitionId -eq `$policySetDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
+        New-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -PolicyDefinition `$desiredPolicySetDefinition -PolicyParameter `$desiredPolicyParameter -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+    } elseif (`$desiredNotScope -ne `$notScope -or '$desiredDisplayName' -ne '$displayName' -or '$desiredDescription' -ne '$description' -or `$desiredMetadata -ne `$metadata -or `$desiredAssignIdentity -ne `$assignIdentity -or '$desiredLocation' -ne '$location') {
+        Set-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+    }
+}
+"@
+                    #Get-AzPolicySetDefinition -Name 'xxx' seems faulty :<
+                    $policySetDefinition = $PolicySetDefinitions |? {$_.Name -eq $policySetDefinitionName}
+                    if ($policySetDefinitionName -eq $desiredPolicySetDefinitionName){
+                        $desiredPolicySetDefinition = $policySetDefinition
+                    } else {
+                        $desiredPolicySetDefinition = $PolicySetDefinitions |? {$_.Name -eq $desiredPolicySetDefinitionName}
+                    }
+
+                    if (!$policySetDefinition) {
+                        throw "Policy set definition '$policySetDefinitionName' does not exist"
+                    }
+
+                    if (!$desiredPolicySetDefinition) {
+                        throw "Desired policy set definition '$desiredPolicySetDefinitionName' does not exist"
+                    }
+
+                    if ($policySetDefinition -and $desiredPolicySetDefinition) {
+                        if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredPolicySetDefinitionName -ne $policySetDefinitionName -or $desiredPolicySetDefinition -ne $policySetDefinition -or $desiredPolicyParameter -ne $policyParameter){
+                            $result = Get-AzPolicyAssignment -Name $name -Scope $scope -PolicyDefinitionId $policyDefinition.PolicyDefinitionId | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicyDefinitionId -eq $policySetDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
+                            $result = New-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -PolicyDefinition $desiredPolicySetDefinition -PolicyParameter $desiredPolicyParameter -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation
+                            $_
+                        } elseif ($desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location) {
+                            $result = Set-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation 
+                            $_
+                        }
+                    } 
+                } else {
+                    $_
+                }
+            }
+        }
+    }
+   
+    if ($DeleteUnknownPolicySetAssignment) {
+        @($currentPolicySetAssignments | %{
+            $name = $_.Name
+            $scope = $_.Scope
+            $policySetDefinitionName = $_.PolicySetDefinitionName
     
-    #New-AzPolicyAssignment -PolicySetDefinition
+            if (!($PolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName})){
+                #Get-AzPolicySetDefinition -Name 'xxx' seems faulty :<
+                Write-Host @"
+`$policySetDefinition = Get-AzPolicySetDefinition |? {`$_.Name -eq '$policySetDefinitionName'}
+if (!`$policySetDefinition) {
+    throw "Policy set definition '$policySetDefinitionName' does not exist"
+}
+
+`$policyAssignmentId = Get-AzPolicyAssignment -Name '$name' -Scope '$scope' -PolicyDefinitionId `$policySetDefinition.PolicyDefinitionId | ?{`$_.Name -eq '$name' -and `$_.Properties.scope -eq '$scope' -and `$_.Properties.policyDefinitionId -eq `$policySetDefinition.PolicyDefinitionId} | %{`$_.PolicyAssignmentId}
+Remove-AzPolicyAssignment -Id `$policyAssignmentId
+"@
+
+                #Get-AzPolicySetDefinition -Name 'xxx' seems faulty :<
+                $policySetDefinition = Get-AzPolicySetDefinition |? {$_.Name -eq $policySetDefinitionName}
+                if (!$policySetDefinition) {
+                    throw "Policy set definition '$policySetDefinitionName' does not exist"
+                }
+
+                $policyAssignmentId = Get-AzPolicyAssignment -Name $name -Scope $scope -PolicyDefinitionId $policySetDefinition.PolicyDefinitionId | ?{$_.Name -eq $name -and $_.Properties.scope -eq $scope -and $_.Properties.policyDefinitionId -eq $policySetDefinition.PolicyDefinitionId} | %{$_.PolicyAssignmentId}
+                $result = Remove-AzPolicyAssignment -Id $policyAssignmentId
+            }
+        })
+    }
+
+    $desiredPolicySetAssignmentResults
 }
 
 #ensure there is an AD Tenant
