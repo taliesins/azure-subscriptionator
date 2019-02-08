@@ -489,6 +489,7 @@ Function Set-DscBlueprintDefinition {
     #Create blue print at root, then all management groups can apply them at any level
     #Resource Manager templates
     #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#creating-and-editing-a-blueprint
+    #https://www.powershellgallery.com/packages/Manage-AzureRMBlueprint
     #https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
 
     Write-Host "Set-DscBlueprintDefinition is not implemented yet"
@@ -1958,8 +1959,7 @@ if (!$tenantContext.EnrollmentAccountId) {
     Write-Host "No enrollment account, will not be able to create subscriptions"
 }
 
-$DesiredState = [System.IO.File]::ReadAllLines((Resolve-Path 'DesiredState.json')) | ConvertFrom-Json
-
+$DesiredState = [System.IO.File]::ReadAllLines((Resolve-Path 'DesiredState.json')) | ConvertFrom-Json 
 
 #Create definitions at root, then all management groups can apply them at any level
 $ManagementGroups = Set-DscManagementGroup -DesiredState $DesiredState -DeleteUnknownManagementGroups $FullyManage
