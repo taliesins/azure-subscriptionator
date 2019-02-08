@@ -1,22 +1,6 @@
 $subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 $subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
-# $scriptPath = Split-Path -parent $PSCommandPath
-# $AzPath = Join-Path $scriptPath "modules\az\1.0.1\Az.psd1"
-# if (!(Get-Module Az.Resources)){
-#     Import-Module -Name $AzPath
-# }
-
-# $AzureRMBlueprintPath = Join-Path $scriptPath "modules\manage-azurermblueprint.2.0.0\Manage-AzureRMBlueprint.ps1"
-# #if (!(Get-Module AzureRM.Blueprint)){
-# #    Import-Module -Name $AzureRMBlueprintPath
-# #}
-
-# $AzSubscriptionPath = Join-Path $scriptPath "modules\az.subscription.0.7.1-preview\Az.Subscription.psd1"
-# if (!(Get-Module Az.Subscription)){
-#     Import-Module -Name $AzSubscriptionPath
-# }
-
 function Connect-Context {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -504,8 +488,8 @@ Function Set-DscBlueprintDefinition {
 
     #Create blue print at root, then all management groups can apply them at any level
     #Resource Manager templates
+    #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#creating-and-editing-a-blueprint
     #https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
-    #BluePrintDefinitions
 
     Write-Host "Set-DscBlueprintDefinition is not implemented yet"
 }
@@ -1928,6 +1912,20 @@ Remove-AzPolicyAssignment -Id `$policyAssignmentId
     $desiredPolicySetAssignmentResults
 }
 
+Function Set-DscBlueprintAssignment {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $DeleteUnknownBlueprintAssignment = $false
+    )
+
+    #Assign blueprint to a subscription
+    #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#assignments
+
+    Write-Host "Set-DscBlueprintAssignment is not implemented yet"
+}
+
 #ensure there is an AD Tenant
 #https://portal.azure.com/#create/Microsoft.AzureActiveDirectory
 
@@ -1939,7 +1937,7 @@ Remove-AzPolicyAssignment -Id `$policyAssignmentId
 #ensure you are logged in with a user that has rights to create subscriptions:
 #https://docs.microsoft.com/bs-latn-ba/azure/azure-resource-manager/grant-access-to-create-subscription?tabs=azure-powershell
 # $EnrollmentAccountId = Get-AzEnrollmentAccount | %{$_.ObjectId}
-# $UserObjectId =  Get-AzADUser -UserPrincipalName "taliesins@TaliTest01.onmicrosoft.com" | %{$_.Id}
+# $UserObjectId = Get-AzADUser -UserPrincipalName "taliesins@TaliTest01.onmicrosoft.com" | %{$_.Id}
 # New-AzureRmRoleAssignment -RoleDefinitionName Owner -ObjectId $UserObjectId -Scope "/providers/Microsoft.Billing/enrollmentAccounts/$EnrollmentAccountId"
 
 #ensure the Az Context has been set for the tenant
@@ -1982,35 +1980,9 @@ $PolicyAssignments = Set-DscPolicyAssignment -DesiredState $DesiredState
 #Add policy set to management group or subscription
 $PolicySetAssignments = Set-DscPolicySetAssignment -DesiredState $DesiredState
 
-#BluePrintAssignments
+#Add blueprint to subscriptions
+$BlueprintAssignments = Set-DscBlueprintAssignment -DesiredState $DesiredState
 
 #https://docs.microsoft.com/en-us/rest/api/policy-insights/
 #Do this to show the number of non complaint resources
 #https://docs.microsoft.com/en-us/azure/governance/policy/assign-policy-powershell
-
-#Add role to management group
-#$EnvironmentProvisioningManagementGroupADGroup = Get-AzADGroup -SearchString "Environment Provisioning"
-
-#$ProductionManagementGroupName = "Production"
-#$ProductionManagementGroupId = $parentIdPrefix + $ProductionManagementGroupName
-#New-AzRoleAssignment -ObjectId $EnvironmentProvisioningManagementGroupADGroup.ObjectId -RoleDefinitionName "Reader" -Scope $ProductionManagementGroupId
-
-#$DevTestManagementGroupName = "DevTest"
-#$DevTestManagementGroupId = $parentIdPrefix + $DevTestManagementGroupName
-#New-AzRoleAssignment -ObjectId $EnvironmentProvisioningManagementGroupADGroup.ObjectId -RoleDefinitionName "Reader" -Scope $ProductionManagementGroupId
-
-#$ManagementGroupName = "ProductionHub1LOB2CICD"
-#$ManagementGroupId = $parentIdPrefix + $ManagementGroupName
-#New-AzRoleAssignment -ObjectId $EnvironmentProvisioningManagementGroupADGroup.ObjectId -RoleDefinitionName "Owner" -Scope $ManagementGroupId
-
-#$BYOPManagementGroupName = $ManagementGroupName + "BYOP"
-#$BYOPManagementGroupId = $parentIdPrefix + $BYOPManagementGroupName
-#$SubscriptionId = "87c5bf6c-dcba-43d2-bf32-6f16f072b472"
-#$EnvironmentAdminsManagementGroupADGroup = Get-AzADGroup -SearchString "$BYOPManagementGroupName - Admins"
-#$EnvironmentDevelopersManagementGroupADGroup = Get-AzADGroup -SearchString "$BYOPManagementGroupName - Developers"
-#New-AzRoleAssignment -ObjectId $EnvironmentAdminsManagementGroupADGroup.ObjectId -RoleDefinitionName "Resource Policy Contributor" -Scope $BYOPManagementGroupId
-#New-AzRoleAssignment -ObjectId $EnvironmentAdminsManagementGroupADGroup.ObjectId -RoleDefinitionName "Management Group Reader" -Scope $BYOPManagementGroupId
-#New-AzRoleAssignment -ObjectId $EnvironmentAdminsManagementGroupADGroup.ObjectId -RoleDefinitionName "Owner" -Scope $SubscriptionGroupId
-#New-AzRoleAssignment -ObjectId $EnvironmentDevelopersManagementGroupADGroup.ObjectId -RoleDefinitionName "Management Group Reader" -Scope $BYOPManagementGroupId
-#New-AzRoleAssignment -ObjectId $EnvironmentDevelopersManagementGroupADGroup.ObjectId -RoleDefinitionName "Reader" -Scope $SubscriptionGroupId
-
