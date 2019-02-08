@@ -1324,6 +1324,26 @@ if (`$policyDefinition) {
                 $desiredAssignIdentity = $desiredPolicyAssignment.AssignIdentity
                 $desiredLocation = $desiredPolicyAssignment.Location
 
+                if ($desiredName -ne $name){
+                    Write-Host @"
+                    Desired Name:
+                    $desiredName
+
+                    Actual Name:
+                    $name
+"@
+                }                    
+
+                if ($desiredScope -ne $scope){
+                    Write-Host @"
+                    Desired Scope:
+                    $desiredScope
+
+                    Actual Scope:
+                    $scope
+"@
+                }
+
                 if ($desiredNotScope -ne $notScope){
                     Write-Host @"
                     Desired Not Scope:
@@ -1402,9 +1422,9 @@ if (`$policyDefinition) {
                     Actual Location:
                     $location
 "@
-                }     
+                }
 
-                if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredPolicyDefinition -ne $policyDefinition -or $desiredPolicyParameter -ne $policyParameter -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location ) {
+                if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredPolicyDefinitionName -ne $policyDefinitionName -or $desiredPolicyParameter -ne $policyParameter -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location ) {
                     #Get-AzPolicyDefinition -Name 'xxx' seems faulty :<
                     Write-Host @"
 `$metadata=@'
