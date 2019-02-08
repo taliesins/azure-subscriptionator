@@ -543,7 +543,7 @@ Function Set-DscRoleDefinition {
 
             $inputFileObject.AssignableScopes = $assignableScopes
 
-            $inputFile = $inputFileObject | ConvertTo-Json -Depth 99
+            $inputFile = ConvertTo-Json $inputFileObject -Depth 99
 
             @{'Name'=$name;'InputFile'=$inputFile;}        
         }
@@ -552,7 +552,7 @@ Function Set-DscRoleDefinition {
     #hack - cache issues hence the %{try{Get-AzRoleDefinition -Id $_.Id}catch{}}
     $currentRoleDefinitions = @(Get-AzRoleDefinition -Custom | %{try{$r=Get-AzRoleDefinition -Id $_.Id -ErrorAction Stop;$r}catch{}} | %{
         $name = $_.Name
-        $inputFile = $_ | ConvertTo-Json -Depth 99
+        $inputFile = ConvertTo-Json $_ -Depth 99
         @{'Name'=$name;'InputFile'=$inputFile;}
     })
 
@@ -561,7 +561,7 @@ Function Set-DscRoleDefinition {
     $createRoleDefinitions = @($RoleDefinitions | ?{!($updateRoleDefinitions -and $updateRoleDefinitions.Name.Contains($_.Name))})
     $currentRoleDefinitions += @($createRoleDefinitions | %{try{$r=Get-AzRoleDefinition -Name $_.Name -ErrorAction Stop;$r}catch{}} | %{
         $name = $_.Name
-        $inputFile = $_ | ConvertTo-Json -Depth 99
+        $inputFile = ConvertTo-Json $_ -Depth 99
         @{'Name'=$name;'InputFile'=$inputFile;}
     })
     #hack stop - cache issues hence the double createRole check
@@ -592,7 +592,7 @@ New-AzRoleDefinition -Role ([Microsoft.Azure.Commands.Resources.Models.Authoriza
             {
                 $desiredInputFileObject = $desiredRoleDefinition.InputFile | ConvertFrom-Json 
                 $r = $desiredInputFileObject | Add-Member -MemberType noteProperty -name 'Id' -Value (($inputFile | ConvertFrom-Json).Id) 
-                $desiredInputFile = [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]$desiredInputFileObject | ConvertTo-Json -Depth 99
+                $desiredInputFile = ConvertTo-Json ([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]$desiredInputFileObject) -Depth 99
                 
                 if ($desiredInputFile -ne $inputFile) {
                     Write-Host @"
@@ -639,9 +639,9 @@ Function Set-DscPolicyDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
-            $metadata = $inputFileObject.properties.metadata | ConvertTo-Json -Depth 99
-            $policy = $inputFileObject.properties.policyRule | ConvertTo-Json -Depth 99
-            $parameter = $inputFileObject.properties.parameters | ConvertTo-Json -Depth 99
+            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99
+            $policy = ConvertTo-Json $inputFileObject.properties.policyRule -Depth 99
+            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99
  
             @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'Policy'=$policy;'Parameter'=$parameter;}        
         }
@@ -652,9 +652,9 @@ Function Set-DscPolicyDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
-        $metadata = $_.properties.metadata | ConvertTo-Json -Depth 99
-        $policy = $_.properties.policyRule | ConvertTo-Json -Depth 99
-        $parameter = $_.properties.parameters | ConvertTo-Json -Depth 99
+        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99
+        $policy = ConvertTo-Json $_.properties.policyRule -Depth 99
+        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99
 
         @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'Policy'=$policy;'Parameter'=$parameter;}
     })
@@ -798,8 +798,8 @@ Function Set-DscPolicySetDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
-            $metadata = $inputFileObject.properties.metadata | ConvertTo-Json -Depth 99
-            $policyDefinitions = $inputFileObject.properties.policyDefinitions | %{
+            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99
+            $policyDefinitions = ConvertTo-Json ($inputFileObject.properties.policyDefinitions | %{
                 #Dynamically created, so we have to ignore it
                 $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
 
@@ -807,8 +807,8 @@ Function Set-DscPolicySetDefinition {
                     $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
                 }
                 $_
-            } | ConvertTo-Json -Depth 99
-            $parameter = $inputFileObject.properties.parameters | ConvertTo-Json -Depth 99
+            }) -Depth 99
+            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99
  
             @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'PolicyDefinitions'=$policyDefinitions;'Parameter'=$parameter;}        
         }
@@ -819,8 +819,8 @@ Function Set-DscPolicySetDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
-        $metadata = $_.properties.metadata | ConvertTo-Json -Depth 99
-        $policyDefinitions = $_.properties.policyDefinitions | %{
+        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99
+        $policyDefinitions = ConvertTo-Json ($_.properties.policyDefinitions | %{
             #Dynamically created, so we have to ignore it
             $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
 
@@ -828,8 +828,8 @@ Function Set-DscPolicySetDefinition {
                 $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
             }
             $_
-        } | ConvertTo-Json -Depth 99
-        $parameter = $_.properties.parameters | ConvertTo-Json -Depth 99
+        }) -Depth 99
+        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99
 
         @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'PolicyDefinitions'=$policyDefinitions;'Parameter'=$parameter;}
     })
@@ -1138,10 +1138,10 @@ function Get-PolicyAssignmentFromConfig {
     
     $displayName = $ConfigItem.DisplayName
     $description = $ConfigItem.Description
-    $metadata = $ConfigItem.Metadata | ConvertTo-Json -Depth 99
+    $metadata = ConvertTo-Json $ConfigItem.Metadata -Depth 99
     $policyDefinitionName = $ConfigItem.PolicyDefinitionName
     $policySetDefinitionName = $ConfigItem.PolicySetDefinitionName
-    $policyParameter = $ConfigItem.PolicyParameter | ConvertTo-Json -Depth 99
+    $policyParameter = ConvertTo-Json $ConfigItem.PolicyParameter -Depth 99
 
     if ($ConfigItem.AssignIdentity -eq ''){
         $assignIdentity = $false
@@ -1196,13 +1196,13 @@ Function Set-DscPolicyAssignment {
     $currentPolicyAssignments = @(Get-AzPolicyAssignment |?{$_.ExtensionResourceType -eq 'Microsoft.Authorization/policyAssignments' -and $_.Properties -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
         $scope = $_.Properties.Scope
-        $notScope = $_.Properties.NotScope
+        $notScope = @($_.Properties.NotScope)
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
-        $metadata = $_.Properties.Metadata | ConvertTo-Json -Depth 99
+        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
         $policyDefinitionName = $_.Properties.PolicyDefinitionName
         $policySetDefinitionName = ""
-        $policyParameter = $_.Properties.PolicyParameter | ConvertTo-Json -Depth 99
+        $policyParameter = ConvertTo-Json $_.Properties.PolicyParameter -Depth 99
         
         if ($_.Properties.AssignIdentity -eq ''){
             $assignIdentity = $false
@@ -1262,7 +1262,7 @@ $metadata
 $policyParameter
 '@
 `$notScope=@'
-$($notScope | ConvertTo-Json -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99)
 '@ 
 `$notScope = `$notScope | ConvertFrom-Json
 
@@ -1308,10 +1308,10 @@ if (`$policyDefinition) {
                 if ($desiredNotScope -ne $notScope){
                     Write-Host @"
                     Desired Not Scope:
-                    $desiredNotScope
+                    $(ConvertTo-Json $desiredNotScope -Depth 99)
 
                     Actual Not Scope:
-                    $notScope
+                    $(ConvertTo-Json $notScope -Depth 99)
 "@
                 }
 
@@ -1401,12 +1401,12 @@ $policyParameter
 $desiredPolicyParameter
 '@
 `$notScope=@'
-$($notScope | ConvertTo-Json -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99)
 '@ 
 `$notScope = `$notScope | ConvertFrom-Json
 
 `$desiredNotScope=@'
-$($desiredNotScope | ConvertTo-Json -Depth 99)
+$(ConvertTo-Json $desiredNotScope -Depth 99)
 '@ 
 `$desiredNotScope = `$desiredNotScope | ConvertFrom-Json
 
