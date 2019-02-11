@@ -451,8 +451,12 @@ function Get-SubscriptionForManagementGroupHiearchy {
     $subscriptions
 }
 
-function Get-SubscriptionForTenants {
-    @(Get-AzSubscription | %{"/subscriptions/$($_.Id)"})
+function Get-SubscriptionForTenant {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $TenantId
+    )
+    @(Get-AzSubscription -TenantId $TenantId | %{"/subscriptions/$($_.Id)"})
 }
 
 Function Set-DscSubscription {
@@ -481,8 +485,10 @@ Function Set-DscSubscription {
 Function Set-DscBlueprintDefinition {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $ManagementGroups,
-        [Parameter(Mandatory = $false, Position = 1)]
+        $BlueprintPath,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $false, Position = 2)]
         $DeleteUnknownBlueprints = $false
     )
 
@@ -499,7 +505,9 @@ Function Set-DscRoleDefinition {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
         $RoleDefinitionPath,
-        [Parameter(Mandatory = $false, Position = 1)]
+        [Parameter(Mandatory = $true, Position = 1)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 2)]
         $DeleteUnknownRoleDefinition = $false
     )
 
@@ -512,14 +520,16 @@ Function Set-DscRoleDefinition {
             #https://feedback.azure.com/forums/911473-azure-management-groups/suggestions/34391878-allow-custom-rbac-definitions-at-the-management-gr
             #Currently cannot be set to the root scope ("/") or a management group scope
 
+            #lets emulate this functionality for now
             $inputFileObject.AssignableScopes | %{
                 if (!$_){
 
                 }
-                if ($_ -eq '/') {
-                    $assignableScopes += @(Get-SubscriptionForTenants)
+                if ($_ -eq '/' -or $_ -eq '/providers/Microsoft.Management/managementGroups/' -or $_.StartsWith('/providers/Microsoft.Management/managementGroups/*')) {
+                    $assignableScopes += @(Get-SubscriptionForTenant -TenantId $TenantId)
                 } elseif ($_.StartsWith('/providers/Microsoft.Management/managementGroups/')) {
-                    $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroup.TrimStart('/providers/Microsoft.Management/managementGroups/') -Expand -Recurse
+                    $groupName = $_.TrimStart('/providers/Microsoft.Management/managementGroups/').split('/')[0]
+                    $managementGroupHiearchy = Get-AzManagementGroup -GroupName $groupName -Expand -Recurse
                     $assignableScopes += @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy)
                 } else {
                     $assignableScopes += @($_)
@@ -949,6 +959,11 @@ function Get-RoleAssignmentFromConfig {
 
     $roleDefinitionName = $ConfigItem.RoleDefinitionName
     $canDelegate = $ConfigItem.CanDelegate
+    if (!$canDelegate){
+        $canDelegate = $false
+    } else {
+        $canDelegate = [System.Convert]::ToBoolean($canDelegate)
+    }
     $objectName = $ConfigItem.ObjectName
     $objectType = $ConfigItem.ObjectType
     $objectId = ''
@@ -988,14 +1003,29 @@ Function Set-DscRoleAssignment {
 
     $RoleAssignments = $RootRoleAssignments | ?{$_} | %{
         $scope = "/"
-        Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
+        $roleAssignment = Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
+        
+        $scopes = @(Get-SubscriptionForTenant -TenantId $TenantId)
+        $scopes | %{
+            $roleAssignmentForTenant = $roleAssignment.PsObject.Copy()
+            $roleAssignmentForTenant.Scope = $_
+            $roleAssignmentForTenant
+        }
     }
 
     $RoleAssignments += $ManagementGroups | %{
         $ManagementGroupName = $_.Name
         $_.RoleAssignments | ?{$_} | %{
             $scope = "/providers/Microsoft.Management/managementGroups/$ManagementGroupName"
-            Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
+            $roleAssignment = Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
+
+            $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
+            $scopes = @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy) 
+            $scopes | %{
+                $roleAssignmentForSubscription = $roleAssignment.PsObject.Copy()
+                $roleAssignmentForSubscription.Scope = $_
+                $roleAssignmentForSubscription
+            }
         }  
         $_.Subscriptions | %{
             $RoleAssignmentsForSubscription = $_.RoleAssignments | ?{$_}
@@ -1014,12 +1044,17 @@ Function Set-DscRoleAssignment {
     }
 
     #Only deal with role assignments against root, management groups and subscriptions. Role assignments directly to providers should be abstracted by RoleDefinition applied at management group or subscription
-    $currentRoleAssignments = @(Get-AzRoleAssignment | ?{$_.Scope -eq '/' -or $_.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Scope.StartsWith('/subscriptions/')} %{
+    $currentRoleAssignments = @(Get-AzRoleAssignment | ?{$_.Scope -eq '/' -or $_.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Scope.StartsWith('/subscriptions/')} | %{
         $scope = $_.Scope
         $roleDefinitionName = $_.RoleDefinitionName
         $objectId = $_.ObjectId
         $canDelegate = $_.CanDelegate
-        
+        if (!$canDelegate){
+            $canDelegate = $false
+        } else {
+            $canDelegate = [System.Convert]::ToBoolean($canDelegate)
+        }
+           
         @{'Scope'=$scope;'RoleDefinitionName'=$roleDefinitionName;'ObjectId'=$objectId;'CanDelegate'=$canDelegate;} 
     })
 
@@ -1054,7 +1089,11 @@ Function Set-DscRoleAssignment {
         $canDelegate = $_.CanDelegate
    
         if ($createRoleAssignments | ?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId}){
-            Write-Host "New-AzRoleAssignment -Scope '$scope' -RoleDefinitionName '$roleDefinitionName' -ObjectId '$objectId' -AllowDelegation:`$$canDelegate "
+            Write-Host @"
+`$canDelegate = [System.Convert]::ToBoolean('$canDelegate')
+
+New-AzRoleAssignment -Scope '$scope' -RoleDefinitionName '$roleDefinitionName' -ObjectId '$objectId' -AllowDelegation:`$canDelegate 
+"@
             $result = New-AzRoleAssignment -Scope $scope -RoleDefinitionName $roleDefinitionName -ObjectId $objectId -AllowDelegation:$canDelegate
             $_
         } elseif ($updateRoleAssignments | ?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId}) {
@@ -1068,18 +1107,20 @@ Function Set-DscRoleAssignment {
                 
                 if ($desiredCanDelegate -ne $canDelegate) {
                     Write-Host @"
+`$desiredCanDelegate = [System.Convert]::ToBoolean('$desiredCanDelegate')
+
 Get-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' | 
 ?{`$_.Scope -eq '$desiredScope' -and `$_.RoleDefinitionName -eq '$desiredRoleDefinitionName' -and `$_.ObjectId -eq '$desiredObjectId'} |
 Remove-AzRoleAssignment
 
-New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' -AllowDelegation:`$$desiredCanDelegate 
+New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' -AllowDelegation:`$desiredCanDelegate 
 "@
                     #Scope and ObjectId are not honoured as filters :<
                     $result = Get-AzRoleAssignment -Scope $desiredScope -RoleDefinitionName $desiredRoleDefinitionName -ObjectId $desiredObjectId | 
                     ?{$_.Scope -eq $desiredScope -and $_.RoleDefinitionName -eq $desiredRoleDefinitionName -and $_.ObjectId -eq $desiredObjectId} |
                     Remove-AzRoleAssignment 
 
-                    $result = New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDefinitionName' -ObjectId '$desiredObjectId' -AllowDelegation:`$$desiredCanDelegate
+                    $result = New-AzRoleAssignment -Scope $desiredScope -RoleDefinitionName $desiredRoleDefinitionName -ObjectId $desiredObjectId -AllowDelegation:$desiredCanDelegate
 
                     $_
                 }
@@ -1966,10 +2007,10 @@ $ManagementGroups = Set-DscManagementGroup -DesiredState $DesiredState -DeleteUn
 $Subscriptions = Set-DscSubscription -DesiredState $DesiredState -CancelUnknownSubscriptions $FullyManage
 $AdGroups = Set-DscAdGroup -DesiredState $DesiredState -DeleteUnknownAdGroups $FullyManage -DeleteUnknownAdGroupMembers $FullyManage
 
-$RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'RoleDefinitions')
+$RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'RoleDefinitions') -TenantId $TenantId
 $PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
 $PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
-$BlueprintDefinitions = Set-DscBlueprintDefinition -ManagementGroupName $tenantContext.ManagementGroupName
+$BlueprintDefinitions = Set-DscBlueprintDefinition -ManagementGroupName $tenantContext.ManagementGroupName -BlueprintPath (Resolve-Path 'Blueprints')
 
 #Add role to management group or subscription
 $RoleAssignments = Set-DscRoleAssignment -DesiredState $DesiredState

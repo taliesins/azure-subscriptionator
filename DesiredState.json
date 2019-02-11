@@ -67,7 +67,7 @@
             "PolicySetAssignments" : [
                 {
                     "Name": "tagging-resource-group-a",
-                    "NotScope": ["/providers/Microsoft.Management/managementGroups/DoesNotExist"],
+                    "NotScope": [],
                     "DisplayName" : "Tagging resource group assignment",
                     "Description" : "Ensure that tagging is applied on resource group",
                     "PolicySetDefinitionName": "tagging-resource-group",
