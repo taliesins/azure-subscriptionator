@@ -1141,9 +1141,9 @@ Get-AzRoleAssignment -Scope '$scope' -RoleDefinitionName '$roleDefinitionName' -
 Remove-AzRoleAssignment
 "@
                 #Scope and ObjectId are not honoured as filters :<
-                $result = Get-AzRoleAssignment -Scope $scope -RoleDefinitionName $roleDefinitionName -ObjectId $objectId | 
-                ?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId} |
-                Remove-AzRoleAssignment 
+                #$result = Get-AzRoleAssignment -Scope $scope -RoleDefinitionName $roleDefinitionName -ObjectId $objectId | 
+                #?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId} |
+                #Remove-AzRoleAssignment 
             }
         })
     }
@@ -1160,7 +1160,7 @@ function Get-PolicyAssignmentFromConfig {
     )
 
     $name = $ConfigItem.Name
-    $notScope = @($ConfigItem.NotScope) |? {$_}
+    $notScope = @($ConfigItem.NotScope |? {$_})
     
     $displayName = $ConfigItem.DisplayName
     $description = $ConfigItem.Description
@@ -1230,7 +1230,7 @@ Function Set-DscPolicyAssignment {
     $currentPolicyAssignments = @(Get-AzPolicyAssignment |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policyDefinitions/' -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
         $scope = $_.Properties.Scope
-        $notScope = @($_.Properties.NotScope) |? {$_}
+        $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
         $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
@@ -1323,7 +1323,21 @@ if (!`$policyDefinition) {
 }
 
 if (`$policyDefinition) {
-    New-AzPolicyAssignment -Name '$name' -Scope '$scope' -NotScope `$notScope -DisplayName '$displayName' -Description '$description' -Metadata `$metadata -PolicyDefinition `$policyDefinition -PolicyParameter `$policyParameter -AssignIdentity:`$assignIdentity -Location '$location' 
+    `$NewAzPolicyAssignmentArgs = @{}
+    `$NewAzPolicyAssignmentArgs.Name = '$name'
+    `$NewAzPolicyAssignmentArgs.Scope = '$scope'
+    if (`$notScope) {
+        `$NewAzPolicyAssignmentArgs.NotScope = `$notScope
+    }
+    `$NewAzPolicyAssignmentArgs.DisplayName = '$displayName'
+    `$NewAzPolicyAssignmentArgs.Description = '$description'
+    `$NewAzPolicyAssignmentArgs.Metadata = `$metadata
+    `$NewAzPolicyAssignmentArgs.PolicyDefinition = `$policyDefinition
+    `$NewAzPolicyAssignmentArgs.PolicyParameter = `$policyParameter
+    `$NewAzPolicyAssignmentArgs.AssignIdentity = `$assignIdentity
+    `$NewAzPolicyAssignmentArgs.Location = '$location'
+
+    New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
 }
 "@
             $policyDefinition = $PolicyDefinitions |? {$_.Name -eq $policyDefinitionName}
@@ -1333,7 +1347,21 @@ if (`$policyDefinition) {
             }
 
             if ($policyDefinition) {
-                $result = New-AzPolicyAssignment -Name $name -Scope $scope -NotScope $notScope -DisplayName $displayName -Description $description -Metadata $metadata -PolicyDefinition $policyDefinition -PolicyParameter $policyParameter -AssignIdentity:$assignIdentity -Location $location
+                $NewAzPolicyAssignmentArgs = @{}
+                $NewAzPolicyAssignmentArgs.Name = $name
+                $NewAzPolicyAssignmentArgs.Scope = $scope
+                if ($notScope) {
+                    $NewAzPolicyAssignmentArgs.NotScope = $notScope
+                }
+                $NewAzPolicyAssignmentArgs.DisplayName = $displayName
+                $NewAzPolicyAssignmentArgs.Description = $description
+                $NewAzPolicyAssignmentArgs.Metadata = $metadata
+                $NewAzPolicyAssignmentArgs.PolicyDefinition = $policyDefinition
+                $NewAzPolicyAssignmentArgs.PolicyParameter = $policyParameter
+                $NewAzPolicyAssignmentArgs.AssignIdentity = $assignIdentity
+                $NewAzPolicyAssignmentArgs.Location = $location
+
+                $result = New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
                 $_
             }
         } elseif ($updatePolicyAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicyDefinitionName -eq $policyDefinitionName}) {
@@ -1496,11 +1524,38 @@ if (!`$desiredPolicyDefinition) {
 }
 
 if (`$policyDefinition -and `$desiredPolicyDefinition) {
-    if ('$desiredName' -ne '$name' -or '$desiredScope' -ne '$scope' -or '$desiredPolicyDefinitionName' -ne '$policyDefinitionName' -or `$desiredPolicyDefinition -ne `$policyDefinition -or `$desiredPolicyParameter -ne `$policyParameter){
+    if ((`$desiredNotScope -ne `$notScope -and !(`$desiredNotScope)) -or '$desiredName' -ne '$name' -or '$desiredScope' -ne '$scope' -or '$desiredPolicyDefinitionName' -ne '$policyDefinitionName' -or `$desiredPolicyDefinition -ne `$policyDefinition -or `$desiredPolicyParameter -ne `$policyParameter){
         Get-AzPolicyAssignment -Name '$name' -Scope '$scope' -PolicyDefinitionId `$policyDefinition.PolicyDefinitionId | ?{`$_.Name -eq '$name' -and `$_.Scope -eq '$scope' -and `$_.PolicyDefinitionId -eq `$policyDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
-        New-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -PolicyDefinition `$desiredPolicyDefinition -PolicyParameter `$desiredPolicyParameter -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+
+        `$NewAzPolicyAssignmentArgs = @{}
+        `$NewAzPolicyAssignmentArgs.Name = '$desiredName'
+        `$NewAzPolicyAssignmentArgs.Scope = '$desiredScope'
+        if (`$desiredNotScope) {
+            `$NewAzPolicyAssignmentArgs.NotScope = `$desiredNotScope
+        }
+        `$NewAzPolicyAssignmentArgs.DisplayName = '$desiredDisplayName'
+        `$NewAzPolicyAssignmentArgs.Description = '$desiredDescription'
+        `$NewAzPolicyAssignmentArgs.Metadata = `$desiredMetadata
+        `$NewAzPolicyAssignmentArgs.PolicyDefinition = `$desiredPolicyDefinition
+        `$NewAzPolicyAssignmentArgs.PolicyParameter = `$desiredPolicyParameter
+        `$NewAzPolicyAssignmentArgs.AssignIdentity = `$desiredAssignIdentity
+        `$NewAzPolicyAssignmentArgs.Location = '$desiredLocation'
+
+        New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
     } elseif (`$desiredNotScope -ne `$notScope -or '$desiredDisplayName' -ne '$displayName' -or '$desiredDescription' -ne '$description' -or `$desiredMetadata -ne `$metadata -or `$desiredAssignIdentity -ne `$assignIdentity -or '$desiredLocation' -ne '$location') {
-        Set-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+        `$SetAzPolicyAssignmentArgs = @{}
+        `$SetAzPolicyAssignmentArgs.Name = '$desiredName'
+        `$SetAzPolicyAssignmentArgs.Scope = '$desiredScope'
+        if (`$desiredNotScope) {
+            `$SetAzPolicyAssignmentArgs.NotScope = `$desiredNotScope
+        }
+        `$SetAzPolicyAssignmentArgs.DisplayName = '$desiredDisplayName'
+        `$SetAzPolicyAssignmentArgs.Description = '$desiredDescription'
+        `$SetAzPolicyAssignmentArgs.Metadata = `$desiredMetadata
+        `$SetAzPolicyAssignmentArgs.AssignIdentity = `$desiredAssignIdentity
+        `$SetAzPolicyAssignmentArgs.Location = '$desiredLocation'
+
+        Set-AzPolicyAssignment @SetAzPolicyAssignmentArgs
     }
 }
 "@
@@ -1521,12 +1576,39 @@ if (`$policyDefinition -and `$desiredPolicyDefinition) {
                     }
 
                     if ($policyDefinition -and $desiredPolicyDefinition) {
-                        if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredPolicyDefinitionName -ne $policyDefinitionName -or $desiredPolicyDefinition -ne $policyDefinition -or $desiredPolicyParameter -ne $policyParameter){
+                        if (($desiredNotScope -ne $notScope -and !($desiredNotScope)) -or $desiredName -ne $name -or $desiredScope -ne $scope -or $desiredPolicyDefinitionName -ne $policyDefinitionName -or $desiredPolicyDefinition -ne $policyDefinition -or $desiredPolicyParameter -ne $policyParameter){
                             $result = Get-AzPolicyAssignment -Name $name -Scope $scope -PolicyDefinitionId $policyDefinition.PolicyDefinitionId | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicyDefinitionId -eq $policyDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
-                            $result = New-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -PolicyDefinition $desiredPolicyDefinition -PolicyParameter $desiredPolicyParameter -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation
+
+                            $NewAzPolicyAssignmentArgs = @{}
+                            $NewAzPolicyAssignmentArgs.Name = $desiredName
+                            $NewAzPolicyAssignmentArgs.Scope = $desiredScope
+                            if ($desiredNotScope) {
+                                $NewAzPolicyAssignmentArgs.NotScope = $desiredNotScope
+                            }
+                            $NewAzPolicyAssignmentArgs.DisplayName = $desiredDisplayName
+                            $NewAzPolicyAssignmentArgs.Description = $desiredDescription
+                            $NewAzPolicyAssignmentArgs.Metadata = $desiredMetadata
+                            $NewAzPolicyAssignmentArgs.PolicyDefinition = $desiredPolicyDefinition
+                            $NewAzPolicyAssignmentArgs.PolicyParameter = $desiredPolicyParameter
+                            $NewAzPolicyAssignmentArgs.AssignIdentity = $desiredAssignIdentity
+                            $NewAzPolicyAssignmentArgs.Location = $desiredLocation
+                                        
+                            $result = New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
                             $_
                         } elseif ($desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location) {
-                            $result = Set-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation 
+                            $SetAzPolicyAssignmentArgs = @{}
+                            $SetAzPolicyAssignmentArgs.Name = $desiredName
+                            $SetAzPolicyAssignmentArgs.Scope = $desiredScope
+                            if ($desiredNotScope) {
+                                $SetAzPolicyAssignmentArgs.NotScope = $desiredNotScope
+                            }
+                            $SetAzPolicyAssignmentArgs.DisplayName = $desiredDisplayName
+                            $SetAzPolicyAssignmentArgs.Description = $desiredDescription
+                            $SetAzPolicyAssignmentArgs.Metadata = $desiredMetadata
+                            $SetAzPolicyAssignmentArgs.AssignIdentity = $desiredAssignIdentity
+                            $SetAzPolicyAssignmentArgs.Location = $desiredLocation
+                            
+                            $result = Set-AzPolicyAssignment @SetAzPolicyAssignmentArgs
                             $_
                         }
                     } 
@@ -1614,7 +1696,7 @@ Function Set-DscPolicySetAssignment {
     $currentPolicySetAssignments = @(Get-AzPolicyAssignment |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/' -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
         $scope = $_.Properties.Scope
-        $notScope = @($_.Properties.NotScope) |? {$_}
+        $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
         $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
@@ -1707,7 +1789,21 @@ if (!`$policySetDefinition) {
 }
 
 if (`$policySetDefinition) {
-    New-AzPolicyAssignment -Name '$name' -Scope '$scope' -NotScope `$notScope -DisplayName '$displayName' -Description '$description' -Metadata `$metadata -PolicySetDefinition `$policySetDefinition -PolicyParameter `$policyParameter -AssignIdentity:`$assignIdentity -Location '$location' 
+    `$NewAzPolicyAssignmentArgs = @{}
+    `$NewAzPolicyAssignmentArgs.Name = '$name'
+    `$NewAzPolicyAssignmentArgs.Scope = '$scope'
+    if (`$notScope) {
+        `$NewAzPolicyAssignmentArgs.NotScope = `$notScope
+    }
+    `$NewAzPolicyAssignmentArgs.DisplayName = '$displayName'
+    `$NewAzPolicyAssignmentArgs.Description = '$description'
+    `$NewAzPolicyAssignmentArgs.Metadata = `$metadata
+    `$NewAzPolicyAssignmentArgs.PolicySetDefinition = `$policySetDefinition
+    `$NewAzPolicyAssignmentArgs.PolicyParameter = `$policyParameter
+    `$NewAzPolicyAssignmentArgs.AssignIdentity = `$assignIdentity
+    `$NewAzPolicyAssignmentArgs.Location = '$location'
+
+    New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
 }
 "@
             $policySetDefinition = $PolicySetDefinitions |? {$_.Name -eq $policySetDefinitionName}
@@ -1717,7 +1813,21 @@ if (`$policySetDefinition) {
             }
 
             if ($policySetDefinition) {
-                $result = New-AzPolicyAssignment -Name $name -Scope $scope -NotScope $notScope -DisplayName $displayName -Description $description -Metadata $metadata -PolicySetDefinition $policySetDefinition -PolicyParameter $policyParameter -AssignIdentity:$assignIdentity -Location $location
+                $NewAzPolicyAssignmentArgs = @{}
+                $NewAzPolicyAssignmentArgs.Name = $name
+                $NewAzPolicyAssignmentArgs.Scope = $scope
+                if ($notScope) {
+                    $NewAzPolicyAssignmentArgs.NotScope = $notScope
+                }
+                $NewAzPolicyAssignmentArgs.DisplayName = $displayName
+                $NewAzPolicyAssignmentArgs.Description = $description
+                $NewAzPolicyAssignmentArgs.Metadata = $metadata
+                $NewAzPolicyAssignmentArgs.PolicySetDefinition = $policySetDefinition
+                $NewAzPolicyAssignmentArgs.PolicyParameter = $policyParameter
+                $NewAzPolicyAssignmentArgs.AssignIdentity = $assignIdentity
+                $NewAzPolicyAssignmentArgs.Location = $location
+
+                $result = New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
                 $_
             }
         } elseif ($updatePolicySetAssignments | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicySetDefinitionName -eq $policySetDefinitionName}) {
@@ -1880,11 +1990,38 @@ if (!`$desiredPolicySetDefinition) {
 }
 
 if (`$policySetDefinition -and `$desiredPolicySetDefinition) {
-    if ('$desiredName' -ne '$name' -or '$desiredScope' -ne '$scope' -or '$desiredPolicySetDefinitionName' -ne '$policySetDefinitionName' -or `$desiredPolicySetDefinition -ne `$policySetDefinition -or `$desiredPolicyParameter -ne `$policyParameter){
+    if ((`$desiredNotScope -ne `$notScope -and !(`$desiredNotScope)) -or '$desiredName' -ne '$name' -or '$desiredScope' -ne '$scope' -or '$desiredPolicySetDefinitionName' -ne '$policySetDefinitionName' -or `$desiredPolicySetDefinition -ne `$policySetDefinition -or `$desiredPolicyParameter -ne `$policyParameter){
         Get-AzPolicyAssignment -Name '$name' -Scope '$scope' -PolicyDefinitionId `$policySetDefinition.PolicyDefinitionId | ?{`$_.Name -eq '$name' -and `$_.Scope -eq '$scope' -and `$_.PolicyDefinitionId -eq `$policySetDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
-        New-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -PolicyDefinition `$desiredPolicySetDefinition -PolicyParameter `$desiredPolicyParameter -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+
+        `$NewAzPolicyAssignmentArgs = @{}
+        `$NewAzPolicyAssignmentArgs.Name = '$desiredName'
+        `$NewAzPolicyAssignmentArgs.Scope = '$desiredScope'
+        if (`$desiredNotScope) {
+            `$NewAzPolicyAssignmentArgs.NotScope = `$desiredNotScope
+        }
+        `$NewAzPolicyAssignmentArgs.DisplayName = '$desiredDisplayName'
+        `$NewAzPolicyAssignmentArgs.Description = '$desiredDescription'
+        `$NewAzPolicyAssignmentArgs.Metadata = `$desiredMetadata
+        `$NewAzPolicyAssignmentArgs.PolicySetDefinition = `$desiredPolicySetDefinition
+        `$NewAzPolicyAssignmentArgs.PolicyParameter = `$desiredPolicyParameter
+        `$NewAzPolicyAssignmentArgs.AssignIdentity = `$desiredAssignIdentity
+        `$NewAzPolicyAssignmentArgs.Location = '$desiredLocation'
+    
+        New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
     } elseif (`$desiredNotScope -ne `$notScope -or '$desiredDisplayName' -ne '$displayName' -or '$desiredDescription' -ne '$description' -or `$desiredMetadata -ne `$metadata -or `$desiredAssignIdentity -ne `$assignIdentity -or '$desiredLocation' -ne '$location') {
-        Set-AzPolicyAssignment -Name '$desiredName' -Scope '$desiredScope' -NotScope `$desiredNotScope -DisplayName '$desiredDisplayName' -Description '$desiredDescription' -Metadata `$desiredMetadata -AssignIdentity:`$desiredAssignIdentity -Location '$desiredLocation' 
+        `$SetAzPolicyAssignmentArgs = @{}
+        `$SetAzPolicyAssignmentArgs.Name = '$desiredName'
+        `$SetAzPolicyAssignmentArgs.Scope = '$desiredScope'
+        if (`$desiredNotScope) {
+            `$SetAzPolicyAssignmentArgs.NotScope = `$desiredNotScope
+        }
+        `$SetAzPolicyAssignmentArgs.DisplayName = '$desiredDisplayName'
+        `$SetAzPolicyAssignmentArgs.Description = '$desiredDescription'
+        `$SetAzPolicyAssignmentArgs.Metadata = `$desiredMetadata
+        `$SetAzPolicyAssignmentArgs.AssignIdentity = `$desiredAssignIdentity
+        `$SetAzPolicyAssignmentArgs.Location = '$desiredLocation'
+
+        Set-AzPolicyAssignment @SetAzPolicyAssignmentArgs
     }
 }
 "@
@@ -1905,12 +2042,39 @@ if (`$policySetDefinition -and `$desiredPolicySetDefinition) {
                     }
 
                     if ($policySetDefinition -and $desiredPolicySetDefinition) {
-                        if ($desiredName -ne $name -or $desiredScope -ne $scope -or $desiredPolicySetDefinitionName -ne $policySetDefinitionName -or $desiredPolicySetDefinition -ne $policySetDefinition -or $desiredPolicyParameter -ne $policyParameter){
+                        if (($desiredNotScope -ne $notScope -and !($desiredNotScope)) -or $desiredName -ne $name -or $desiredScope -ne $scope -or $desiredPolicySetDefinitionName -ne $policySetDefinitionName -or $desiredPolicySetDefinition -ne $policySetDefinition -or $desiredPolicyParameter -ne $policyParameter){
                             $result = Get-AzPolicyAssignment -Name $name -Scope $scope -PolicyDefinitionId $policyDefinition.PolicyDefinitionId | ?{$_.Name -eq $name -and $_.Scope -eq $scope -and $_.PolicyDefinitionId -eq $policySetDefinition.PolicyDefinitionId} | Remove-AzRoleAssignment
-                            $result = New-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -PolicyDefinition $desiredPolicySetDefinition -PolicyParameter $desiredPolicyParameter -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation
+                            
+                            $NewAzPolicyAssignmentArgs = @{}
+                            $NewAzPolicyAssignmentArgs.Name = $desiredName
+                            $NewAzPolicyAssignmentArgs.Scope = $desiredScope
+                            if ($desiredNotScope) {
+                                $NewAzPolicyAssignmentArgs.NotScope = $desiredNotScope
+                            }
+                            $NewAzPolicyAssignmentArgs.DisplayName = $desiredDisplayName
+                            $NewAzPolicyAssignmentArgs.Description = $desiredDescription
+                            $NewAzPolicyAssignmentArgs.Metadata = $desiredMetadata
+                            $NewAzPolicyAssignmentArgs.PolicySetDefinition = $desiredPolicySetDefinition
+                            $NewAzPolicyAssignmentArgs.PolicyParameter = $desiredPolicyParameter
+                            $NewAzPolicyAssignmentArgs.AssignIdentity = $desiredAssignIdentity
+                            $NewAzPolicyAssignmentArgs.Location = $desiredLocation
+
+                            $result = New-AzPolicyAssignment @NewAzPolicyAssignmentArgs
                             $_
                         } elseif ($desiredNotScope -ne $notScope -or $desiredDisplayName -ne $displayName -or $desiredDescription -ne $description -or $desiredMetadata -ne $metadata -or $desiredAssignIdentity -ne $assignIdentity -or $desiredLocation -ne $location) {
-                            $result = Set-AzPolicyAssignment -Name $desiredName -Scope $desiredScope -NotScope $desiredNotScope -DisplayName $desiredDisplayName -Description $desiredDescription -Metadata $desiredMetadata -AssignIdentity:$desiredAssignIdentity -Location $desiredLocation 
+                            $SetAzPolicyAssignmentArgs = @{}
+                            $SetAzPolicyAssignmentArgs.Name = $desiredName
+                            $SetAzPolicyAssignmentArgs.Scope = $desiredScope
+                            if ($desiredNotScope) {
+                                $SetAzPolicyAssignmentArgs.NotScope = $desiredNotScope
+                            }
+                            $SetAzPolicyAssignmentArgs.DisplayName = $desiredDisplayName
+                            $SetAzPolicyAssignmentArgs.Description = $desiredDescription
+                            $SetAzPolicyAssignmentArgs.Metadata = $desiredMetadata
+                            $SetAzPolicyAssignmentArgs.AssignIdentity = $desiredAssignIdentity
+                            $SetAzPolicyAssignmentArgs.Location = $desiredLocation
+                    
+                            $result = Set-AzPolicyAssignment @SetAzPolicyAssignmentArgs
                             $_
                         }
                     } 
