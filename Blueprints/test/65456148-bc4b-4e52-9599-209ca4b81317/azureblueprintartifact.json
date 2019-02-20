@@ -1,0 +1,16 @@
+{
+  "properties": {
+    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/naming-automation-account",
+    "parameters": {
+      "effect": {
+        "value": "[parameters('namingofAzureautomationaccounts_effect')]"
+      }
+    },
+    "dependsOn": [],
+    "displayName": "Naming of Azure automation accounts"
+  },
+  "kind": "policyAssignment",
+  "id": "/providers/Microsoft.Management/managementGroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Blueprint/blueprints/TestBlueprint/artifacts/65456148-bc4b-4e52-9599-209ca4b81317",
+  "type": "Microsoft.Blueprint/blueprints/artifacts",
+  "name": "65456148-bc4b-4e52-9599-209ca4b81317"
+}

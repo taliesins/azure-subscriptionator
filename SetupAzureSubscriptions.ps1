@@ -1,6 +1,7 @@
 $subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 $subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
+
 function Connect-Context {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -485,10 +486,12 @@ Function Set-DscSubscription {
 Function Set-DscBlueprintDefinition {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        $BlueprintPath,
+        $BluePrintDefinitionPath,
         [Parameter(Mandatory = $true, Position = 1)]
         $ManagementGroupName,
-        [Parameter(Mandatory = $false, Position = 2)]
+        [Parameter(Mandatory = $true, Position = 2)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 3)]
         $DeleteUnknownBlueprints = $false
     )
 
@@ -497,6 +500,86 @@ Function Set-DscBlueprintDefinition {
     #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#creating-and-editing-a-blueprint
     #https://www.powershellgallery.com/packages/Manage-AzureRMBlueprint
     #https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
+
+    $BluePrintDefinitions = Get-ChildItem -Path $BluePrintDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprint.json'))} | %{
+        $bluePrint = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprint.json')) | ConvertFrom-Json
+        $bluePrintName = $bluePrint.name
+        if (!$bluePrintName){
+            $bluePrintName = $_.Basename
+        }
+        $description = $bluePrint.properties.description
+        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99
+        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99
+
+        $bluePrintArtifacts = Get-ChildItem -Path $_.FullName | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprintartifact.json'))} | %{
+            $bluePrintArtifact = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprintartifact.json')) | ConvertFrom-Json
+    
+            $bluePrintArtifactName = $bluePrintArtifact.Name
+            if (!$bluePrintArtifactName){
+                $bluePrintArtifactName = $_.Basename
+            }
+
+            $bluePrintArtifactKind = $bluePrintArtifact.Kind
+            $bluePrintArtifactProperties = ConvertTo-Json $bluePrintArtifact.Properties -Depth 99
+
+            @{'Name'=$bluePrintArtifactName;'Kind'=$bluePrintArtifactKind;'Properties'=$bluePrintArtifactProperties;}
+        }
+
+        @{'Name'=$bluePrintName;'Description'=$description;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
+    }
+
+    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+    $token = $profileClient.AcquireAccessToken($TenantId)
+
+    # REST Header for REST call to get Blueprints and Artifacts
+    $getBluePrintHeaders = @{
+        Headers = @{
+            Authorization = "Bearer $($token.AccessToken)"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Get'
+        UseBasicParsing = $true
+    }
+
+    # Get all Blueprints
+    $getBluePrintsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints?api-version=2017-11-11-preview"
+    $bluePrintsJson = Invoke-WebRequest -uri $getBluePrintsUri @getBluePrintHeaders
+
+    $currentBluePrintDefinitions = (ConvertFrom-Json $bluePrintsJson.Content).value | %{
+        $bluePrintName = $_.Name
+
+        $getBluePrintUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($bluePrintName)?api-version=2017-11-11-preview"
+        $bluePrintJson = Invoke-WebRequest -uri $getBluePrintUri @getBluePrintHeaders
+        $bluePrint = (ConvertFrom-Json $bluePrintJson.Content)
+        $description = $bluePrint.properties.description
+        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99
+        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99
+
+        $getBluePrintArtifactsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($bluePrintName)/artifacts?api-version=2017-11-11-preview"
+        $bluePrintArtifactsJson = Invoke-WebRequest -uri $getBluePrintArtifactsUri @getBluePrintHeaders
+        $bluePrintArtifacts = (ConvertFrom-Json $bluePrintArtifactsJson.Content).value | %{
+            $bluePrintArtifactName = $_.Name
+            $bluePrintArtifactKind = $_.Kind
+            $bluePrintArtifactProperties = ConvertTo-Json $_.Properties -Depth 99
+
+            #$getBluePrintArtifactUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($bluePrintName)/artifacts/$($bluePrintArtifactName)?api-version=2017-11-11-preview"
+            #$bluePrintArtifactJson = Invoke-WebRequest -uri $getBluePrintArtifactUri @getBluePrintHeaders
+            #$bluePrintArtifact = (ConvertFrom-Json $bluePrintArtifactJson.Content)
+
+            @{'Name'=$bluePrintArtifactName;'Kind'=$bluePrintArtifactKind;'Properties'=$bluePrintArtifactProperties;}
+        }
+
+        @{'Name'=$bluePrintName;'Description'=$description;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
+    }
+
+    $updateBluePrintDefinitions = @($currentBluePrintDefinitions | ?{$BluePrintDefinitions -and $BluePrintDefinitions.Name.Contains($_.Name)})
+    $createBluePrintDefinitions = @($BluePrintDefinitions | ?{!($updateBluePrintDefinitions -and $updateBluePrintDefinitions.Name.Contains($_.Name))})
+
+    $desiredBluePrintDefinitions = @()
+    $desiredBluePrintDefinitions += $createBluePrintDefinitions
+    $desiredBluePrintDefinitions += $updateBluePrintDefinitions
+
 
     Write-Host "Set-DscBlueprintDefinition is not implemented yet"
 }
@@ -2174,7 +2257,10 @@ $AdGroups = Set-DscAdGroup -DesiredState $DesiredState -DeleteUnknownAdGroups $F
 $RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'RoleDefinitions') -TenantId $TenantId
 $PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
 $PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
-$BlueprintDefinitions = Set-DscBlueprintDefinition -ManagementGroupName $tenantContext.ManagementGroupName -BlueprintPath (Resolve-Path 'Blueprints')
+$BlueprintDefinitions = Set-DscBlueprintDefinition -ManagementGroupName $tenantContext.ManagementGroupName -TenantId $TenantId -BluePrintDefinitionPath (Resolve-Path 'Blueprints')
+
+
+
 
 #Add role to management group or subscription
 $RoleAssignments = Set-DscRoleAssignment -DesiredState $DesiredState

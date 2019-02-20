@@ -1,0 +1,159 @@
+{
+  "properties": {
+    "parameters": {
+      "namingofAzureautomationaccounts_effect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "effect (Policy: Naming of Azure automation accounts)"
+        },
+        "allowedValues": [
+          "Append",
+          "Audit",
+          "AuditIfNotExists",
+          "Deny",
+          "DeployIfNotExists",
+          "Disabled"
+        ]
+      },
+      "testArmTemplate_resourceName": {
+        "type": "string",
+        "metadata": {
+          "displayName": "resourceName (TestArmTemplate)",
+          "description": "The name of the Managed Cluster resource."
+        },
+        "defaultValue": "aks101cluster",
+        "allowedValues": []
+      },
+      "testArmTemplate_location": {
+        "type": "string",
+        "metadata": {
+          "displayName": "location (TestArmTemplate)",
+          "description": "The location of the Managed Cluster resource."
+        },
+        "defaultValue": "[resourceGroup().location]",
+        "allowedValues": []
+      },
+      "testArmTemplate_dnsPrefix": {
+        "type": "string",
+        "metadata": {
+          "displayName": "dnsPrefix (TestArmTemplate)",
+          "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_osDiskSizeGB": {
+        "type": "int",
+        "metadata": {
+          "displayName": "osDiskSizeGB (TestArmTemplate)",
+          "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_agentCount": {
+        "type": "int",
+        "metadata": {
+          "displayName": "agentCount (TestArmTemplate)",
+          "description": "The number of nodes for the cluster."
+        },
+        "defaultValue": 3,
+        "allowedValues": []
+      },
+      "testArmTemplate_agentVMSize": {
+        "type": "string",
+        "metadata": {
+          "displayName": "agentVMSize (TestArmTemplate)",
+          "description": "The size of the Virtual Machine."
+        },
+        "defaultValue": "Standard_DS2_v2",
+        "allowedValues": []
+      },
+      "testArmTemplate_linuxAdminUsername": {
+        "type": "string",
+        "metadata": {
+          "displayName": "linuxAdminUsername (TestArmTemplate)",
+          "description": "User name for the Linux Virtual Machines."
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_sshRSAPublicKey": {
+        "type": "string",
+        "metadata": {
+          "displayName": "sshRSAPublicKey (TestArmTemplate)",
+          "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_servicePrincipalClientId": {
+        "type": "secureString",
+        "metadata": {
+          "displayName": "servicePrincipalClientId (TestArmTemplate)",
+          "description": "Client ID (used by cloudprovider)"
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_servicePrincipalClientSecret": {
+        "type": "secureString",
+        "metadata": {
+          "displayName": "servicePrincipalClientSecret (TestArmTemplate)",
+          "description": "The Service Principal Client Secret."
+        },
+        "allowedValues": []
+      },
+      "testArmTemplate_osType": {
+        "type": "string",
+        "metadata": {
+          "displayName": "osType (TestArmTemplate)",
+          "description": "The type of operating system."
+        },
+        "defaultValue": "Linux",
+        "allowedValues": [
+          "Linux"
+        ]
+      },
+      "testArmTemplate_kubernetesVersion": {
+        "type": "string",
+        "metadata": {
+          "displayName": "kubernetesVersion (TestArmTemplate)",
+          "description": "The version of Kubernetes."
+        },
+        "defaultValue": "1.11.5",
+        "allowedValues": [
+          "1.9.11",
+          "1.10.9",
+          "1.11.5"
+        ]
+      },
+      "[Usergrouporapplicationname]:Owner_RoleAssignmentName": {
+        "type": "array",
+        "metadata": {
+          "displayName": "[User group or application name] ([User group or application name] : Owner)",
+          "strongType": "PrincipalId"
+        }
+      }
+    },
+    "resourceGroups": {
+      "ResourceGroup": {
+        "metadata": {
+          "displayName": "TestResourceGroup"
+        },
+        "dependsOn": []
+      },
+      "ResourceGroup2": {
+        "name": "ResourceGroup2",
+        "location": "eastasia",
+        "metadata": {},
+        "dependsOn": []
+      }
+    },
+    "targetScope": "subscription",
+    "status": {
+      "timeCreated": "2019-02-19T22:05:58+00:00",
+      "lastModified": "2019-02-19T23:44:10+00:00"
+    },
+    "description": "Test Blue Prints"
+  },
+  "id": "/providers/Microsoft.Management/managementGroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Blueprint/blueprints/TestBlueprint",
+  "type": "Microsoft.Blueprint/blueprints",
+  "name": "TestBlueprint"
+}
+  
