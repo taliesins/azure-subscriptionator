@@ -879,23 +879,23 @@ Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -
             }
 
             $_
-        } elseif ($updateBluePrintDefinitions -and $updateBluePrintDefinitions.Name.Contains($name)) {
-            $desiredBluePrintDefinition = $BluePrintDefinitions | ?{$_.Name -eq $name}
+        } elseif ($updateBluePrintDefinitions -and $updateBluePrintDefinitions.Name.Contains($bluePrintName)) {
+            $desiredBluePrintDefinition = $BluePrintDefinitions | ?{$_.Name -eq $bluePrintName}
             if ($desiredBluePrintDefinition)
             {
-                $desiredName = $desiredBluePrintDefinition.Name
+                $desiredBluePrintName = $desiredBluePrintDefinition.Name
                 $desiredDescription = $desiredBluePrintDefinition.Description
                 $desiredParameters = $desiredBluePrintDefinition.Parameters
                 $desiredResourceGroups = $desiredBluePrintDefinition.ResourceGroups
                 $desiredArtifacts = $desiredBluePrintDefinition.Artifacts
 
-                if ($desiredName -ne $name){
+                if ($desiredBluePrintName -ne $bluePrintName){
                     Write-Host @"
-                    Desired Name:
-                    $desiredName
+                    Desired Blue Print Name:
+                    $desiredBluePrintName
 
-                    Current Name:
-                    $name
+                    Current Blue Print Name:
+                    $bluePrintName
 "@
                 }
 
@@ -919,23 +919,23 @@ Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -
 "@
                 }     
                 
-                if ($desiredResourceGroup -ne $resourceGroup){
+                if ($desiredResourceGroups -ne $resourceGroups){
                     Write-Host @"
-                    Desired Resource Group:
-                    $desiredResourceGroup
+                    Desired Resource Groups:
+                    $desiredResourceGroups
 
-                    Actual Resource Group:
-                    $resourceGroup
+                    Actual Resource Groups:
+                    $resourceGroups
 "@
                 }
         
-                if ($desiredName -ne $name -or $desiredDescription -ne $description -or $desiredParameters -ne $parameters -or $desiredResourceGroup -ne $resourceGroup) {
+                if ($desiredBluePrintName -ne $bluePrintName -or $desiredDescription -ne $description -or $desiredParameters -ne $parameters -or $desiredResourceGroups -ne $resourceGroups) {
                     Write-Host @"
 `$parameters=@'
 $desiredParameters
 '@
-`$resourceGroup=@'
-$desiredResourceGroup
+`$resourceGroups=@'
+$desiredResourceGroups
 '@
 
 `$tenantId='$TenantId'
@@ -944,9 +944,9 @@ $desiredResourceGroup
 `$token = `$profileClient.AcquireAccessToken(`$tenantId)
 `$accessToken = `$token.AccessToken
 
-Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -Description '$description' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
+Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -Description '$desiredDescription' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
 "@
-                    $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+                    $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $desiredBluePrintName -Description $desiredDescription -Parameters $desiredParameters -ResourceGroups $desiredResourceGroups -AccessToken $accessToken
                 }
 
                 $updateBluePrintDefinitionArtifacts = @($artifacts | ?{$desiredArtifacts -and $desiredArtifacts.Name.Contains($_.Name)})
@@ -963,7 +963,7 @@ Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrin
 $bluePrintArtifactProperties
 '@
 
-Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
 "@
 
                     $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
@@ -973,26 +973,72 @@ Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -
                     $bluePrintArtifactName = $_.Name
                     $bluePrintArtifactKind = $_.Kind
                     $bluePrintArtifactProperties = $_.Properties
-     
-                    Write-Host @"
+
+                    $desiredBluePrintDefinitionArtifact = $desiredArtifacts | ?{$_.Name -eq $bluePrintArtifactName}
+                    if ($desiredBluePrintDefinitionArtifact)
+                    {
+                        $desiredBluePrintArtifactName = $desiredBluePrintDefinitionArtifact.Name
+                        $desiredBluePrintArtifactKind = $desiredBluePrintDefinitionArtifact.Kind
+                        $desiredBluePrintArtifactProperties = $desiredBluePrintDefinitionArtifact.Properties
+
+                        if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName){
+                            Write-Host @"
+                            Desired Blue Print Artifact Name:
+                            $desiredBluePrintArtifactName
+        
+                            Current Blue Print Artifact Name:
+                            $bluePrintArtifactName
+"@
+                        }
+
+                        if ($desiredBluePrintArtifactKind -ne $bluePrintArtifactKind){
+                            Write-Host @"
+                            Desired Blue Print Artifact Kind:
+                            $desiredBluePrintArtifactKind
+        
+                            Current Blue Print Artifact Kind:
+                            $bluePrintArtifactKind
+"@
+                        }                        
+
+                        if ($desiredBluePrintArtifactProperties -ne $bluePrintArtifactProperties){
+                            Write-Host @"
+                            Desired Blue Print Artifact Properties:
+                            $desiredBluePrintArtifactProperties
+        
+                            Current Blue Print Artifact Properties:
+                            $bluePrintArtifactProperties
+"@
+                        }   
+                        
+                        if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName -or $desiredBluePrintArtifactKind -ne $bluePrintArtifactKind -or $desiredBluePrintArtifactProperties -ne $bluePrintArtifactProperties) {
+                            Write-Host @"
 `$bluePrintArtifactProperties=@'
-$bluePrintArtifactProperties
+$desiredBluePrintArtifactProperties
 '@
 
-Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
 "@
 
-                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+                            $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -Properties $desiredBluePrintArtifactProperties -AccessToken $accessToken
+                        }
+                    }
                 }
 
                 $deleteBluePrintDefinitionArtifacts | %{
                     $bluePrintArtifactName = $_.Name
 
                     Write-Host @"
-Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName'
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+                    
+Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -AccessToken `$accessToken
 "@
 
-                    $result = Delete-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName
+                    $result = Delete-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -AccessToken $accessToken
                 }
                 
                 $_
@@ -1003,6 +1049,10 @@ Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName'
     if ($DeleteUnknownBluePrints) {
         $deleteBluePrintfinitionNames = @($currentBluePrintDefinitions | ?{!($BluePrintDefinitions -and $BluePrintDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deleteBluePrintfinitionNames | %{
+            Write-Host @"
+         
+Delete-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$_' -AccessToken `$accessToken
+"@
             Delete-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $_ -AccessToken $accessToken
         }
     }
