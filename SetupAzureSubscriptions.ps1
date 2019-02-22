@@ -501,6 +501,7 @@ Function Get-AzBluePrintDefinitions {
     }
 
     $getBluePrintHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints?api-version=2017-11-11-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -509,8 +510,7 @@ Function Get-AzBluePrintDefinitions {
         UseBasicParsing = $true
     }
 
-    $getBluePrintsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints?api-version=2017-11-11-preview"
-    $bluePrintsJson = Invoke-WebRequest -uri $getBluePrintsUri @getBluePrintHeaders
+    $bluePrintsJson = Invoke-WebRequest @getBluePrintHeaders
 
     $bluePrints = (ConvertFrom-Json $bluePrintsJson.Content).value
     $bluePrints
@@ -536,6 +536,7 @@ Function Get-AzBluePrintDefinition {
     }
 
     $getBluePrintHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -544,8 +545,7 @@ Function Get-AzBluePrintDefinition {
         UseBasicParsing = $true
     }
 
-    $getBluePrintUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
-    $bluePrintJson = Invoke-WebRequest -uri $getBluePrintUri @getBluePrintHeaders
+    $bluePrintJson = Invoke-WebRequest @getBluePrintHeaders
     $bluePrint = (ConvertFrom-Json $bluePrintJson.Content)
     $bluePrint
 }
@@ -570,6 +570,7 @@ Function Get-AzBluePrintDefinitionArtifacts {
     }
 
     $getBluePrintHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts?api-version=2017-11-11-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -578,8 +579,7 @@ Function Get-AzBluePrintDefinitionArtifacts {
         UseBasicParsing = $true
     }
 
-    $getBluePrintArtifactsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts?api-version=2017-11-11-preview"
-    $bluePrintArtifactsJson = Invoke-WebRequest -uri $getBluePrintArtifactsUri @getBluePrintHeaders
+    $bluePrintArtifactsJson = Invoke-WebRequest @getBluePrintHeaders
     $bluePrintArtifacts = (ConvertFrom-Json $bluePrintArtifactsJson.Content).value
 
     $bluePrintArtifacts
@@ -624,15 +624,13 @@ Function Save-AzBluePrintDefinition {
         $ResourceGroups = ConvertFrom-Json $ResourceGroups
     }
 
-    $putBluePrintUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
-  
     $bluePrintProperties = [pscustomobject][ordered] @{'parameters' = $Parameters;'resourceGroups' = $ResourceGroups;'targetScope' = 'subscription';'description' = $Description;}
     $bluePrint = [pscustomobject][ordered] @{'properties' = $bluePrintProperties;'type' = 'Microsoft.Blueprint/blueprints';'name' = $BluePrintName;}
    
     $bluePrintJson = ConvertTo-Json $bluePrint -Depth 99
   
     $putBluePrintHeaders = @{
-        URI = $putBluePrintUri
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -640,6 +638,38 @@ Function Save-AzBluePrintDefinition {
         Method = 'Put'
         UseBasicParsing = $true
         Body = $bluePrintJson
+    }
+    
+    $result = Invoke-WebRequest @putBluePrintHeaders
+}
+
+Function Delete-AzBluePrintDefinition {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+  
+    $putBluePrintHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Delete'
+        UseBasicParsing = $true
     }
     
     $result = Invoke-WebRequest @putBluePrintHeaders
@@ -673,16 +703,16 @@ Function Save-AzBluePrintDefinitionArtifact {
     if (!$Properties) {
         $Properties = "{}"
     }
+
     if ($Properties -is [String]) {
         $Properties = ConvertFrom-Json $Properties
     }
 
-    $putBluePrintArtifactsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2017-11-11-preview"
     $bluePrintArtifact = [pscustomobject][ordered] @{'properties' = $Properties;'kind' = $Kind;'type' = 'Microsoft.Blueprint/blueprints/artifacts';'name' = $BluePrintArtifactName;}
     $bluePrintArtifactJson = ConvertTo-Json $bluePrintArtifact -Depth 99
   
     $putBluePrintArtifactHeaders = @{
-        URI = $putBluePrintUri
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2017-11-11-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -693,6 +723,40 @@ Function Save-AzBluePrintDefinitionArtifact {
     }
     
     $result = Invoke-WebRequest @putBluePrintArtifactHeaders
+}
+
+Function Delete-AzBluePrintDefinitionArtifact {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $true, Position = 2)]
+        $BluePrintArtifactName,
+        [Parameter(Mandatory = $false, Position = 5)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 6)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $deleteBluePrintArtifactHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2017-11-11-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Delete'
+        UseBasicParsing = $true
+    }
+    
+    $result = Invoke-WebRequest @deleteBluePrintArtifactHeaders
 }
 
 Function Set-DscBluePrintDefinition {
@@ -753,16 +817,10 @@ Function Set-DscBluePrintDefinition {
         $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99
         $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99
 
-        $getBluePrintArtifactsUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($bluePrintName)/artifacts?api-version=2017-11-11-preview"
-        $bluePrintArtifactsJson = Invoke-WebRequest -uri $getBluePrintArtifactsUri @getBluePrintHeaders
         $bluePrintArtifacts = Get-AzBluePrintDefinitionArtifacts -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -AccessToken $accessToken | %{
             $bluePrintArtifactName = $_.Name
             $bluePrintArtifactKind = $_.Kind
             $bluePrintArtifactProperties = ConvertTo-Json $_.Properties -Depth 99
-
-            #$getBluePrintArtifactUri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($bluePrintName)/artifacts/$($bluePrintArtifactName)?api-version=2017-11-11-preview"
-            #$bluePrintArtifactJson = Invoke-WebRequest -uri $getBluePrintArtifactUri @getBluePrintHeaders
-            #$bluePrintArtifact = (ConvertFrom-Json $bluePrintArtifactJson.Content)
 
             @{'Name'=$bluePrintArtifactName;'Kind'=$bluePrintArtifactKind;'Properties'=$bluePrintArtifactProperties;}
         }
@@ -803,6 +861,23 @@ Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrin
 
 "@            
             $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+
+            $artifacts | %{
+                $bluePrintArtifactName = $_.Name
+                $bluePrintArtifactKind = $_.Kind
+                $bluePrintArtifactProperties = $_.Properties
+    
+                Write-Host @"
+`$bluePrintArtifactProperties=@'
+$bluePrintArtifactProperties
+'@
+                
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+
+"@
+                $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+            }
+
             $_
         } elseif ($updateBluePrintDefinitions -and $updateBluePrintDefinitions.Name.Contains($name)) {
             $desiredBluePrintDefinition = $BluePrintDefinitions | ?{$_.Name -eq $name}
@@ -873,12 +948,66 @@ Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrin
 "@
                     $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
                 }
+
+                $updateBluePrintDefinitionArtifacts = @($artifacts | ?{$desiredArtifacts -and $desiredArtifacts.Name.Contains($_.Name)})
+                $createBluePrintDefinitionArtifacts = @($desiredArtifacts | ?{!($updateBluePrintDefinitionArtifacts -and $updateBluePrintDefinitionArtifacts.Name.Contains($_.Name))})
+                $deleteBluePrintDefinitionArtifacts = @($artifacts | ?{!($desiredArtifacts -and $desiredArtifacts.Name.Contains($_.Name))})
+
+                $createBluePrintDefinitionArtifacts | %{
+                    $bluePrintArtifactName = $_.Name
+                    $bluePrintArtifactKind = $_.Kind
+                    $bluePrintArtifactProperties = $_.Properties
+
+                    Write-Host @"
+`$bluePrintArtifactProperties=@'
+$bluePrintArtifactProperties
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+"@
+
+                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+                }
+
+                $updateBluePrintDefinitionArtifacts | %{
+                    $bluePrintArtifactName = $_.Name
+                    $bluePrintArtifactKind = $_.Kind
+                    $bluePrintArtifactProperties = $_.Properties
+     
+                    Write-Host @"
+`$bluePrintArtifactProperties=@'
+$bluePrintArtifactProperties
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+"@
+
+                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+                }
+
+                $deleteBluePrintDefinitionArtifacts | %{
+                    $bluePrintArtifactName = $_.Name
+
+                    Write-Host @"
+Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName'
+"@
+
+                    $result = Delete-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName
+                }
+                
                 $_
             }
         }
     }
 
-    Write-Host "Set-DscBluePrintDefinition is not implemented yet"
+    if ($DeleteUnknownBluePrints) {
+        $deleteBluePrintfinitionNames = @($currentBluePrintDefinitions | ?{!($BluePrintDefinitions -and $BluePrintDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
+        $deleteBluePrintfinitionNames | %{
+            Delete-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $_ -AccessToken $accessToken
+        }
+    }
+
+    $desiredBluePrintDefinitionResults
 }
 
 Function Set-DscRoleDefinition {
