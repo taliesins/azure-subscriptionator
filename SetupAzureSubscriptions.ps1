@@ -1,7 +1,6 @@
 $subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 $subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
-
 function Connect-Context {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -501,7 +500,7 @@ Function Get-AzBluePrintDefinitions {
     }
 
     $getBluePrintHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -536,7 +535,7 @@ Function Get-AzBluePrintDefinition {
     }
 
     $getBluePrintHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -570,7 +569,7 @@ Function Get-AzBluePrintDefinitionArtifacts {
     }
 
     $getBluePrintHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -591,15 +590,19 @@ Function Save-AzBluePrintDefinition {
         $ManagementGroupName,
         [Parameter(Mandatory = $true, Position = 1)]
         $BluePrintName,
-        [Parameter(Mandatory = $true, Position = 2)]
+        [Parameter(Mandatory = $false, Position = 2)]
         $Description,
-        [Parameter(Mandatory = $true, Position = 3)]
-        $Parameters,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $DisplayName,
         [Parameter(Mandatory = $true, Position = 4)]
+        $Parameters,
+        [Parameter(Mandatory = $true, Position = 5)]
         $ResourceGroups,
-        [Parameter(Mandatory = $false, Position = 5)]
+        [ValidateSet('subscription')][Parameter(Mandatory = $false, Position = 6)] #'managementGroup' does not work yet
+        $TargetScope = 'subscription',
+        [Parameter(Mandatory = $false, Position = 7)]
         $TenantId,
-        [Parameter(Mandatory = $false, Position = 6)]
+        [Parameter(Mandatory = $false, Position = 8)]
         $AccessToken
     )
 
@@ -624,13 +627,13 @@ Function Save-AzBluePrintDefinition {
         $ResourceGroups = ConvertFrom-Json $ResourceGroups
     }
 
-    $bluePrintProperties = [pscustomobject][ordered] @{'parameters' = $Parameters;'resourceGroups' = $ResourceGroups;'targetScope' = 'subscription';'description' = $Description;}
-    $bluePrint = [pscustomobject][ordered] @{'properties' = $bluePrintProperties;'type' = 'Microsoft.Blueprint/blueprints';'name' = $BluePrintName;}
+    $Properties = [pscustomobject][ordered] @{'parameters' = $Parameters;'resourceGroups' = $ResourceGroups;'targetScope' = $TargetScope;'description' = $Description;'displayName' = $DisplayName;}
+    $bluePrint = [pscustomobject][ordered] @{'properties' = $Properties;'type' = 'Microsoft.Blueprint/blueprints';'name' = $BluePrintName;}
    
-    $bluePrintJson = ConvertTo-Json $bluePrint -Depth 99
+    $bluePrintJson = ConvertTo-Json $bluePrint -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
   
     $putBluePrintHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -663,7 +666,7 @@ Function Delete-AzBluePrintDefinition {
     }
   
     $putBluePrintHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -683,13 +686,38 @@ Function Save-AzBluePrintDefinitionArtifact {
         $BluePrintName,
         [Parameter(Mandatory = $true, Position = 2)]
         $BluePrintArtifactName,
-        [ValidateSet("roleAssignment","template", "policyAssignment")][Parameter(Mandatory = $true, Position = 3)]
+        [ValidateSet("policyAssignment", "roleAssignment","template")][Parameter(Mandatory = $true, Position = 3)]
         $Kind,
-        [Parameter(Mandatory = $true, Position = 4)]
-        $Properties,
-        [Parameter(Mandatory = $false, Position = 5)]
+        [Parameter(Mandatory = $false, ParameterSetName="policyAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="roleAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="template")]
+        $DependsOn,
+        [Parameter(Mandatory = $false, ParameterSetName="policyAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="roleAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="template")]
+        $Description,
+        [Parameter(Mandatory = $false, ParameterSetName="policyAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="roleAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="template")]
+        $DisplayName,
+        [Parameter(Mandatory = $true, ParameterSetName="policyAssignment")]
+        [Parameter(Mandatory = $true, ParameterSetName="template")]
+        $Parameters,
+        [Parameter(Mandatory = $true, ParameterSetName="policyAssignment")]
+        $PolicyDefinitionId,
+        [Parameter(Mandatory = $false, ParameterSetName="policyAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="roleAssignment")]
+        [Parameter(Mandatory = $false, ParameterSetName="template")]
+        $ResourceGroup,
+        [Parameter(Mandatory = $true, ParameterSetName="roleAssignment")]
+        $PrincipalIds,
+        [Parameter(Mandatory = $true, ParameterSetName="roleAssignment")]
+        $RoleDefinitionId,
+        [Parameter(Mandatory = $true, ParameterSetName="template")]
+        $Template,
+        [Parameter(Mandatory = $false)]
         $TenantId,
-        [Parameter(Mandatory = $false, Position = 6)]
+        [Parameter(Mandatory = $false)]
         $AccessToken
     )
 
@@ -700,19 +728,43 @@ Function Save-AzBluePrintDefinitionArtifact {
         $AccessToken = $token.AccessToken
     }
 
-    if (!$Properties) {
-        $Properties = "{}"
+    if (!$Parameters) {
+        $Parameters = "{}"
+    }
+    if ($Parameters -is [String]) {
+        $Parameters = ConvertFrom-Json $Parameters
     }
 
-    if ($Properties -is [String]) {
-        $Properties = ConvertFrom-Json $Properties
+    if (!$Template) {
+        $Template = "{}"
+    }
+    if ($Template -is [String]) {
+        $Template = ConvertFrom-Json $Template
+    }
+
+    switch ($Kind) {
+        "policyAssignment" {
+            $Properties = [pscustomobject][ordered] @{'dependsOn' = $DependsOn; 'description' = $Description; 'displayName' = $DisplayName; 'parameters' = $Parameters; 'policyDefinitionId' = $PolicyDefinitionId; 'resourceGroup' = $ResourceGroup; }  
+            break
+        }
+        "roleAssignment" {
+            $Properties = [pscustomobject][ordered] @{'dependsOn' = $DependsOn; 'description' = $Description; 'displayName' = $DisplayName; 'principalIds' = $PrincipalIds; 'resourceGroup' = $ResourceGroup; 'roleDefinitionId' = $RoleDefinitionId;}  
+            break
+        }
+        "template" {
+            $Properties = [pscustomobject][ordered] @{'dependsOn' = $DependsOn; 'description' = $Description; 'displayName' = $DisplayName; 'parameters' = $Parameters; 'resourceGroup' = $ResourceGroup; 'template' = $Template;}  
+            break
+        }
+        default {
+            throw "Kind '$Kind' unknown";
+        }
     }
 
     $bluePrintArtifact = [pscustomobject][ordered] @{'properties' = $Properties;'kind' = $Kind;'type' = 'Microsoft.Blueprint/blueprints/artifacts';'name' = $BluePrintArtifactName;}
-    $bluePrintArtifactJson = ConvertTo-Json $bluePrintArtifact -Depth 99
+    $bluePrintArtifactJson = ConvertTo-Json $bluePrintArtifact -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
   
     $putBluePrintArtifactHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -747,7 +799,7 @@ Function Delete-AzBluePrintDefinitionArtifact {
     }
 
     $deleteBluePrintArtifactHeaders = @{
-        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2017-11-11-preview"
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/artifacts/$($BluePrintArtifactName)?api-version=2018-11-01-preview"
         Headers = @{
             Authorization = "Bearer $AccessToken"
             'Content-Type' = 'application/json'
@@ -757,6 +809,320 @@ Function Delete-AzBluePrintDefinitionArtifact {
     }
     
     $result = Invoke-WebRequest @deleteBluePrintArtifactHeaders
+}
+
+Function Get-AzBluePrintDefinitionVersions {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $getBluePrintVersionsHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/versions?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Get'
+        UseBasicParsing = $true
+    }
+
+    $bluePrintVersionsJson = Invoke-WebRequest @getBluePrintVersionsHeaders
+
+    $bluePrintVersions = (ConvertFrom-Json $bluePrintVersionsJson.Content).value
+    $bluePrintVersions
+}
+
+Function Get-AzBluePrintDefinitionVersion {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $true, Position = 2)]
+        $BluePrintVersionName,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 4)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $getBluePrintVersionHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/versions/$($BluePrintVersionName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Get'
+        UseBasicParsing = $true
+    }
+
+    $bluePrintVersionJson = Invoke-WebRequest @getBluePrintVersionHeaders
+    $bluePrintVersion = (ConvertFrom-Json $bluePrintVersionJson.Content)
+    $bluePrintVersion
+}
+
+Function Save-AzBluePrintDefinitionVersion {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $true, Position = 2)]
+        $BluePrintVersionName,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 4)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+    
+    $putBluePrintVersionHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/versions/$($BluePrintVersionName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Put'
+        UseBasicParsing = $true
+    }
+    
+    $result = Invoke-WebRequest @putBluePrintVersionHeaders
+}
+
+Function Delete-AzBluePrintDefinitionVersion {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroupName,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintName,
+        [Parameter(Mandatory = $true, Position = 2)]
+        $BluePrintVersionName,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 4)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $deleteBluePrintVersionHeaders = @{
+        URI = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/$($BluePrintName)/versions/$($BluePrintVersionName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Delete'
+        UseBasicParsing = $true
+    }
+    
+    $result = Invoke-WebRequest @deleteBluePrintVersionHeaders
+}
+
+Function Get-AzBluePrintServicePrincipal {
+    param(
+    )
+    
+    $AzureBluePrintAppId = 'f71766dc-90d9-4b7d-bd9d-4499c4331c3f'
+    Get-AzADServicePrincipal -ApplicationId $AzureBluePrintAppId
+}
+
+Function Get-AzBluePrintAssignments {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $SubscriptionId,
+        [Parameter(Mandatory = $false, Position = 1)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $getBluePrintAssignmentsHeaders = @{
+        URI = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Blueprint/blueprintAssignments?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Get'
+        UseBasicParsing = $true
+    }
+
+    $bluePrintAssignmentsJson = Invoke-WebRequest @getBluePrintAssignmentsHeaders
+    $bluePrintAssignments = (ConvertFrom-Json $bluePrintAssignmentsJson.Content).value
+    $bluePrintAssignments
+}
+
+Function Get-AzBluePrintAssignment {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $SubscriptionId,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintAssignmentName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $getBluePrintAssignmentHeaders = @{
+        URI = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Blueprint/blueprintAssignments/$($BluePrintAssignmentName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Get'
+        UseBasicParsing = $true
+    }
+
+    $bluePrintAssignmentJson = Invoke-WebRequest @getBluePrintAssignmentHeaders
+    $bluePrintAssignment = (ConvertFrom-Json $bluePrintAssignmentJson.Content)
+    $bluePrintAssignment
+}
+
+Function Save-AzBluePrintAssignment {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $SubscriptionId,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintAssignmentName,
+        [Parameter(Mandatory = $true, Position = 2)]
+        $Identity,
+        [Parameter(Mandatory = $true, Position = 3)]
+        $Location,
+        [Parameter(Mandatory = $true, Position = 4)]
+        $PublishedBluePrintId,
+        [Parameter(Mandatory = $true, Position = 5)]
+        $Description,
+        [Parameter(Mandatory = $true, Position = 6)]
+        $DisplayName,
+        [ValidateSet("AllResources","None")][Parameter(Mandatory = $true, Position = 7)] #CanNotDelete, ReadOnly 
+        $Locks,
+        [Parameter(Mandatory = $true, Position = 8)]
+        $Parameters,
+        [Parameter(Mandatory = $true, Position = 9)]
+        $ResourceGroups,
+       
+        [Parameter(Mandatory = $false, Position = 10)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 11)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+    #TODO: This section has not been finished
+    if (!$Parameters) {
+        $Parameters = "{}"
+    }
+    if ($Parameters -is [String]) {
+        $Parameters = ConvertFrom-Json $Parameters
+    }
+
+    if (!$ResourceGroups) {
+        $ResourceGroups = "{}"
+    }
+    if ($ResourceGroups -is [String]) {
+        $ResourceGroups = ConvertFrom-Json $ResourceGroups
+    }
+
+    $Properties = [pscustomobject][ordered] @{'blueprintId' = $PublishedBluePrintId;'description' = $Description;'displayName' = $DisplayName;'locks' = $Locks;'parameters' = $Parameters;'resourceGroups' = $ResourceGroups;}
+    $bluePrintAssignment = [pscustomobject][ordered] @{'identity' = $Identity;'location' = $Location;'properties' = $Properties;'type' = 'Microsoft.Blueprint/Assignment';'name' = $BluePrintAssignmentName;}   
+    $bluePrintAssignmentJson = ConvertTo-Json $bluePrintAssignment -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+  
+    $putBluePrintAssignmentHeaders = @{
+        URI = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Blueprint/blueprintAssignments/$($BluePrintAssignmentName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Put'
+        UseBasicParsing = $true
+        Body = $bluePrintAssignmentJson
+    }
+    
+    $result = Invoke-WebRequest @putBluePrintAssignmentHeaders
+}
+
+
+Function Delete-AzBluePrintAssignment {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $SubscriptionId,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $BluePrintAssignmentName,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $TenantId,
+        [Parameter(Mandatory = $false, Position = 3)]
+        $AccessToken
+    )
+
+    if (!$AccessToken) {
+        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    }
+
+    $deleteBluePrintAssignmentHeaders = @{
+        URI = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Blueprint/blueprintAssignments/$($BluePrintAssignmentName)?api-version=2018-11-01-preview"
+        Headers = @{
+            Authorization = "Bearer $AccessToken"
+            'Content-Type' = 'application/json'
+        }
+        Method = 'Delete'
+        UseBasicParsing = $true
+    }
+    
+    $result = Invoke-WebRequest @deleteBluePrintAssignmentHeaders
 }
 
 Function Set-DscBluePrintDefinition {
@@ -783,9 +1149,11 @@ Function Set-DscBluePrintDefinition {
         if (!$bluePrintName){
             $bluePrintName = $_.Basename
         }
+
         $description = $bluePrint.properties.description
-        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99
-        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99
+        $displayName = $bluePrint.properties.displayName
+        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
         $bluePrintArtifacts = Get-ChildItem -Path $_.FullName | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprintartifact.json'))} | %{
             $bluePrintArtifact = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprintartifact.json')) | ConvertFrom-Json
@@ -796,12 +1164,50 @@ Function Set-DscBluePrintDefinition {
             }
 
             $bluePrintArtifactKind = $bluePrintArtifact.Kind
-            $bluePrintArtifactProperties = ConvertTo-Json $bluePrintArtifact.Properties -Depth 99
+
+            switch ($bluePrintArtifactKind) {
+                "policyAssignment" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactParameters = ConvertTo-Json $bluePrintArtifact.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+                    $bluePrintArtifactPolicyDefinitionId = $bluePrintArtifact.properties.policyDefinitionId
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'parameters' = $bluePrintArtifactParameters; 'policyDefinitionId' = $bluePrintArtifactPolicyDefinitionId; 'resourceGroup' = $bluePrintArtifactResourceGroup; }  
+                    break
+                }
+                "roleAssignment" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactPrincipalIds = $bluePrintArtifact.properties.principalIds
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                    $bluePrintArtifactRoleDefinitionId = $bluePrintArtifact.properties.roleDefinitionId
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'principalIds' = $bluePrintArtifactPrincipalIds; 'resourceGroup' = $bluePrintArtifactResourceGroup; 'roleDefinitionId' = $bluePrintArtifactRoleDefinitionId;}  
+                    break
+                }
+                "template" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactParameters = ConvertTo-Json $bluePrintArtifact.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                    $bluePrintArtifactTemplate = ConvertTo-Json $bluePrintArtifact.properties.template -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'parameters' = $bluePrintArtifactParameters; 'resourceGroup' = $bluePrintArtifactResourceGroup; 'template' = $bluePrintArtifactTemplate;}  
+                    break
+                }
+                default {
+                    throw "Kind '$Kind' unknown";
+                }
+            }
 
             @{'Name'=$bluePrintArtifactName;'Kind'=$bluePrintArtifactKind;'Properties'=$bluePrintArtifactProperties;}
         }
 
-        @{'Name'=$bluePrintName;'Description'=$description;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
+        @{'Name'=$bluePrintName;'Description'=$description;'DisplayName'=$displayName;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
     }
 
     $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
@@ -814,18 +1220,58 @@ Function Set-DscBluePrintDefinition {
         $bluePrint = Get-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -AccessToken $accessToken
         
         $description = $bluePrint.properties.description
-        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99
-        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99
+        $displayName = $bluePrint.properties.displayName
+        $parameters = ConvertTo-Json $bluePrint.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
         $bluePrintArtifacts = Get-AzBluePrintDefinitionArtifacts -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -AccessToken $accessToken | %{
-            $bluePrintArtifactName = $_.Name
-            $bluePrintArtifactKind = $_.Kind
-            $bluePrintArtifactProperties = ConvertTo-Json $_.Properties -Depth 99
+            $bluePrintArtifact = $_
+            $bluePrintArtifactName = $bluePrintArtifact.Name
+            $bluePrintArtifactKind = $bluePrintArtifact.Kind
+
+            switch ($bluePrintArtifactKind) {
+                "policyAssignment" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactParameters = ConvertTo-Json $bluePrintArtifact.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+                    $bluePrintArtifactPolicyDefinitionId = $bluePrintArtifact.properties.policyDefinitionId
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'parameters' = $bluePrintArtifactParameters; 'policyDefinitionId' = $bluePrintArtifactPolicyDefinitionId; 'resourceGroup' = $bluePrintArtifactResourceGroup; }  
+                    break
+                }
+                "roleAssignment" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactPrincipalIds = $bluePrintArtifact.properties.principalIds
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                    $bluePrintArtifactRoleDefinitionId = $bluePrintArtifact.properties.roleDefinitionId
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'principalIds' = $bluePrintArtifactPrincipalIds; 'resourceGroup' = $bluePrintArtifactResourceGroup; 'roleDefinitionId' = $bluePrintArtifactRoleDefinitionId;}  
+                    break
+                }
+                "template" {
+                    $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                    $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                    $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                    $bluePrintArtifactParameters = ConvertTo-Json $bluePrintArtifact.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+                    $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                    $bluePrintArtifactTemplate = ConvertTo-Json $bluePrintArtifact.properties.template -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+
+                    $bluePrintArtifactProperties = [pscustomobject][ordered] @{'dependsOn' = $bluePrintArtifactDependsOn; 'description' = $bluePrintArtifactDescription; 'displayName' = $bluePrintArtifactDisplayName; 'parameters' = $bluePrintArtifactParameters; 'resourceGroup' = $bluePrintArtifactResourceGroup; 'template' = $bluePrintArtifactTemplate;}  
+                    break
+                }
+                default {
+                    throw "Kind '$Kind' unknown";
+                }
+            }
 
             @{'Name'=$bluePrintArtifactName;'Kind'=$bluePrintArtifactKind;'Properties'=$bluePrintArtifactProperties;}
         }
 
-        @{'Name'=$bluePrintName;'Description'=$description;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
+        @{'Name'=$bluePrintName;'Description'=$description;'DisplayName'=$displayName;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
     }
 
     $updateBluePrintDefinitions = @($currentBluePrintDefinitions | ?{$BluePrintDefinitions -and $BluePrintDefinitions.Name.Contains($_.Name)})
@@ -838,6 +1284,7 @@ Function Set-DscBluePrintDefinition {
     $desiredBluePrintDefinitionResults = $desiredBluePrintDefinitions | %{
         $bluePrintName = $_.Name
         $description = $_.Description
+        $displayName = $_.DisplayName
         $parameters = $_.Parameters
         $resourceGroups = $_.ResourceGroups
         $artifacts = $_.Artifacts
@@ -857,25 +1304,91 @@ $resourceGroups
 `$token = `$profileClient.AcquireAccessToken(`$tenantId)
 `$accessToken = `$token.AccessToken
 
-Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -Description '$description' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
-
-"@            
-            $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
-
-            $artifacts | %{
-                $bluePrintArtifactName = $_.Name
-                $bluePrintArtifactKind = $_.Kind
-                $bluePrintArtifactProperties = $_.Properties
-    
-                Write-Host @"
-`$bluePrintArtifactProperties=@'
-$bluePrintArtifactProperties
-'@
-                
-Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -Description '$description' -DisplayName '$displayName' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
 
 "@
-                $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+            $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -DisplayName $displayName -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+
+            $artifacts | %{
+                $bluePrintArtifact = $_
+
+                $bluePrintArtifactName = $bluePrintArtifact.Name
+                $bluePrintArtifactKind = $bluePrintArtifact.Kind
+    
+                switch ($bluePrintArtifactKind) {
+                    "policyAssignment" {
+                        $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                        $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                        $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                        $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                        $bluePrintArtifactPolicyDefinitionId = $bluePrintArtifact.properties.policyDefinitionId
+                        $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+    
+                        Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$bluePrintArtifactParameters
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$bluePrintArtifactPolicyDefinitionId' -ResourceGroup '$bluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
+"@
+                        $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -PolicyDefinitionId $bluePrintArtifactPolicyDefinitionId -ResourceGroup $bluePrintArtifactResourceGroup -AccessToken $accessToken
+                                        
+                        break
+                    }
+                    "roleAssignment" {
+                        $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                        $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                        $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                        $bluePrintArtifactPrincipalIds = $bluePrintArtifact.properties.principalIds
+                        $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                        $bluePrintArtifactRoleDefinitionId = $bluePrintArtifact.properties.roleDefinitionId
+
+                        Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -PrincipalIds '$bluePrintArtifactPrincipalIds' -ResourceGroup '$bluePrintArtifactResourceGroup' -RoleDefinitionId '$bluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
+"@
+                        $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -PrincipalIds $bluePrintArtifactPrincipalIds -ResourceGroup $bluePrintArtifactResourceGroup -RoleDefinitionId $bluePrintArtifactRoleDefinitionId -AccessToken $accessToken
+                         
+                        break
+                    }
+                    "template" {
+                        $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                        $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                        $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                        $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                        $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                        $bluePrintArtifactTemplate = $bluePrintArtifact.properties.template
+    
+                        Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$bluePrintArtifactParameters
+'@
+`$bluePrintArtifactTemplate=@'
+$bluePrintArtifactTemplate
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$bluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
+"@
+                        $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -ResourceGroup $bluePrintArtifactResourceGroup -Template $bluePrintArtifactTemplate -AccessToken $accessToken
+
+                        break
+                    }
+                    default {
+                        throw "Kind '$Kind' unknown";
+                    }
+                }        
             }
 
             $_
@@ -953,74 +1466,448 @@ Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrin
                 $createBluePrintDefinitionArtifacts = @($desiredArtifacts | ?{!($updateBluePrintDefinitionArtifacts -and $updateBluePrintDefinitionArtifacts.Name.Contains($_.Name))})
                 $deleteBluePrintDefinitionArtifacts = @($artifacts | ?{!($desiredArtifacts -and $desiredArtifacts.Name.Contains($_.Name))})
 
-                $createBluePrintDefinitionArtifacts | %{
-                    $bluePrintArtifactName = $_.Name
-                    $bluePrintArtifactKind = $_.Kind
-                    $bluePrintArtifactProperties = $_.Properties
-
-                    Write-Host @"
-`$bluePrintArtifactProperties=@'
-$bluePrintArtifactProperties
+                $createBluePrintDefinitionArtifacts | %{    
+                    $bluePrintArtifact = $_
+                    $bluePrintArtifactName = $bluePrintArtifact.Name
+                    $bluePrintArtifactKind = $bluePrintArtifact.Kind
+        
+                    switch ($bluePrintArtifactKind) {
+                        "policyAssignment" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                            $bluePrintArtifactPolicyDefinitionId = $bluePrintArtifact.properties.policyDefinitionId
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+        
+                            Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$bluePrintArtifactParameters
 '@
 
-Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$bluePrintArtifactPolicyDefinitionId' -ResourceGroup '$bluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
 "@
+                            $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -PolicyDefinitionId $bluePrintArtifactPolicyDefinitionId -ResourceGroup $bluePrintArtifactResourceGroup -AccessToken $accessToken
+                                            
+                            break
+                        }
+                        "roleAssignment" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactPrincipalIds = $bluePrintArtifact.properties.principalIds
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                            $bluePrintArtifactRoleDefinitionId = $bluePrintArtifact.properties.roleDefinitionId
+    
+                            Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
 
-                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -Properties $bluePrintArtifactProperties -AccessToken $accessToken
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -PrincipalIds '$bluePrintArtifactPrincipalIds' -ResourceGroup '$bluePrintArtifactResourceGroup' -RoleDefinitionId '$bluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
+"@
+                            $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -PrincipalIds $bluePrintArtifactPrincipalIds -ResourceGroup $bluePrintArtifactResourceGroup -RoleDefinitionId $bluePrintArtifactRoleDefinitionId -AccessToken $accessToken
+                             
+                            break
+                        }
+                        "template" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                            $bluePrintArtifactTemplate = $bluePrintArtifact.properties.template
+        
+                            Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$bluePrintArtifactParameters
+'@
+`$bluePrintArtifactTemplate=@'
+$bluePrintArtifactTemplate
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$bluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
+"@
+                            $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -ResourceGroup $bluePrintArtifactResourceGroup -Template $bluePrintArtifactTemplate -AccessToken $accessToken
+    
+                            break
+                        }
+                        default {
+                            throw "Kind '$Kind' unknown";
+                        }
+                    }        
                 }
 
                 $updateBluePrintDefinitionArtifacts | %{
                     $bluePrintArtifactName = $_.Name
                     $bluePrintArtifactKind = $_.Kind
-                    $bluePrintArtifactProperties = $_.Properties
 
+                    switch ($bluePrintArtifactKind) {
+                        "policyAssignment" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                            $bluePrintArtifactPolicyDefinitionId = $bluePrintArtifact.properties.policyDefinitionId
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                            break
+                        }
+                        "roleAssignment" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactPrincipalIds = $bluePrintArtifact.properties.principalIds
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                            $bluePrintArtifactRoleDefinitionId = $bluePrintArtifact.properties.roleDefinitionId
+                            break
+                        }
+                        "template" {
+                            $bluePrintArtifactDependsOn = $bluePrintArtifact.properties.dependsOn
+                            $bluePrintArtifactDescription = $bluePrintArtifact.properties.description
+                            $bluePrintArtifactDisplayName = $bluePrintArtifact.properties.displayName
+                            $bluePrintArtifactParameters = $bluePrintArtifact.properties.parameters
+                            $bluePrintArtifactResourceGroup = $bluePrintArtifact.properties.resourceGroup
+                            $bluePrintArtifactTemplate = $bluePrintArtifact.properties.template
+                            break
+                        }
+                        default {
+                            throw "Kind '$Kind' unknown";
+                        }
+                    }                            
+                    
                     $desiredBluePrintDefinitionArtifact = $desiredArtifacts | ?{$_.Name -eq $bluePrintArtifactName}
                     if ($desiredBluePrintDefinitionArtifact)
                     {
                         $desiredBluePrintArtifactName = $desiredBluePrintDefinitionArtifact.Name
                         $desiredBluePrintArtifactKind = $desiredBluePrintDefinitionArtifact.Kind
-                        $desiredBluePrintArtifactProperties = $desiredBluePrintDefinitionArtifact.Properties
 
-                        if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName){
-                            Write-Host @"
-                            Desired Blue Print Artifact Name:
-                            $desiredBluePrintArtifactName
-        
-                            Current Blue Print Artifact Name:
-                            $bluePrintArtifactName
-"@
-                        }
+                        switch ($desiredBluePrintArtifactKind) {
+                            "policyAssignment" {
+                                $desiredBluePrintArtifactDependsOn = $desiredBluePrintDefinitionArtifact.properties.dependsOn
+                                $desiredBluePrintArtifactDescription = $desiredBluePrintDefinitionArtifact.properties.description
+                                $desiredBluePrintArtifactDisplayName = $desiredBluePrintDefinitionArtifact.properties.displayName
+                                $desiredBluePrintArtifactParameters = $desiredBluePrintDefinitionArtifact.properties.parameters
+                                $desiredBluePrintArtifactPolicyDefinitionId = $desiredBluePrintDefinitionArtifact.properties.policyDefinitionId
+                                $desiredBluePrintArtifactResourceGroup = $desiredBluePrintDefinitionArtifact.properties.resourceGroup
 
-                        if ($desiredBluePrintArtifactKind -ne $bluePrintArtifactKind){
-                            Write-Host @"
-                            Desired Blue Print Artifact Kind:
-                            $desiredBluePrintArtifactKind
-        
-                            Current Blue Print Artifact Kind:
-                            $bluePrintArtifactKind
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Name:
+                                    $desiredBluePrintArtifactName
+                
+                                    Current Blue Print Artifact Name:
+                                    $bluePrintArtifactName
 "@
-                        }                        
+                                }
+        
+                                if ($desiredBluePrintArtifactKind -ne $bluePrintArtifactKind){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Kind:
+                                    $desiredBluePrintArtifactKind
+                
+                                    Current Blue Print Artifact Kind:
+                                    $bluePrintArtifactKind
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Depends On:
+                                    $desiredBluePrintArtifactDependsOn
+                
+                                    Current Blue Print Artifact Depends On:
+                                    $bluePrintArtifactDependsOn
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Description:
+                                    $desiredBluePrintArtifactDescription
+                
+                                    Current Blue Print Artifact Description:
+                                    $bluePrintArtifactDescription
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Display Name:
+                                    $desiredBluePrintArtifactDisplayName
+                
+                                    Current Blue Print Artifact Display Name:
+                                    $bluePrintArtifactDisplayName
+"@
+                                }
 
-                        if ($desiredBluePrintArtifactProperties -ne $bluePrintArtifactProperties){
-                            Write-Host @"
-                            Desired Blue Print Artifact Properties:
-                            $desiredBluePrintArtifactProperties
-        
-                            Current Blue Print Artifact Properties:
-                            $bluePrintArtifactProperties
+                                if ($desiredBluePrintArtifactParameters -ne $bluePrintArtifactParameters){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Parameters:
+                                    $desiredBluePrintArtifactParameters
+                
+                                    Current Blue Print Artifact Parameters:
+                                    $bluePrintArtifactParameters
 "@
-                        }   
-                        
-                        if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName -or $desiredBluePrintArtifactKind -ne $bluePrintArtifactKind -or $desiredBluePrintArtifactProperties -ne $bluePrintArtifactProperties) {
-                            Write-Host @"
-`$bluePrintArtifactProperties=@'
-$desiredBluePrintArtifactProperties
+                                }    
+                                
+                                if ($desiredBluePrintArtifactPolicyDefinitionId -ne $bluePrintArtifactPolicyDefinitionId){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Policy Definition Id:
+                                    $desiredBluePrintArtifactPolicyDefinitionId
+                
+                                    Current Blue Print Artifact Policy Definition Id:
+                                    $bluePrintArtifactPolicyDefinitionId
+"@
+                                }      
+                                
+                                if ($desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Resource Group:
+                                    $desiredBluePrintArtifactResourceGroup
+                
+                                    Current Blue Print Artifact Resource Group:
+                                    $bluePrintArtifactResourceGroup
+"@
+                                }                                
+
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName -or $desiredBluePrintArtifactKind -ne $bluePrintArtifactKind -or $desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn -or $desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription -or $desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName -or $desiredBluePrintArtifactParameters -ne $bluePrintArtifactParameters -or $desiredBluePrintArtifactPolicyDefinitionId -ne $bluePrintArtifactPolicyDefinitionId -or $desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup){
+                                    Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $desiredBluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$desiredBluePrintArtifactParameters
 '@
 
-Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -Properties `$bluePrintArtifactProperties -AccessToken `$accessToken
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$desiredBluePrintArtifactPolicyDefinitionId' -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
 "@
+                                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -Parameters $desiredBluePrintArtifactParameters -PolicyDefinitionId $desiredBluePrintArtifactPolicyDefinitionId -ResourceGroup $desiredBluePrintArtifactResourceGroup -AccessToken $accessToken
+                                }
+                                break
+                            }
+                            "roleAssignment" {
+                                $desiredBluePrintArtifactDependsOn = $desiredBluePrintDefinitionArtifact.properties.dependsOn
+                                $desiredBluePrintArtifactDescription = $desiredBluePrintDefinitionArtifact.properties.description
+                                $desiredBluePrintArtifactDisplayName = $desiredBluePrintDefinitionArtifact.properties.displayName
+                                $desiredBluePrintArtifactPrincipalIds = $desiredBluePrintDefinitionArtifact.properties.principalIds
+                                $desiredBluePrintArtifactResourceGroup = $desiredBluePrintDefinitionArtifact.properties.resourceGroup
+                                $desiredBluePrintArtifactRoleDefinitionId = $desiredBluePrintDefinitionArtifact.properties.roleDefinitionId
+        
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Name:
+                                    $desiredBluePrintArtifactName
+                
+                                    Current Blue Print Artifact Name:
+                                    $bluePrintArtifactName
+"@
+                                }
+        
+                                if ($desiredBluePrintArtifactKind -ne $bluePrintArtifactKind){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Kind:
+                                    $desiredBluePrintArtifactKind
+                
+                                    Current Blue Print Artifact Kind:
+                                    $bluePrintArtifactKind
+"@
+                                } 
+                                
+                                if ($desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Depends On:
+                                    $desiredBluePrintArtifactDependsOn
+                
+                                    Current Blue Print Artifact Depends On:
+                                    $bluePrintArtifactDependsOn
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Description:
+                                    $desiredBluePrintArtifactDescription
+                
+                                    Current Blue Print Artifact Description:
+                                    $bluePrintArtifactDescription
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Display Name:
+                                    $desiredBluePrintArtifactDisplayName
+                
+                                    Current Blue Print Artifact Display Name:
+                                    $bluePrintArtifactDisplayName
+"@
+                                }
 
-                            $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -Properties $desiredBluePrintArtifactProperties -AccessToken $accessToken
+                                if ($desiredBluePrintArtifactPrincipalIds -ne $bluePrintArtifactPrincipalIds){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Principal Ids:
+                                    $desiredBluePrintArtifactPrincipalIds
+                
+                                    Current Blue Print Artifact Principal Ids:
+                                    $bluePrintArtifactPrincipalIds
+"@
+                                }
+
+                                if ($desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Resource Group:
+                                    $desiredBluePrintArtifactResourceGroup
+                
+                                    Current Blue Print Artifact Resource Group:
+                                    $bluePrintArtifactResourceGroup
+"@
+                                }  
+                                
+                                if ($desiredBluePrintArtifactRoleDefinitionId -ne $bluePrintArtifactRoleDefinitionId){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Role Definition Id:
+                                    $desiredBluePrintArtifactRoleDefinitionId
+                
+                                    Current Blue Print Artifact Role Definition Id:
+                                    $bluePrintArtifactRoleDefinitionId
+"@
+                                }                                  
+
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName -or $desiredBluePrintArtifactKind -ne $bluePrintArtifactKind -or $desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn -or $desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription -or $desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName -or $desiredBluePrintArtifactPrincipalIds -ne $bluePrintArtifactPrincipalIds -or $desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup -or $desiredBluePrintArtifactRoleDefinitionId -ne $bluePrintArtifactRoleDefinitionId){
+
+                                    Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $desiredBluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -PrincipalIds '$desiredBluePrintArtifactPrincipalIds' -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -RoleDefinitionId '$desiredBluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
+"@
+                                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -PrincipalIds $desiredBluePrintArtifactPrincipalIds -ResourceGroup $desiredBluePrintArtifactResourceGroup -RoleDefinitionId $desiredBluePrintArtifactRoleDefinitionId -AccessToken $accessToken
+                                }                                 
+                                break
+                            }
+                            "template" {
+                                $desiredBluePrintArtifactDependsOn = $desiredBluePrintDefinitionArtifact.properties.dependsOn
+                                $desiredBluePrintArtifactDescription = $desiredBluePrintDefinitionArtifact.properties.description
+                                $desiredBluePrintArtifactDisplayName = $desiredBluePrintDefinitionArtifact.properties.displayName
+                                $desiredBluePrintArtifactParameters = $desiredBluePrintDefinitionArtifact.properties.parameters
+                                $desiredBluePrintArtifactResourceGroup = $desiredBluePrintDefinitionArtifact.properties.resourceGroup
+                                $desiredBluePrintArtifactTemplate = $desiredBluePrintDefinitionArtifact.properties.template
+
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Name:
+                                    $desiredBluePrintArtifactName
+                
+                                    Current Blue Print Artifact Name:
+                                    $bluePrintArtifactName
+"@
+                                }
+        
+                                if ($desiredBluePrintArtifactKind -ne $bluePrintArtifactKind){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Kind:
+                                    $desiredBluePrintArtifactKind
+                
+                                    Current Blue Print Artifact Kind:
+                                    $bluePrintArtifactKind
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Depends On:
+                                    $desiredBluePrintArtifactDependsOn
+                
+                                    Current Blue Print Artifact Depends On:
+                                    $bluePrintArtifactDependsOn
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Description:
+                                    $desiredBluePrintArtifactDescription
+                
+                                    Current Blue Print Artifact Description:
+                                    $bluePrintArtifactDescription
+"@
+                                }
+                                
+                                if ($desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Display Name:
+                                    $desiredBluePrintArtifactDisplayName
+                
+                                    Current Blue Print Artifact Display Name:
+                                    $bluePrintArtifactDisplayName
+"@
+                                }
+
+                                if ($desiredBluePrintArtifactParameters -ne $bluePrintArtifactParameters){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Parameters:
+                                    $desiredBluePrintArtifactParameters
+                
+                                    Current Blue Print Artifact Parameters:
+                                    $bluePrintArtifactParameters
+"@
+                                }                                    
+
+                                if ($desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Resource Group:
+                                    $desiredBluePrintArtifactResourceGroup
+                
+                                    Current Blue Print Artifact Resource Group:
+                                    $bluePrintArtifactResourceGroup
+"@
+                                } 
+                                
+                                if ($desiredBluePrintArtifactTemplate -ne $bluePrintArtifactTemplate){
+                                    Write-Host @"
+                                    Desired Blue Print Artifact Template:
+                                    $desiredBluePrintArtifactTemplate
+                
+                                    Current Blue Print Artifact Template:
+                                    $bluePrintArtifactTemplate
+"@
+                                }
+
+                                if ($desiredBluePrintArtifactName -ne $bluePrintArtifactName -or $desiredBluePrintArtifactKind -ne $bluePrintArtifactKind -or $desiredBluePrintArtifactDependsOn -ne $bluePrintArtifactDependsOn -or $desiredBluePrintArtifactDescription -ne $bluePrintArtifactDescription -or $desiredBluePrintArtifactDisplayName -ne $bluePrintArtifactDisplayName -or $desiredBluePrintArtifactParameters -ne $bluePrintArtifactParameters -or $desiredBluePrintArtifactResourceGroup -ne $bluePrintArtifactResourceGroup -or $desiredBluePrintArtifactTemplate -ne $bluePrintArtifactTemplate){
+
+                                    Write-Host @"
+`$bluePrintArtifactDependsOn=@'
+$(ConvertTo-Json $desiredBluePrintArtifactDependsOn -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+'@ 
+`$bluePrintArtifactDependsOn = ConvertFrom-Json `$bluePrintArtifactDependsOn 
+`$bluePrintArtifactParameters=@'
+$desiredBluePrintArtifactParameters
+'@
+`$bluePrintArtifactTemplate=@'
+$desiredBluePrintArtifactTemplate
+'@
+
+Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
+"@
+                                    $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -Parameters $desiredBluePrintArtifactParameters -ResourceGroup $desiredBluePrintArtifactResourceGroup -Template $desiredBluePrintArtifactTemplate -AccessToken $accessToken
+                                }        
+                                break
+                            }
+                            default {
+                                throw "Kind '$Kind' unknown";
+                            }
                         }
                     }
                 }
@@ -1097,7 +1984,7 @@ Function Set-DscRoleDefinition {
 
             $inputFileObject.AssignableScopes = $assignableScopes
 
-            $inputFile = ConvertTo-Json $inputFileObject -Depth 99
+            $inputFile = ConvertTo-Json $inputFileObject -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
             @{'Name'=$name;'InputFile'=$inputFile;}        
         }
@@ -1106,7 +1993,7 @@ Function Set-DscRoleDefinition {
     #hack - cache issues hence the %{try{Get-AzRoleDefinition -Id $_.Id}catch{}}
     $currentRoleDefinitions = @(Get-AzRoleDefinition -Custom | %{try{$r=Get-AzRoleDefinition -Id $_.Id -ErrorAction Stop;$r}catch{}} | %{
         $name = $_.Name
-        $inputFile = ConvertTo-Json $_ -Depth 99
+        $inputFile = ConvertTo-Json $_ -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         @{'Name'=$name;'InputFile'=$inputFile;}
     })
 
@@ -1115,7 +2002,7 @@ Function Set-DscRoleDefinition {
     $createRoleDefinitions = @($RoleDefinitions | ?{!($updateRoleDefinitions -and $updateRoleDefinitions.Name.Contains($_.Name))})
     $currentRoleDefinitions += @($createRoleDefinitions | %{try{$r=Get-AzRoleDefinition -Name $_.Name -ErrorAction Stop;$r}catch{}} | %{
         $name = $_.Name
-        $inputFile = ConvertTo-Json $_ -Depth 99
+        $inputFile = ConvertTo-Json $_ -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         @{'Name'=$name;'InputFile'=$inputFile;}
     })
     #hack stop - cache issues hence the double createRole check
@@ -1146,7 +2033,7 @@ New-AzRoleDefinition -Role ([Microsoft.Azure.Commands.Resources.Models.Authoriza
             {
                 $desiredInputFileObject = $desiredRoleDefinition.InputFile | ConvertFrom-Json 
                 $r = $desiredInputFileObject | Add-Member -MemberType noteProperty -name 'Id' -Value (($inputFile | ConvertFrom-Json).Id) 
-                $desiredInputFile = ConvertTo-Json ([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]$desiredInputFileObject) -Depth 99
+                $desiredInputFile = ConvertTo-Json ([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]$desiredInputFileObject) -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
                 
                 if ($desiredInputFile -ne $inputFile) {
                     Write-Host @"
@@ -1193,9 +2080,9 @@ Function Set-DscPolicyDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
-            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99
-            $policy = ConvertTo-Json $inputFileObject.properties.policyRule -Depth 99
-            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99
+            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+            $policy = ConvertTo-Json $inputFileObject.properties.policyRule -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
  
             @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'Policy'=$policy;'Parameter'=$parameter;}        
         }
@@ -1206,9 +2093,9 @@ Function Set-DscPolicyDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
-        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99
-        $policy = ConvertTo-Json $_.properties.policyRule -Depth 99
-        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99
+        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        $policy = ConvertTo-Json $_.properties.policyRule -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
         @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'Policy'=$policy;'Parameter'=$parameter;}
     })
@@ -1352,7 +2239,7 @@ Function Set-DscPolicySetDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
-            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99
+            $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
             $policyDefinitions = ConvertTo-Json ($inputFileObject.properties.policyDefinitions | %{
                 #Dynamically created, so we have to ignore it
                 $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
@@ -1361,8 +2248,8 @@ Function Set-DscPolicySetDefinition {
                     $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
                 }
                 $_
-            }) -Depth 99
-            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99
+            }) -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+            $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
  
             @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'PolicyDefinitions'=$policyDefinitions;'Parameter'=$parameter;}        
         }
@@ -1373,7 +2260,7 @@ Function Set-DscPolicySetDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
-        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99
+        $metadata = ConvertTo-Json $_.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         $policyDefinitions = ConvertTo-Json ($_.properties.policyDefinitions | %{
             #Dynamically created, so we have to ignore it
             $_.PSObject.Properties.Remove('policyDefinitionReferenceId')
@@ -1382,8 +2269,8 @@ Function Set-DscPolicySetDefinition {
                 $_.policyDefinitionId = "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/$($_.policyDefinitionId)"
             }
             $_
-        }) -Depth 99
-        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99
+        }) -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        $parameter = ConvertTo-Json $_.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
         @{'Name'=$name;'Description'=$description;'DisplayName'=$displayName;'Metadata'=$metadata;'PolicyDefinitions'=$policyDefinitions;'Parameter'=$parameter;}
     })
@@ -1723,13 +2610,13 @@ function Get-PolicyAssignmentFromConfig {
     
     $displayName = $ConfigItem.DisplayName
     $description = $ConfigItem.Description
-    $metadata = ConvertTo-Json $ConfigItem.Metadata -Depth 99
+    $metadata = ConvertTo-Json $ConfigItem.Metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
     if ([string]::IsNullOrWhitespace($metadata)){
         $metadata = ConvertTo-Json @{}
     }
     $policyDefinitionName = $ConfigItem.PolicyDefinitionName
     $policySetDefinitionName = $ConfigItem.PolicySetDefinitionName
-    $policyParameter = ConvertTo-Json $ConfigItem.PolicyParameter -Depth 99
+    $policyParameter = ConvertTo-Json $ConfigItem.PolicyParameter -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
     if ([string]::IsNullOrWhitespace($policyParameter)){
         $policyParameter = ConvertTo-Json @{}
     }
@@ -1792,7 +2679,7 @@ Function Set-DscPolicyAssignment {
         $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
-        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
+        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($metadata)){
             $metadata = ConvertTo-Json @{}
         }
@@ -1806,7 +2693,7 @@ Function Set-DscPolicyAssignment {
 
         $policySetDefinitionName = ""
        
-        $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99
+        $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($policyParameter)){
             $policyParameter = ConvertTo-Json @{}
         }
@@ -1869,7 +2756,7 @@ $metadata
 $policyParameter
 '@
 `$notScope=@'
-$(ConvertTo-Json $notScope -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$notScope = ConvertFrom-Json `$notScope 
 
@@ -1962,10 +2849,10 @@ if (`$policyDefinition) {
                 if ($desiredNotScope -ne $notScope){
                     Write-Host @"
                     Desired Not Scope:
-                    $(ConvertTo-Json $desiredNotScope -Depth 99)
+                    $(ConvertTo-Json $desiredNotScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 
                     Actual Not Scope:
-                    $(ConvertTo-Json $notScope -Depth 99)
+                    $(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 "@
                 }
 
@@ -2055,12 +2942,12 @@ $policyParameter
 $desiredPolicyParameter
 '@
 `$notScope=@'
-$(ConvertTo-Json $notScope -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$notScope = ConvertFrom-Json `$notScope 
 
 `$desiredNotScope=@'
-$(ConvertTo-Json $desiredNotScope -Depth 99)
+$(ConvertTo-Json $desiredNotScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$desiredNotScope = ConvertFrom-Json `$desiredNotScope
 
@@ -2258,7 +3145,7 @@ Function Set-DscPolicySetAssignment {
         $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
-        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99
+        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($metadata)){
             $metadata = ConvertTo-Json @{}
         }
@@ -2272,7 +3159,7 @@ Function Set-DscPolicySetAssignment {
             $policySetDefinitionName = $policySetDefinition.Name
         }
 
-        $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99
+        $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($policyParameter)){
             $policyParameter = ConvertTo-Json @{}
         }
@@ -2335,7 +3222,7 @@ $metadata
 $policyParameter
 '@
 `$notScope=@'
-$(ConvertTo-Json $notScope -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$notScope = ConvertFrom-Json `$notScope 
 
@@ -2428,10 +3315,10 @@ if (`$policySetDefinition) {
                 if ($desiredNotScope -ne $notScope){
                     Write-Host @"
                     Desired Not Scope:
-                    $(ConvertTo-Json $desiredNotScope -Depth 99)
+                    $(ConvertTo-Json $desiredNotScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 
                     Actual Not Scope:
-                    $(ConvertTo-Json $notScope -Depth 99)
+                    $(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 "@
                 }
 
@@ -2521,12 +3408,12 @@ $policyParameter
 $desiredPolicyParameter
 '@
 `$notScope=@'
-$(ConvertTo-Json $notScope -Depth 99)
+$(ConvertTo-Json $notScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$notScope = ConvertFrom-Json `$notScope 
 
 `$desiredNotScope=@'
-$(ConvertTo-Json $desiredNotScope -Depth 99)
+$(ConvertTo-Json $desiredNotScope -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) })
 '@ 
 `$desiredNotScope = ConvertFrom-Json `$desiredNotScope
 
@@ -2734,9 +3621,6 @@ $RoleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath (Resolve-Path 'Role
 $PolicyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicyDefinitionPath (Resolve-Path 'PolicyDefinitions')
 $PolicySetDefinitions = Set-DscPolicySetDefinition -ManagementGroupName $tenantContext.ManagementGroupName -PolicySetDefinitionPath (Resolve-Path 'PolicySetDefinitions')
 $BlueprintDefinitions = Set-DscBluePrintDefinition -ManagementGroupName $tenantContext.ManagementGroupName -TenantId $TenantId -BluePrintDefinitionPath (Resolve-Path 'Blueprints')
-
-
-
 
 #Add role to management group or subscription
 $RoleAssignments = Set-DscRoleAssignment -DesiredState $DesiredState
