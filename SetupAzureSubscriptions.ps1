@@ -1548,8 +1548,9 @@ Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -
                 }
 
                 $updateBluePrintDefinitionArtifacts | %{
-                    $bluePrintArtifactName = $_.Name
-                    $bluePrintArtifactKind = $_.Kind
+                    $bluePrintArtifact = $_
+                    $bluePrintArtifactName = $bluePrintArtifact.Name
+                    $bluePrintArtifactKind = $bluePrintArtifact.Kind
 
                     switch ($bluePrintArtifactKind) {
                         "policyAssignment" {
