@@ -1141,7 +1141,9 @@ Function Set-DscBluePrintDefinition {
         [Parameter(Mandatory = $true, Position = 2)]
         $TenantId,
         [Parameter(Mandatory = $false, Position = 3)]
-        $DeleteUnknownBluePrints = $false
+        $DeleteUnknownBluePrints = $false,
+        [Parameter(Mandatory = $false, Position = 4)]
+        $AutoPublishBluePrints = $true
     )
 
     #Create blue print at root, then all management groups can apply them at any level
@@ -1402,7 +1404,7 @@ Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -
                 }        
             }
 
-            if ($shouldCreateAzBluePrintDefinitionVersion){
+            if ($AutoPublishBluePrints -and $shouldCreateAzBluePrintDefinitionVersion){
                 Write-Host @"
 `$tenantId='$TenantId'
 `$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
@@ -1958,7 +1960,7 @@ Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName'
                     $shouldCreateAzBluePrintDefinitionVersion = $true
                 }
 
-                if ($shouldCreateAzBluePrintDefinitionVersion){
+                if ($AutoPublishBluePrints -and $shouldCreateAzBluePrintDefinitionVersion){
                     Write-Host @"
 `$tenantId='$TenantId'
 `$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
