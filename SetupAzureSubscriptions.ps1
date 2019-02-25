@@ -1125,6 +1125,13 @@ Function Delete-AzBluePrintAssignment {
     $result = Invoke-WebRequest @deleteBluePrintAssignmentHeaders
 }
 
+Function Initialize-AzBluePrintVersionName {
+    param(
+    )
+
+    (Get-Date).ToString('yyyy-MM-dd-HH-mm-ss')
+}
+
 Function Set-DscBluePrintDefinition {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -1142,6 +1149,8 @@ Function Set-DscBluePrintDefinition {
     #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#creating-and-editing-a-blueprint
     #https://www.powershellgallery.com/packages/Manage-AzureRMBlueprint
     #https://www.youtube.com/watch?v=SMORUIPhKd8&feature=youtu.be
+
+    $bluePrintVersionName = Initialize-AzBluePrintVersionName
 
     $BluePrintDefinitions = Get-ChildItem -Path $BluePrintDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprint.json'))} | %{
         $bluePrint = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprint.json')) | ConvertFrom-Json
@@ -1282,6 +1291,7 @@ Function Set-DscBluePrintDefinition {
     $desiredBluePrintDefinitions += $updateBluePrintDefinitions
 
     $desiredBluePrintDefinitionResults = $desiredBluePrintDefinitions | %{
+        $shouldCreateAzBluePrintDefinitionVersion = $false
         $bluePrintName = $_.Name
         $description = $_.Description
         $displayName = $_.DisplayName
@@ -1308,6 +1318,7 @@ Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrin
 
 "@
             $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -Description $description -DisplayName $displayName -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+            $shouldCreateAzBluePrintDefinitionVersion = $true
 
             $artifacts | %{
                 $bluePrintArtifact = $_
@@ -1336,7 +1347,7 @@ $bluePrintArtifactParameters
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$bluePrintArtifactPolicyDefinitionId' -ResourceGroup '$bluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
 "@
                         $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -PolicyDefinitionId $bluePrintArtifactPolicyDefinitionId -ResourceGroup $bluePrintArtifactResourceGroup -AccessToken $accessToken
-                                        
+                        $shouldCreateAzBluePrintDefinitionVersion = $true
                         break
                     }
                     "roleAssignment" {
@@ -1356,7 +1367,7 @@ $(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.Regula
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -PrincipalIds '$bluePrintArtifactPrincipalIds' -ResourceGroup '$bluePrintArtifactResourceGroup' -RoleDefinitionId '$bluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
 "@
                         $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -PrincipalIds $bluePrintArtifactPrincipalIds -ResourceGroup $bluePrintArtifactResourceGroup -RoleDefinitionId $bluePrintArtifactRoleDefinitionId -AccessToken $accessToken
-                         
+                        $shouldCreateAzBluePrintDefinitionVersion = $true
                         break
                     }
                     "template" {
@@ -1382,13 +1393,26 @@ $bluePrintArtifactTemplate
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$bluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
 "@
                         $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -ResourceGroup $bluePrintArtifactResourceGroup -Template $bluePrintArtifactTemplate -AccessToken $accessToken
-
+                        $shouldCreateAzBluePrintDefinitionVersion = $true
                         break
                     }
                     default {
                         throw "Kind '$Kind' unknown";
                     }
                 }        
+            }
+
+            if ($shouldCreateAzBluePrintDefinitionVersion){
+                Write-Host @"
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+
+Save-AzBluePrintDefinitionVersion -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintVersionName '$bluePrintVersionName' -AccessToken `$accessToken
+"@                
+                $result = Save-AzBluePrintDefinitionVersion -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintVersionName $bluePrintVersionName -AccessToken $accessToken
             }
 
             $_
@@ -1460,6 +1484,7 @@ $desiredResourceGroups
 Save-AzBluePrintDefinition -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -Description '$desiredDescription' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
 "@
                     $result = Save-AzBluePrintDefinition -ManagementGroupName $ManagementGroupName -BluePrintName $desiredBluePrintName -Description $desiredDescription -Parameters $desiredParameters -ResourceGroups $desiredResourceGroups -AccessToken $accessToken
+                    $shouldCreateAzBluePrintDefinitionVersion = $true
                 }
 
                 $updateBluePrintDefinitionArtifacts = @($artifacts | ?{$desiredArtifacts -and $desiredArtifacts.Name.Contains($_.Name)})
@@ -1492,7 +1517,7 @@ $bluePrintArtifactParameters
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$bluePrintArtifactPolicyDefinitionId' -ResourceGroup '$bluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
 "@
                             $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -PolicyDefinitionId $bluePrintArtifactPolicyDefinitionId -ResourceGroup $bluePrintArtifactResourceGroup -AccessToken $accessToken
-                                            
+                            $shouldCreateAzBluePrintDefinitionVersion = $true                
                             break
                         }
                         "roleAssignment" {
@@ -1512,7 +1537,7 @@ $(ConvertTo-Json $bluePrintArtifactDependsOn -Depth 99 | % { [System.Text.Regula
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -PrincipalIds '$bluePrintArtifactPrincipalIds' -ResourceGroup '$bluePrintArtifactResourceGroup' -RoleDefinitionId '$bluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
 "@
                             $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -PrincipalIds $bluePrintArtifactPrincipalIds -ResourceGroup $bluePrintArtifactResourceGroup -RoleDefinitionId $bluePrintArtifactRoleDefinitionId -AccessToken $accessToken
-                             
+                            $shouldCreateAzBluePrintDefinitionVersion = $true
                             break
                         }
                         "template" {
@@ -1538,7 +1563,7 @@ $bluePrintArtifactTemplate
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$bluePrintArtifactName' -Kind '$bluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$bluePrintArtifactDescription' -DisplayName '$bluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$bluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
 "@
                             $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -Kind $bluePrintArtifactKind -DependsOn $bluePrintArtifactDependsOn -Description $bluePrintArtifactDescription -DisplayName $bluePrintArtifactDisplayName -Parameters $bluePrintArtifactParameters -ResourceGroup $bluePrintArtifactResourceGroup -Template $bluePrintArtifactTemplate -AccessToken $accessToken
-    
+                            $shouldCreateAzBluePrintDefinitionVersion = $true
                             break
                         }
                         default {
@@ -1693,6 +1718,7 @@ $desiredBluePrintArtifactParameters
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -PolicyDefinitionId '$desiredBluePrintArtifactPolicyDefinitionId' -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -AccessToken `$accessToken                    
 "@
                                     $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -Parameters $desiredBluePrintArtifactParameters -PolicyDefinitionId $desiredBluePrintArtifactPolicyDefinitionId -ResourceGroup $desiredBluePrintArtifactResourceGroup -AccessToken $accessToken
+                                    $shouldCreateAzBluePrintDefinitionVersion = $true
                                 }
                                 break
                             }
@@ -1795,6 +1821,7 @@ $(ConvertTo-Json $desiredBluePrintArtifactDependsOn -Depth 99 | % { [System.Text
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -PrincipalIds '$desiredBluePrintArtifactPrincipalIds' -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -RoleDefinitionId '$desiredBluePrintArtifactRoleDefinitionId' -AccessToken `$accessToken                    
 "@
                                     $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -PrincipalIds $desiredBluePrintArtifactPrincipalIds -ResourceGroup $desiredBluePrintArtifactResourceGroup -RoleDefinitionId $desiredBluePrintArtifactRoleDefinitionId -AccessToken $accessToken
+                                    $shouldCreateAzBluePrintDefinitionVersion = $true
                                 }                                 
                                 break
                             }
@@ -1903,6 +1930,7 @@ $desiredBluePrintArtifactTemplate
 Save-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName' -BluePrintName '$bluePrintName' -BluePrintArtifactName '$desiredBluePrintArtifactName' -Kind '$desiredBluePrintArtifactKind' -DependsOn `$bluePrintArtifactDependsOn -Description '$desiredBluePrintArtifactDescription' -DisplayName '$desiredBluePrintArtifactDisplayName' -Parameters `$bluePrintArtifactParameters -ResourceGroup '$desiredBluePrintArtifactResourceGroup' -Template `$bluePrintArtifactTemplate -AccessToken `$accessToken                    
 "@
                                     $result = Save-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $desiredBluePrintArtifactName -Kind $desiredBluePrintArtifactKind -DependsOn $desiredBluePrintArtifactDependsOn -Description $desiredBluePrintArtifactDescription -DisplayName $desiredBluePrintArtifactDisplayName -Parameters $desiredBluePrintArtifactParameters -ResourceGroup $desiredBluePrintArtifactResourceGroup -Template $desiredBluePrintArtifactTemplate -AccessToken $accessToken
+                                    $shouldCreateAzBluePrintDefinitionVersion = $true
                                 }        
                                 break
                             }
@@ -1927,8 +1955,22 @@ Delete-AzBluePrintDefinitionArtifact -ManagementGroupName '$ManagementGroupName'
 "@
 
                     $result = Delete-AzBluePrintDefinitionArtifact -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintArtifactName $bluePrintArtifactName -AccessToken $accessToken
+                    $shouldCreateAzBluePrintDefinitionVersion = $true
                 }
-                
+
+                if ($shouldCreateAzBluePrintDefinitionVersion){
+                    Write-Host @"
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+
+Save-AzBluePrintDefinitionVersion -ManagementGroupName '$ManagementGroupName' -BluePrintName '$desiredBluePrintName' -BluePrintVersionName '$bluePrintVersionName' -AccessToken `$accessToken
+"@
+                    $result = Save-AzBluePrintDefinitionVersion -ManagementGroupName $ManagementGroupName -BluePrintName $bluePrintName -BluePrintVersionName $bluePrintVersionName -AccessToken $accessToken
+                }
+
                 $_
             }
         }
