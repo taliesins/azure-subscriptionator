@@ -960,13 +960,26 @@ Function Get-AzBlueprintServicePrincipal {
 
 Function Get-AzBlueprintAssignments {
     param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        $SubscriptionId,
-        [Parameter(Mandatory = $false, Position = 1)]
+        [Parameter(ParameterSetName='Tenant', Mandatory = $true, Position = 0)]
+        [Parameter(ParameterSetName='ManagementGroup', Mandatory = $false, Position = 1)]
+        [Parameter(ParameterSetName='Subscription', Mandatory = $false, Position = 2)]
         $TenantId,
-        [Parameter(Mandatory = $false, Position = 2)]
+        [Parameter(ParameterSetName='ManagementGroup', Mandatory = $true, Position = 1)]
+        $ManagementGroupName,
+        [Parameter(ParameterSetName='Subscription', Mandatory = $true, Position = 2)]
+        $SubscriptionId,
+        [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
+
+    if ($SubscriptionId){
+        $subscriptions = @("/subscriptions/$($SubscriptionId)")
+    } elseif ($ManagementGroupName) {
+        $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
+        $subscriptions = @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy)      
+    } else {
+        $subscriptions =  @(Get-SubscriptionForTenant -TenantId $TenantId) 
+    }
 
     if (!$AccessToken) {
         $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
@@ -975,18 +988,22 @@ Function Get-AzBlueprintAssignments {
         $AccessToken = $token.AccessToken
     }
 
-    $getBlueprintAssignmentsHeaders = @{
-        URI = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Blueprint/blueprintAssignments?api-version=2018-11-01-preview"
-        Headers = @{
-            Authorization = "Bearer $AccessToken"
-            'Content-Type' = 'application/json'
-        }
-        Method = 'Get'
-        UseBasicParsing = $true
-    }
+    $bluePrintAssignments = @()
 
-    $bluePrintAssignmentsJson = Invoke-WebRequest @getBlueprintAssignmentsHeaders
-    $bluePrintAssignments = (ConvertFrom-Json $bluePrintAssignmentsJson.Content).value
+    $subscriptions | %{
+        $getBlueprintAssignmentsHeaders = @{
+            URI = "https://management.azure.com$($_)/providers/Microsoft.Blueprint/blueprintAssignments?api-version=2018-11-01-preview"
+            Headers = @{
+                Authorization = "Bearer $AccessToken"
+                'Content-Type' = 'application/json'
+            }
+            Method = 'Get'
+            UseBasicParsing = $true
+        }
+        
+        $bluePrintAssignmentsJson = Invoke-WebRequest @getBlueprintAssignmentsHeaders
+        $bluePrintAssignments += (ConvertFrom-Json $bluePrintAssignmentsJson.Content).value
+    }
     $bluePrintAssignments
 }
 
@@ -3677,6 +3694,8 @@ Function Set-DscBlueprintAssignment {
         $DeleteUnknownBlueprintAssignment = $false
     )
 
+    $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
+
     #Assign blueprint to a subscription
     #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#assignments
    
@@ -3713,6 +3732,15 @@ Function Set-DscBlueprintAssignment {
             }
         }
     }
+
+    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+    $token = $profileClient.AcquireAccessToken($TenantId)
+    $accessToken = $token.AccessToken
+
+    $currentBlueprintAssignments = @(Get-AzBlueprintAssignments -TenantId $TenantId -AccessToken $accessToken  | %{        
+        
+    })
 
     Write-Host "Set-DscBlueprintAssignment is not implemented yet"
 }
