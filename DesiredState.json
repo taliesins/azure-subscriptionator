@@ -87,6 +87,21 @@
                     ],
                     "PolicySetAssignments" : [
 
+                    ],
+                    "BluePrintAssignments" : [
+                        {
+                            "Name": "",
+                            "DisplayName" : "Tagging resource group assignment",
+                            "Description" : "Ensure that tagging is applied on resource group",
+                            "Identity": "",
+                            "Location": "",
+                            "BluePrintManagementGroupName": "",
+                            "BluePrintName": "",
+                            "BluePrintVersionName": "",
+                            "LockMode": "",
+                            "Parameters" : {},
+                            "ResourceGroups" : {}
+                        }
                     ]
                 }
             ]
