@@ -1,4 +1,4 @@
-Import-Module .\Subscriptionator.psd1 -Force
+Import-Module .\Subscriptionator.psm1 -Force
 
 #ensure there is an AD Tenant
 #https://portal.azure.com/#create/Microsoft.AzureActiveDirectory
@@ -22,7 +22,7 @@ $TenantId = "1931b7d3-bd07-4b36-9814-adf4ad406860"
 
 $FullyManage = $true
 
-$tenantContext = Connect-Context -TenantId $TenantId
+$tenantContext = Connect-DscContext -TenantId $TenantId
 
 if (!$tenantContext.ManagementGroupName) {
     throw "The tenant $TenantId does not exist or is not accessible to this user"
