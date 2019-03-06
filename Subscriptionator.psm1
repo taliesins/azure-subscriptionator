@@ -1049,6 +1049,8 @@ Function Save-AzBlueprintAssignment {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintAssignmentName,
         
+        [Parameter(Mandatory = $false, ParameterSetName="identity")]
+        $ManagedIdentitySubscriptionId,
         [Parameter(Mandatory = $true, ParameterSetName="identity")]
         $ManagedIdentityResourceGroup,
         [Parameter(Mandatory = $true, ParameterSetName="identity")]
@@ -1106,7 +1108,11 @@ Function Save-AzBlueprintAssignment {
     }
 
     if ($ManagedIdentityUser -and $ManagedIdentityResourceGroup) {
-        $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';'userAssignedIdentities'=@{"/subscriptions/$($SubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
+        if ($ManagedIdentitySubscriptionId) {
+            $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';'userAssignedIdentities'=@{"/subscriptions/$($ManagedIdentitySubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
+        } else {
+            $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';'userAssignedIdentities'=@{"/subscriptions/$($SubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
+        }
     } else {
         $Identity = [pscustomobject][ordered] @{'type' = 'userAssigned';}
     }
@@ -3671,13 +3677,13 @@ function Get-BlueprintAssignmentFromConfig {
     $Description = $ConfigItem.Description
     $DisplayName = $ConfigItem.DisplayName
     $LockMode = $ConfigItem.LockMode
-    if ([string]::IsNullOrWhitespace($Parameters)){
+    if ([string]::IsNullOrWhitespace($ConfigItem.Parameters)){
         $Parameters = ConvertTo-Json @{}
     } else {
         $Parameters = ConvertTo-Json $ConfigItem.Parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
     }
 
-    if ([string]::IsNullOrWhitespace($ResourceGroups)){
+    if ([string]::IsNullOrWhitespace($ConfigItem.ResourceGroups)){
         $ResourceGroups = ConvertTo-Json @{}
     } else {
         $ResourceGroups = ConvertTo-Json $ConfigItem.ResourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
@@ -3739,7 +3745,57 @@ Function Set-DscBlueprintAssignment {
     $accessToken = $token.AccessToken
 
     $currentBlueprintAssignments = @(Get-AzBlueprintAssignments -TenantId $TenantId -AccessToken $accessToken  | %{        
+        # "/subscriptions/<subscription>"
+        $positionOfSubscription = 2
+        $SubscriptionId = $_.properties.scope.split('/')[$positionOfSubscription]
+
+        $BlueprintAssignmentName = $_.name
+
+        $ManagedIdentitySubscriptionId = ''
+        $ManagedIdentityResourceGroup = ''
+        $ManagedIdentityUser = ''
+
+        if ($_.identity.type -eq 'userAssigned'){
+            #  "/subscriptions/<subscription>/resourceGroups/<resource group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<User>"
+            $positionOfIdentitySubscription = 2
+            $positionOfIdentityResourceGroup = 4
+            $positionOfIdentityUser = 8
+
+            $ManagedIdentitySubscriptionId = $_.identity.userAssignedIdentities.PSObject.Properties.Name.split('/')[$positionOfIdentitySubscription]
+            if ($ManagedIdentitySubscriptionId -eq $SubscriptionId){
+                $ManagedIdentitySubscriptionId = ''
+            }
+            $ManagedIdentityResourceGroup = $_.identity.userAssignedIdentities.PSObject.Properties.Name.split('/')[$positionOfIdentityResourceGroup]
+            $ManagedIdentityUser = $_.identity.userAssignedIdentities.PSObject.Properties.Name.split('/')[$positionOfIdentityUser]
+        }
+
+        $Location = $_.location
+
+        #  "/providers/Microsoft.Management/managementGroups/<management group>/providers/Microsoft.Blueprint/blueprints/<blueprint name>/versions/<blue print version>"
+        $positionOfBlueprintManagementGroup = 4
+        $positionOfBlueprintName = 8
+        $positionOfBlueprintVersionName = 10
+
+        $BlueprintManagementGroupName = $_.properties.blueprintId.split('/')[$positionOfBlueprintManagementGroup]
+        $BlueprintName = $_.properties.blueprintId.split('/')[$positionOfBlueprintName]
+        $BlueprintVersionName = $_.properties.blueprintId.split('/')[$positionOfBlueprintVersionName]
         
+        $Description = $_.properties.description
+        $DisplayName = $_.properties.displayName
+        $LockMode = $_.properties.locks.mode
+        if ([string]::IsNullOrWhitespace($_.properties.parameters)){
+            $Parameters = ConvertTo-Json @{}
+        } else {
+            $Parameters = ConvertTo-Json $_.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        }
+
+        if ([string]::IsNullOrWhitespace($_.properties.resourceGroups)){
+            $ResourceGroups = ConvertTo-Json @{}
+        } else {
+            $ResourceGroups = ConvertTo-Json $_.properties.resourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+        }
+
+        @{'SubscriptionId'=$SubscriptionId;'BlueprintAssignmentName'=$BlueprintAssignmentName;'ManagedIdentityResourceGroup'=$ManagedIdentityResourceGroup;'ManagedIdentityUser'=$ManagedIdentityUser;'Location'=$Location;'BlueprintManagementGroupName'=$BlueprintManagementGroupName;'BlueprintName'=$BlueprintName;'BlueprintVersionName'=$BlueprintVersionName;'Description'=$Description;'DisplayName'=$DisplayName;'LockMode'=$LockMode;'Parameters'=$Parameters;'ResourceGroups'=$ResourceGroups;}   
     })
 
     Write-Host "Set-DscBlueprintAssignment is not implemented yet"
