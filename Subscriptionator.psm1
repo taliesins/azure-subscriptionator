@@ -3665,6 +3665,7 @@ function Get-BlueprintAssignmentFromConfig {
 
     $BlueprintAssignmentName = $ConfigItem.BlueprintAssignmentName
     
+    $ManagedIdentitySubscriptionId = $ConfigItem.ManagedIdentitySubscriptionId
     $ManagedIdentityResourceGroup = $ConfigItem.ManagedIdentityResourceGroup
     $ManagedIdentityUser = $ConfigItem.ManagedIdentityUser
 
@@ -3689,7 +3690,7 @@ function Get-BlueprintAssignmentFromConfig {
         $ResourceGroups = ConvertTo-Json $ConfigItem.ResourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
     }
 
-    @{'SubscriptionId'=$SubscriptionId;'BlueprintAssignmentName'=$BlueprintAssignmentName;'ManagedIdentityResourceGroup'=$ManagedIdentityResourceGroup;'ManagedIdentityUser'=$ManagedIdentityUser;'Location'=$Location;'BlueprintManagementGroupName'=$BlueprintManagementGroupName;'BlueprintName'=$BlueprintName;'BlueprintVersionName'=$BlueprintVersionName;'Description'=$Description;'DisplayName'=$DisplayName;'LockMode'=$LockMode;'Parameters'=$Parameters;'ResourceGroups'=$ResourceGroups;}   
+    @{'SubscriptionId'=$SubscriptionId;'BlueprintAssignmentName'=$BlueprintAssignmentName;'ManagedIdentitySubscriptionId'=$ManagedIdentitySubscriptionId;'ManagedIdentityResourceGroup'=$ManagedIdentityResourceGroup;'ManagedIdentityUser'=$ManagedIdentityUser;'Location'=$Location;'BlueprintManagementGroupName'=$BlueprintManagementGroupName;'BlueprintName'=$BlueprintName;'BlueprintVersionName'=$BlueprintVersionName;'Description'=$Description;'DisplayName'=$DisplayName;'LockMode'=$LockMode;'Parameters'=$Parameters;'ResourceGroups'=$ResourceGroups;}   
 }
 
 Function Set-DscBlueprintAssignment {
@@ -3795,8 +3796,274 @@ Function Set-DscBlueprintAssignment {
             $ResourceGroups = ConvertTo-Json $_.properties.resourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         }
 
-        @{'SubscriptionId'=$SubscriptionId;'BlueprintAssignmentName'=$BlueprintAssignmentName;'ManagedIdentityResourceGroup'=$ManagedIdentityResourceGroup;'ManagedIdentityUser'=$ManagedIdentityUser;'Location'=$Location;'BlueprintManagementGroupName'=$BlueprintManagementGroupName;'BlueprintName'=$BlueprintName;'BlueprintVersionName'=$BlueprintVersionName;'Description'=$Description;'DisplayName'=$DisplayName;'LockMode'=$LockMode;'Parameters'=$Parameters;'ResourceGroups'=$ResourceGroups;}   
+        @{'SubscriptionId'=$SubscriptionId;'BlueprintAssignmentName'=$BlueprintAssignmentName;'ManagedIdentitySubscriptionId'=$ManagedIdentitySubscriptionId;'ManagedIdentityResourceGroup'=$ManagedIdentityResourceGroup;'ManagedIdentityUser'=$ManagedIdentityUser;'Location'=$Location;'BlueprintManagementGroupName'=$BlueprintManagementGroupName;'BlueprintName'=$BlueprintName;'BlueprintVersionName'=$BlueprintVersionName;'Description'=$Description;'DisplayName'=$DisplayName;'LockMode'=$LockMode;'Parameters'=$Parameters;'ResourceGroups'=$ResourceGroups;}   
+    })
+    
+    $updateBlueprintAssignments = @($currentBlueprintAssignments | %{
+        $subscriptionId = $_.SubscriptionId
+        $blueprintAssignmentName = $_.BlueprintAssignmentName
+
+        if ($BlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName}){
+           $_ 
+        }
     })
 
-    Write-Host "Set-DscBlueprintAssignment is not implemented yet"
+    $createBlueprintAssignments = @($BlueprintAssignments | %{
+        $subscriptionId = $_.SubscriptionId
+        $blueprintAssignmentName = $_.BlueprintAssignmentName
+        
+        if (!($updateBlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName})){
+            $_ 
+         }
+    })
+    
+    $desiredBlueprintAssignments = @()
+    $desiredBlueprintAssignments += $createBlueprintAssignments
+    $desiredBlueprintAssignments += $updateBlueprintAssignments
+
+    $desiredBlueprintAssignmentResults = $desiredBlueprintAssignments | %{
+        $subscriptionId = $_.SubscriptionId
+        $blueprintAssignmentName = $_.BlueprintAssignmentName
+        $managedIdentitySubscriptionId = $_.ManagedIdentitySubscriptionId
+        $managedIdentityResourceGroup = $_.ManagedIdentityResourceGroup
+        $managedIdentityUser = $_.ManagedIdentityUser
+        $location = $_.Location
+        $blueprintManagementGroupName = $_.BlueprintManagementGroupName
+        $blueprintName = $_.BlueprintName
+        $blueprintVersionName = $_.BlueprintVersionName
+        $description = $_.Description
+        $displayName = $_.DisplayName
+        $lockMode = $_.LockMode
+        $parameters = $_.Parameters
+        $resourceGroups = $_.ResourceGroups
+
+        if ($createBlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName}){
+            Write-Host @"
+`$parameters=@'
+$parameters
+'@
+`$resourceGroups=@'
+$resourceGroups
+'@
+
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+
+Save-AzBlueprintAssignment -SubscriptionId '$subscriptionId' -BlueprintAssignmentName '$blueprintAssignmentName' -ManagedIdentitySubscriptionId '$managedIdentitySubscriptionId' -ManagedIdentityResourceGroup '$managedIdentityResourceGroup' -ManagedIdentityUser '$managedIdentityUser' -Location '$location' -BlueprintManagementGroupName '$blueprintManagementGroupName' -BlueprintName '$blueprintName' -BlueprintVersionName '$blueprintVersionName' -Description '$description' -DisplayName '$displayName' -LockMode '$lockMode' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
+"@
+
+            $result = Save-AzBlueprintAssignment -SubscriptionId $subscriptionId -BlueprintAssignmentName $blueprintAssignmentName -ManagedIdentitySubscriptionId $managedIdentitySubscriptionId -ManagedIdentityResourceGroup $managedIdentityResourceGroup -ManagedIdentityUser $managedIdentityUser -Location $location -BlueprintManagementGroupName $blueprintManagementGroupName -BlueprintName $blueprintName -BlueprintVersionName $blueprintVersionName -Description $description -DisplayName $displayName -LockMode $lockMode -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+            $_
+        } elseif ($updateBlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName}) {
+            $desiredBlueprintAssignment = $BlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName}
+            if ($desiredBlueprintAssignment)
+            {
+                $desiredSubscriptionId = $desiredBlueprintAssignment.SubscriptionId
+                $desiredBlueprintAssignmentName = $desiredBlueprintAssignment.BlueprintAssignmentName
+                $desiredManagedIdentitySubscriptionId = $desiredBlueprintAssignment.ManagedIdentitySubscriptionId
+                $desiredManagedIdentityResourceGroup = $desiredBlueprintAssignment.ManagedIdentityResourceGroup
+                $desiredManagedIdentityUser = $desiredBlueprintAssignment.ManagedIdentityUser
+                $desiredLocation = $desiredBlueprintAssignment.Location
+                $desiredBlueprintManagementGroupName = $desiredBlueprintAssignment.BlueprintManagementGroupName
+                $desiredBlueprintName = $desiredBlueprintAssignment.BlueprintName
+                $desiredBlueprintVersionName = $desiredBlueprintAssignment.BlueprintVersionName
+                $desiredDescription = $desiredBlueprintAssignment.Description
+                $desiredDisplayName = $desiredBlueprintAssignment.DisplayName
+                $desiredLockMode = $desiredBlueprintAssignment.LockMode
+                $desiredParameters = $desiredBlueprintAssignment.Parameters
+                $desiredResourceGroups = $desiredBlueprintAssignment.ResourceGroups
+
+                if ($desiredSubscriptionId -ne $subscriptionId){
+                    Write-Host @"
+                    Desired Subscription Id:
+                    $desiredSubscriptionId
+
+                    Actual Subscription Id:
+                    $subscriptionId
+"@
+                }                    
+
+                if ($desiredBlueprintAssignmentName -ne $blueprintAssignmentName){
+                    Write-Host @"
+                    Desired Blueprint Assignment Name:
+                    $desiredBlueprintAssignmentName
+
+                    Actual Blueprint Assignment Name:
+                    $blueprintAssignmentName
+"@
+                }
+
+                if ($desiredManagedIdentitySubscriptionId -ne $managedIdentitySubscriptionId){
+                    Write-Host @"
+                    Desired Managed Identity Subscription Id:
+                    $desiredManagedIdentitySubscriptionId
+
+                    Actual Managed Identity Subscription Id:
+                    $managedIdentitySubscriptionId
+"@
+                }
+
+                if ($desiredManagedIdentityResourceGroup -ne $managedIdentityResourceGroup){
+                    Write-Host @"
+                    Desired Managed Identity Resource Group:
+                    $desiredManagedIdentityResourceGroup
+
+                    Actual Managed Identity Resource Group:
+                    $managedIdentityResourceGroup
+"@
+                }
+                
+                if ($desiredManagedIdentityUser -ne $managedIdentityUser){
+                    Write-Host @"
+                    Desired Managed Identity User:
+                    $desiredManagedIdentityUser
+
+                    Actual Managed Identity User:
+                    $managedIdentityUser
+"@
+                }
+
+                if ($desiredLocation -ne $location){
+                    Write-Host @"
+                    Desired Location:
+                    $desiredLocation
+
+                    Actual Location:
+                    $location
+"@
+                }
+                
+                if ($desiredBlueprintManagementGroupName -ne $blueprintManagementGroupName){
+                    Write-Host @"
+                    Desired Blueprint Management Group Name:
+                    $desiredBlueprintManagementGroupName
+
+                    Actual Blueprint Management Group Name:
+                    $blueprintManagementGroupName
+"@
+                }
+
+                if ($desiredBlueprintName -ne $blueprintName){
+                    Write-Host @"
+                    Desired Blueprint Name:
+                    $desiredBlueprintName
+
+                    Actual Blueprint Name:
+                    $blueprintName
+"@
+                }
+                                
+                if ($desiredBlueprintVersionName -ne $blueprintVersionName){
+                    Write-Host @"
+                    Desired Blueprint Version Name:
+                    $desiredBlueprintVersionName
+
+                    Actual Blueprint Version Name:
+                    $blueprintVersionName
+"@
+                }
+
+                if ($desiredDescription -ne $description){
+                    Write-Host @"
+                    Desired Description:
+                    $desiredDescription
+
+                    Actual Description:
+                    $description
+"@
+                }
+
+                if ($desiredDisplayName -ne $displayName){
+                    Write-Host @"
+                    Desired Display Name:
+                    $desiredDisplayName
+
+                    Actual Display Name:
+                    $displayName
+"@
+                }
+
+                if ($desiredLockMode -ne $lockMode){
+                    Write-Host @"
+                    Desired LockMode:
+                    $desiredLockMode
+
+                    Actual LockMode:
+                    $lockMode
+"@
+                }
+
+                if ($desiredParameters -ne $parameters){
+                    Write-Host @"
+                    Desired Parameters:
+                    $desiredParameters
+
+                    Actual Parameters:
+                    $parameters
+"@
+                }  
+                
+                if ($desiredResourceGroups -ne $resourceGroups){
+                    Write-Host @"
+                    Desired ResourceGroups:
+                    $desiredResourceGroups
+
+                    Actual ResourceGroups:
+                    $resourceGroups
+"@
+                }        
+                
+                if ($desiredSubscriptionId -ne $subscriptionId -or $desiredBlueprintAssignmentName -ne $blueprintAssignmentName -or $desiredManagedIdentitySubscriptionId -ne $managedIdentitySubscriptionId -or $desiredManagedIdentityResourceGroup -ne $managedIdentityResourceGroup -or $desiredManagedIdentityUser -ne $managedIdentityUser -or $desiredLocation -ne $desiredLocation -or $desiredBlueprintManagementGroupName -ne $blueprintManagementGroupName -or $desiredBlueprintName -ne $blueprintName -or $desiredBlueprintVersionName -ne $blueprintVersionName -or $desiredDescription -ne $description -or $desiredDisplayName -ne $displayName -or $desiredLockMode -ne $lockMode -or $desiredParameters -ne $parameters -or $desiredResourceGroups -ne $resourceGroups) {
+                    
+                    Write-Host @"
+`$parameters=@'
+$desiredParameters
+'@
+`$desiredResourceGroups=@'
+$resourceGroups
+'@
+
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+
+Save-AzBlueprintAssignment -SubscriptionId '$desiredSubscriptionId' -BlueprintAssignmentName '$desiredBlueprintAssignmentName' -ManagedIdentitySubscriptionId '$desiredManagedIdentitySubscriptionId' -ManagedIdentityResourceGroup '$desiredManagedIdentityResourceGroup' -ManagedIdentityUser '$desiredManagedIdentityUser' -Location '$desiredLocation' -BlueprintManagementGroupName '$desiredBlueprintManagementGroupName' -BlueprintName '$desiredBlueprintName' -BlueprintVersionName '$desiredBlueprintVersionName' -Description '$desiredDescription' -DisplayName '$desiredDisplayName' -LockMode '$desiredLockMode' -Parameters `$parameters -ResourceGroups `$resourceGroups -AccessToken `$accessToken
+"@
+
+                    Save-AzBlueprintAssignment -SubscriptionId $desiredSubscriptionId -BlueprintAssignmentName $desiredBlueprintAssignmentName -ManagedIdentitySubscriptionId $desiredManagedIdentitySubscriptionId -ManagedIdentityResourceGroup $desiredManagedIdentityResourceGroup -ManagedIdentityUser $desiredManagedIdentityUser -Location $desiredLocation -BlueprintManagementGroupName $desiredBlueprintManagementGroupName -BlueprintName $desiredBlueprintName -BlueprintVersionName $desiredBlueprintVersionName -Description $desiredDescription -DisplayName $desiredDisplayName -LockMode $desiredLockMode -Parameters $parameters -ResourceGroups $resourceGroups -AccessToken $accessToken
+                    $_
+                } else {
+                    $_
+                }
+            }
+        }
+    }
+
+    if ($DeleteUnknownBlueprintAssignment) {
+        @($currentBlueprintAssignments | %{
+            $subscriptionId = $_.SubscriptionId
+            $blueprintAssignmentName = $_.BlueprintAssignmentName
+    
+            if (!($BlueprintAssignments | ?{$_.SubscriptionId -eq $subscriptionId -and $_.BlueprintAssignmentName -eq $blueprintAssignmentName})){
+                Write-Host @"
+`$tenantId='$TenantId'
+`$azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+`$profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient(`$azureRmProfile)
+`$token = `$profileClient.AcquireAccessToken(`$tenantId)
+`$accessToken = `$token.AccessToken
+
+Delete-AzBlueprintAssignment -SubscriptionId '$subscriptionId' -BlueprintAssignmentName '$blueprintAssignmentName' -AccessToken `$accessToken
+"@
+
+                $result = Delete-AzBlueprintAssignment -SubscriptionId $subscriptionId -BlueprintAssignmentName $blueprintAssignmentName -AccessToken $accessToken
+            }
+        })
+    }
+
+    $desiredBlueprintAssignmentResults
 }
