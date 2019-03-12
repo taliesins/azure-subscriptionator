@@ -1,0 +1,569 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "definitions": {
+        "AdGroup": {
+            "required": [
+                "DisplayName"
+            ],
+            "properties": {
+                "DisplayName": {
+                    "$id": "#/properties/DisplayName",
+                    "type": "string",
+                    "title": "The display name of the AD group",
+                    "default": "",
+                    "examples": [
+                        "DevTestTenant1"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Members": {
+                    "$id": "#/properties/Members",
+                    "type": "array",
+                    "title": "Members of the AD group",
+                    "items": {
+                        "$id": "#/properties/Members/items",
+                        "type": "string",
+                        "title": "The display name of the AD group that is a member of this group",
+                        "default": "",
+                        "examples": [
+                            "DevTest"
+                        ],
+                        "pattern": "^(.*)$"
+                    }
+                }
+            }
+        },
+        "BlueprintAssignment": {
+            "required": [
+                "Name",
+                "Location",
+                "BluePrintManagementGroupName",
+                "BluePrintName",
+                "BluePrintVersionName",
+                "LockMode",
+                "Parameters",
+                "ResourceGroups"
+            ],
+            "properties": {
+                "Name": {
+                    "$id": "#/properties/Name",
+                    "type": "string",
+                    "title": "The name of the blueprint assignment",
+                    "default": "",
+                    "examples": [
+                        "landingzone-assignment"
+                    ],
+                    "pattern": "^([a-zA-Z0-9-]*)$"
+                },
+                "DisplayName": {
+                    "$id": "#/properties/DisplayName",
+                    "type": "string",
+                    "title": "The display name for the blueprint assignment",
+                    "default": "",
+                    "examples": [
+                        "Add landing zone to this subscription"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Description": {
+                    "$id": "#/properties/Description",
+                    "type": "string",
+                    "title": "The description for the blueprint assignment",
+                    "default": "",
+                    "examples": [
+                        "In order to ensure that there is no unmonitored traffic entering or leaving a subscription setup a landing zone that can log it."
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "ManagedIdentitySubscriptionId": {
+                    "$id": "#/properties/ManagedIdentitySubscriptionId",
+                    "type": "string",
+                    "title": "The subscription that the managed identity is in. This is the managed identity that will be used to deploy the blueprint. If no managed identity is specified then a system assinged one will be used.",
+                    "default": "",
+                    "examples": [
+                        "7b27415c-8474-48bc-bdc8-3dbe8553c0c4"
+                    ],
+                    "pattern": "^({0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12})$"
+                },
+                "ManagedIdentityResourceGroup": {
+                    "$id": "#/properties/ManagedIdentityResourceGroup",
+                    "type": "string",
+                    "title": "The resource group that the managed identity is in. This is the managed identity that will be used to deploy the blueprint. If no managed identity is specified then a system assinged one will be used.",
+                    "default": "",
+                    "examples": [
+                        "management-rg"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "ManagedIdentityUser": {
+                    "$id": "#/properties/ManagedIdentityUser",
+                    "type": "string",
+                    "title": "The user that the managed identity is called. This is the managed identity that will be used to deploy the blueprint. If no managed identity is specified then a system assinged one will be used.",
+                    "default": "",
+                    "examples": [
+                        "DeployerRobot"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Location": {
+                    "$id": "#/properties/Location",
+                    "type": "string",
+                    "title": "The location to deploy blueprint to.",
+                    "default": "",
+                    "examples": [
+                        "eastus"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "BluePrintManagementGroupName": {
+                    "$id": "#/properties/BluePrintManagementGroupName",
+                    "type": "string",
+                    "title": "The name of the management group where the blueprint definition is. If this is blank it will assume the root management group.",
+                    "default": "",
+                    "examples": [
+                        "environment-001-byop"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "BluePrintName": {
+                    "$id": "#/properties/BluePrintName",
+                    "type": "string",
+                    "title": "The name of blueprint definition.",
+                    "default": "",
+                    "examples": [
+                        "landingzone"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "BluePrintVersionName": {
+                    "$id": "#/properties/BluePrintVersionName",
+                    "type": "string",
+                    "title": "The name of the version of the published blueprint.",
+                    "default": "",
+                    "examples": [
+                        "2019-01-01-12-00"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "LockMode": {
+                    "$id": "#/properties/LockMode",
+                    "type": "string",
+                    "enum": ["allResourcesDoNotDelete", "allResourcesReadOnly", "none"],
+                    "title": "The lock mode to use for the blueprint assignment.",
+                    "default": "none",
+                    "examples": [
+                        "allResourcesDoNotDelete", "allResourcesReadOnly", "none"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Parameters": {
+                    "$id": "#/properties/Parameters",
+                    "type": "object",
+                    "title": "The parameters to pass to blueprint."
+                },
+                "ResourceGroups": {
+                    "$id": "#/properties/ResourceGroups",
+                    "type": "object",
+                    "title": "The resource groups to pass to the blueprint."
+                }
+            }
+        },
+        "ManagementGroup": {
+            "required": [
+                "Name"
+            ],
+            "properties": {
+                "ParentId": {
+                    "$id": "#/properties/ParentId",
+                    "type": "string",
+                    "title": "The name of the parent management group. Leaving this blank will add management group to root management group",
+                    "default": "",
+                    "examples": [
+                        "DevTest"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Name": {
+                    "$id": "#/properties/Name",
+                    "type": "string",
+                    "title": "The name of the management group",
+                    "default": "",
+                    "examples": [
+                        "DevTestTenant1"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "DisplayName": {
+                    "$id": "#/properties/DisplayName",
+                    "type": "string",
+                    "title": "The display name of the mangement group",
+                    "default": "",
+                    "examples": [
+                        "DevTest - Tenant 1"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "RoleAssignments": {
+                    "$id": "#/properties/RoleAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/RoleAssignment"
+                    },
+                    "title": "Roles assigned to management group"
+                },
+                "PolicyAssignments": {
+                    "$id": "#/properties/PolicyAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/PolicyAssignment"
+                    },
+                    "title": "Policies assigned to management group"
+                },
+                "PolicySetAssignments": {
+                    "$id": "#/properties/PolicySetAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/PolicySetAssignment"
+                    },
+                    "title": "PolicySets assigned to management group"
+                },
+                "BlueprintsAssignments": {
+                    "$id": "#/properties/BlueprintAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/BlueprintAssignment"
+                    },
+                    "title": "Blueprints assigned to management group"
+                },
+                "Subscriptions": {
+                    "$id": "#/properties/Subscriptions",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/Subscription"
+                    },
+                    "title": "Subscriptions assigned to management group"
+                }
+            }
+        },
+        "PolicyAssignment": {
+            "required": [
+                "Name",
+                "PolicyDefinitionName",
+                "PolicyParameter"
+            ],
+            "properties": {
+                "Name": {
+                    "$id": "#/properties/Name",
+                    "type": "string",
+                    "title": "The name of the policy assignment",
+                    "default": "",
+                    "examples": [
+                        "tagging-resource-owner-a"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "NotScope": {
+                    "$id": "#/properties/NotScope",
+                    "type": "array",
+                    "title": "List of scopes to exclude from policy assignment",
+                    "items": {
+                        "$id": "#/properties/NotScope/items",
+                        "type": "string",
+                        "title": "Scope to exclude",
+                        "default": "",
+                        "examples": [
+                            "/subscriptions/634cc7a3-90f3-45ee-b267-374afc58b102",
+                            "/providers/Microsoft.Management/managementGroups/SpecialManagementGroup"
+                        ],
+                        "pattern": "^(.*)$"
+                    }
+                },
+                "DisplayName": {
+                    "$id": "#/properties/DisplayName",
+                    "type": "string",
+                    "title": "The display name of the policy assignment",
+                    "default": "",
+                    "examples": [
+                        "Tagging resource owner assignment"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Description": {
+                    "$id": "#/properties/Description",
+                    "type": "string",
+                    "title": "The description of the policy assignment",
+                    "default": "",
+                    "examples": [
+                        "Ensure that resource owner tag is set not. It needs to meet certain naming conventions for compliance reason."
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "PolicyDefinitionName": {
+                    "$id": "#/properties/PolicyDefinitionName",
+                    "type": "string",
+                    "title": "The name of the policy which is to be assigned",
+                    "default": "",
+                    "examples": [
+                        "tagging-resource-owner"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Parameters": {
+                    "$id": "#/properties/Parameters",
+                    "type": "object",
+                    "title": "The parameters to pass to policy."
+                }
+            }
+        },
+        "PolicySetAssignment": {
+            "required": [
+                "Name",
+                "PolicySetDefinitionName",
+                "PolicyParameter"
+            ],
+            "properties": {
+                "Name": {
+                    "$id": "#/properties/Name",
+                    "type": "string",
+                    "title": "The name of the policy set assignment",
+                    "default": "",
+                    "examples": [
+                        "tagging-resource-group-a"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "NotScope": {
+                    "$id": "#/properties/NotScope",
+                    "type": "array",
+                    "title": "List of scopes to exclude from policy set assignment",
+                    "items": {
+                        "$id": "#/properties/NotScope/items",
+                        "type": "string",
+                        "title": "Scope to exclude",
+                        "default": "",
+                        "examples": [
+                            "/subscriptions/634cc7a3-90f3-45ee-b267-374afc58b102",
+                            "/providers/Microsoft.Management/managementGroups/SpecialManagementGroup"
+                        ],
+                        "pattern": "^(.*)$"
+                    }
+                },
+                "DisplayName": {
+                    "$id": "#/properties/DisplayName",
+                    "type": "string",
+                    "title": "The display name of the policy set assignment",
+                    "default": "",
+                    "examples": [
+                        "Tagging of resource groups"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Description": {
+                    "$id": "#/properties/Description",
+                    "type": "string",
+                    "title": "The description of the policy set assignment",
+                    "default": "",
+                    "examples": [
+                        "Ensure that tagging is applied on resource group. It needs to have certain tags on a resource group for compliance reason."
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "PolicySetDefinitionName": {
+                    "$id": "#/properties/PolicySetDefinitionName",
+                    "type": "string",
+                    "title": "The name of the policy set which is to be assigned",
+                    "default": "",
+                    "examples": [
+                        "tagging-resource-group"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "Parameters": {
+                    "$id": "#/properties/Parameters",
+                    "type": "object",
+                    "title": "The parameters to pass to policy set."
+                }
+            }
+        },
+        "RoleAssignment": {
+            "required": [
+                "RoleDefinitionName",
+                "ObjectName",
+                "ObjectType"
+            ],
+            "properties": {
+                "RoleDefinitionName": {
+                    "$id": "#/properties/RoleDefinitionName",
+                    "type": "string",
+                    "title": "The name of the role",
+                    "default": "",
+                    "examples": [
+                        "Virtual Machine Operator"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "AllowDelegation": {
+                    "$id": "#/properties/AllowDelegation",
+                    "type": "boolean",
+                    "title": "Can objects with this role delegate this role to other objects",
+                    "default": false,
+                    "examples": [
+                        false
+                    ]
+                },
+                "ObjectName": {
+                    "$id": "#/properties/ObjectName",
+                    "type": "string",
+                    "title": "The object name",
+                    "default": "",
+                    "examples": [
+                        "DevTestTenant1Group"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "ObjectType": {
+                    "$id": "#/properties/ObjectType",
+                    "type": "string",
+                    "enum": ["Group", "User", "Application"],
+                    "title": "The object type",
+                    "default": "",
+                    "examples": [
+                        "Group",
+                        "User",
+                        "Application"
+                    ],
+                    "pattern": "^(.*)$"
+                }
+            }
+        },
+        "Subscription" : {
+            "required": [
+                "Name"
+            ],
+            "properties": {
+                "Name": {
+                    "$id": "#/properties/Name",
+                    "type": "string",
+                    "title": "The name of the subscription",
+                    "default": "",
+                    "examples": [
+                        "DevTestTenant1"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "OfferType": {
+                    "$id": "#/properties/OfferType",
+                    "type": "string",
+                    "title": "The type of offer for the subscription. MS-AZR-0148P is dev/test (cheaper, newer features, no sla) and MS-AZR-0017P (expensive, sla) is production.",
+                    "default": "MS-AZR-0148P",
+                    "examples": [
+                        "MS-AZR-0148P",
+                        "MS-AZR-0017P"
+                    ],
+
+                    "pattern": "^(.*)$"
+                },
+                "RoleAssignments": {
+                    "$id": "#/properties/RoleAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/RoleAssignment"
+                    },
+                    "title": "Roles assigned to subscription"
+                },
+                "PolicyAssignments": {
+                    "$id": "#/properties/PolicyAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/PolicyAssignment"
+                    },
+                    "title": "Policies assigned to subscription"
+                },
+                "PolicySetAssignments": {
+                    "$id": "#/properties/PolicySetAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/PolicySetAssignment"
+                    },
+                    "title": "PolicySets assigned to subscription"
+                },
+                "BlueprintsAssignments": {
+                    "$id": "#/properties/BlueprintAssignments",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/BlueprintAssignment"
+                    },
+                    "title": "Blueprints assigned to subscription"
+                }
+            }
+        }
+    },
+
+    "type": "object",
+    "properties": {
+        "AdGroups": {
+            "$id": "#/properties/AdGroup",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/AdGroup"
+            },
+            "title": "Aad Groups"
+        },
+        "RoleAssignments": {
+            "$id": "#/properties/RoleAssignments",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/RoleAssignment"
+            },
+            "title": "Roles assigned to tenant"
+        },
+        "PolicyAssignments": {
+            "$id": "#/properties/PolicyAssignments",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/PolicyAssignment"
+            },
+            "title": "Policies assigned to tenant"
+        },
+        "PolicySetAssignments": {
+            "$id": "#/properties/PolicySetAssignments",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/PolicySetAssignment"
+            },
+            "title": "PolicySets assigned to tenant"
+        },
+        "ManagementGroups" : {
+            "$id": "#/properties/ManagementGroups",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/ManagementGroups"
+            },
+            "title": "Management groups assigned to tenant"
+        },
+        "BlueprintsAssignments": {
+            "$id": "#/properties/BlueprintAssignments",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/BlueprintAssignment"
+            },
+            "title": "Blueprints assigned to tenant"
+        }
+    }
+}

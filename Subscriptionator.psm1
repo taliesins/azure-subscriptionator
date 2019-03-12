@@ -3658,6 +3658,8 @@ function Get-BlueprintAssignmentFromConfig {
         [Parameter(Mandatory = $true, Position = 0)]
         $Scope,
         [Parameter(Mandatory = $true, Position = 1)]
+        $RootManagementGroupId,
+        [Parameter(Mandatory = $true, Position = 2)]
         $ConfigItem
     )
 
@@ -3672,6 +3674,9 @@ function Get-BlueprintAssignmentFromConfig {
     $Location = $ConfigItem.Location
 
     $BlueprintManagementGroupName = $ConfigItem.BlueprintManagementGroupName
+    if (!$BlueprintManagementGroupName){
+        $BlueprintManagementGroupName = $RootManagementGroupId
+    }
     $BlueprintName = $ConfigItem.BlueprintName
     $BlueprintVersionName = $ConfigItem.BlueprintVersionName
     
@@ -3713,7 +3718,7 @@ Function Set-DscBlueprintAssignment {
         $BlueprintAssignment = $_
         @(Get-SubscriptionForTenant -TenantId $TenantId) | %{
             $scope = $_
-            Get-BlueprintAssignmentFromConfig -Scope $scope -ConfigItem $BlueprintAssignment
+            Get-BlueprintAssignmentFromConfig -Scope $scope -RootManagementGroupId $TenantId -ConfigItem $BlueprintAssignment
         }
     }
 
@@ -3724,7 +3729,7 @@ Function Set-DscBlueprintAssignment {
             $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
             @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy) | %{
                 $scope = $_
-                Get-BlueprintAssignmentFromConfig -Scope $scope -ConfigItem $BlueprintAssignment
+                Get-BlueprintAssignmentFromConfig -Scope $scope -RootManagementGroupId $TenantId -ConfigItem $BlueprintAssignment
             }
         }  
         $_.Subscriptions | %{
@@ -3735,7 +3740,7 @@ Function Set-DscBlueprintAssignment {
 
             $_.BlueprintAssignments | ?{$_} | %{
                 $BlueprintAssignment = $_
-                Get-BlueprintAssignmentFromConfig -Scope $scope -ConfigItem $BlueprintAssignment
+                Get-BlueprintAssignmentFromConfig -Scope $scope -RootManagementGroupId $TenantId -ConfigItem $BlueprintAssignment
             }
         }
     }
