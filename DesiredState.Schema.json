@@ -32,7 +32,8 @@
                         "pattern": "^(.*)$"
                     }
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "BlueprintAssignment": {
             "required": [
@@ -167,7 +168,8 @@
                     "type": "object",
                     "title": "The resource groups to pass to the blueprint."
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "ManagementGroup": {
             "required": [
@@ -231,7 +233,7 @@
                     },
                     "title": "PolicySets assigned to management group"
                 },
-                "BlueprintsAssignments": {
+                "BlueprintAssignments": {
                     "$id": "#/properties/BlueprintAssignments",
                     "type": "array",
                     "items": {
@@ -249,7 +251,8 @@
                     },
                     "title": "Subscriptions assigned to management group"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "PolicyAssignment": {
             "required": [
@@ -314,12 +317,13 @@
                     ],
                     "pattern": "^(.*)$"
                 },
-                "Parameters": {
-                    "$id": "#/properties/Parameters",
+                "PolicyParameter": {
+                    "$id": "#/properties/PolicyParameter",
                     "type": "object",
-                    "title": "The parameters to pass to policy."
+                    "title": "The policy parameters to pass to policy."
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "PolicySetAssignment": {
             "required": [
@@ -384,12 +388,13 @@
                     ],
                     "pattern": "^(.*)$"
                 },
-                "Parameters": {
-                    "$id": "#/properties/Parameters",
+                "PolicyParameter": {
+                    "$id": "#/properties/PolicyParameter",
                     "type": "object",
-                    "title": "The parameters to pass to policy set."
+                    "title": "The policy set parameters to pass to policy set."
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "RoleAssignment": {
             "required": [
@@ -440,7 +445,8 @@
                     ],
                     "pattern": "^(.*)$"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Subscription" : {
             "required": [
@@ -496,7 +502,7 @@
                     },
                     "title": "PolicySets assigned to subscription"
                 },
-                "BlueprintsAssignments": {
+                "BlueprintAssignments": {
                     "$id": "#/properties/BlueprintAssignments",
                     "type": "array",
                     "items": {
@@ -505,7 +511,8 @@
                     },
                     "title": "Blueprints assigned to subscription"
                 }
-            }
+            },
+            "additionalProperties": false
         }
     },
 
@@ -552,11 +559,11 @@
             "type": "array",
             "items": {
                 "type": "object",
-                "$ref": "#/definitions/ManagementGroups"
+                "$ref": "#/definitions/ManagementGroup"
             },
             "title": "Management groups assigned to tenant"
         },
-        "BlueprintsAssignments": {
+        "BlueprintAssignments": {
             "$id": "#/properties/BlueprintAssignments",
             "type": "array",
             "items": {
@@ -565,5 +572,6 @@
             },
             "title": "Blueprints assigned to tenant"
         }
-    }
+    },
+    "additionalProperties": false
 }

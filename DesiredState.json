@@ -88,7 +88,7 @@
                     "PolicySetAssignments" : [
 
                     ],
-                    "BluePrintAssignments" : [
+                    "BlueprintAssignments" : [
                         {
                             "Name": "",
                             "DisplayName" : "Tagging resource group assignment",
@@ -99,7 +99,7 @@
                             "BluePrintManagementGroupName": "",
                             "BluePrintName": "",
                             "BluePrintVersionName": "",
-                            "LockMode": "",
+                            "LockMode": "none",
                             "Parameters" : {},
                             "ResourceGroups" : {}
                         }
