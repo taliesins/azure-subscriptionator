@@ -1,0 +1,19 @@
+{
+    "Tenant" : {
+        "Id" : "1931b7d3-bd07-4b36-9814-adf4ad406860",
+        "DefinitionManagementGroup" : "",
+        "DeleteUnknownManagementGroups" : true,
+        "CancelUnknownSubscriptions" : true,
+        "DeleteUnknownAdGroups" : true,
+        "DeleteUnknownAdGroupMembers" : true,
+        "DeleteUnknownRoleDefinitions" : true,
+        "DeleteUnknownPolicyDefinitions" : true,
+        "DeleteUnknownPolicySetDefinitions" : true,
+        "DeleteUnknownBlueprints" : true,
+        "AutoPublishBlueprints" : true,
+        "DeleteUnknownRoleAssignments" : true,
+        "DeleteUnknownPolicyAssignments" : true,
+        "DeleteUnknownPolicySetAssignments" : true,
+        "DeleteUnknownBlueprintAssignments" : true
+    }
+}

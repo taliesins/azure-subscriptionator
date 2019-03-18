@@ -87,13 +87,13 @@ function Format-PolicyFiles([string]$Path){
     }
 }
 
-function Format-PolicySetFiles([string]$Path, [string]$AzureDefinitionManagementGroup){
+function Format-PolicySetFiles([string]$Path, [string]$ManagementGroupName){
     Push-Location -Path $Path
     try{
         $azurePolicySetPaths = Get-ChildItem PolicySetDefinitions | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azurepolicyset.json'} | ?{ Test-Path $_}
         $azurePolicySetPaths | %{
             $azurePolicySetPath = $_
-            $azurePolicySet = ([System.IO.File]::ReadAllLines($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($AzureDefinitionManagementGroup)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
+            $azurePolicySet = ([System.IO.File]::ReadAllLines($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
             $azurePolicySetJson = $azurePolicySet | ConvertTo-Json -Depth 99 | Format-Json
             [System.IO.File]::WriteAllLines($azurePolicySetPath, $azurePolicySetJson)
 
@@ -111,11 +111,17 @@ function Format-PolicySetFiles([string]$Path, [string]$AzureDefinitionManagement
 }
 
 $currentWorkingDirectory = $PWD.Path
-$desiredStatePath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.json'
-$desiredStateSchemaPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.Schema.json'
+$configPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'Config.json'
+$config = [System.IO.File]::ReadAllLines($configPath) | ConvertFrom-Json
+$definitionManagementGroupName=$config.Tenant.DefinitionManagementGroup
+if (!$definitionManagementGroupName){
+    $definitionManagementGroupName = $config.Tenant.Id
+}
 
-$json = [IO.File]::ReadAllText($desiredStatePath)
-$schemaJson = [IO.File]::ReadAllText($desiredStateSchemaPath)
+$desiredStatePath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.json'
+$json = [System.IO.File]::ReadAllLines($desiredStatePath)
+$desiredStateSchemaPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.Schema.json'
+$schemaJson = [System.IO.File]::ReadAllLines($desiredStateSchemaPath)
 $errorMessages = Test-JsonSchema -Json $json -SchemaJson $schemaJson
 $isValid = $errorMessages.Count -eq 0
 
@@ -126,7 +132,6 @@ if (!$isValid){
         write-host $errorMessage -foregroundcolor "red"
     }
 } else {
-    $azureDefinitionManagementGroup='1931b7d3-bd07-4b36-9814-adf4ad406860'
     Format-PolicyFiles -Path $currentWorkingDirectory
-    Format-PolicySetFiles -Path $currentWorkingDirectory -AzureDefinitionManagementGroup $azureDefinitionManagementGroup
+    Format-PolicySetFiles -Path $currentWorkingDirectory -DefinitionManagementGroup $definitionManagementGroupName
 }

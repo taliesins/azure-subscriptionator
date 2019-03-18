@@ -1,5 +1,5 @@
-$subscriptionOfferTypeProduction = 'MS-AZR-0017P'
-$subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
+#$subscriptionOfferTypeProduction = 'MS-AZR-0017P'
+#$subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
 function Connect-DscContext {
     param(
@@ -2043,7 +2043,7 @@ Function Set-DscRoleDefinition {
         [Parameter(Mandatory = $true, Position = 1)]
         $TenantId,
         [Parameter(Mandatory = $false, Position = 2)]
-        $DeleteUnknownRoleDefinition = $false
+        $DeleteUnknownRoleDefinitions = $false
     )
 
     $RoleDefinitions = Get-ChildItem -Path $RoleDefinitionPath -Filter *.json | %{
@@ -2140,7 +2140,7 @@ Set-AzRoleDefinition -Role ([Microsoft.Azure.Commands.Resources.Models.Authoriza
         }
     }
 
-    if ($DeleteUnknownRoleDefinition) {
+    if ($DeleteUnknownRoleDefinitions) {
         $deleteRoleDefinitionNames = @($currentRoleDefinitions | ?{!($RoleDefinitions -and $RoleDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deleteRoleDefinitionNames | %{
             Delete-DscPolicyDefinition -Name $_
@@ -2157,7 +2157,7 @@ Function Set-DscPolicyDefinition {
         [Parameter(Mandatory = $true, Position = 1)]
         $ManagementGroupName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $DeleteUnknownPolicyDefinition = $false
+        $DeleteUnknownPolicyDefinitions = $false
     )
 
     $PolicyDefinitions = Get-ChildItem -Path $PolicyDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azurepolicy.json'))} | %{
@@ -2299,7 +2299,7 @@ Set-AzPolicyDefinition -ManagementGroupName '$ManagementGroupName' -Name '$name'
         }
     }
 
-    if ($DeleteUnknownPolicyDefinition) {
+    if ($DeleteUnknownPolicyDefinitions) {
         $deletePolicyDefinitionNames = @($currentPolicyDefinitions | ?{!($PolicyDefinitions -and $PolicyDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deletePolicyDefinitionNames | %{
             Delete-DscPolicyDefinition -ManagementGroupName $ManagementGroupName -Name $_
@@ -2316,7 +2316,7 @@ Function Set-DscPolicySetDefinition {
         [Parameter(Mandatory = $true, Position = 1)]
         $ManagementGroupName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $DeleteUnknownPolicySetDefinition = $false
+        $DeleteUnknownPolicySetDefinitions = $false
     )
 
     $PolicySetDefinitions = Get-ChildItem -Path $PolicySetDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azurepolicyset.json'))} | %{
@@ -2474,7 +2474,7 @@ Set-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$na
         }
     }
 
-    if ($DeleteUnknownPolicySetDefinition) {
+    if ($DeleteUnknownPolicySetDefinitions) {
         $deletePolicySetDefinitionNames = @($currentPolicySetDefinitions | ?{!($PolicySetDefinitions -and $PolicySetDefinitions.Name.Contains($_.Name))}) | %{$_.Name}
         $deletePolicySetDefinitionNames | %{
             Delete-DscPolicySetDefinition -ManagementGroupName $ManagementGroupName -Name $_
@@ -2530,7 +2530,7 @@ Function Set-DscRoleAssignment {
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
-        $DeleteUnknownRoleAssignment = $false
+        $DeleteUnknownRoleAssignments = $false
     )
 
     $RootRoleAssignments = $DesiredState.RoleAssignments 
@@ -2663,7 +2663,7 @@ New-AzRoleAssignment -Scope '$desiredScope' -RoleDefinitionName '$desiredRoleDef
         }
     }
 
-    if ($DeleteUnknownRoleAssignment) {
+    if ($DeleteUnknownRoleAssignments) {
         @($currentRoleAssignments | %{
             $scope = $_.Scope
             $roleDefinitionName = $_.RoleDefinitionName
@@ -2726,7 +2726,7 @@ Function Set-DscPolicyAssignment {
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
-        $DeleteUnknownPolicyAssignment = $false
+        $DeleteUnknownPolicyAssignments = $false
     )
 
     $RootPolicyAssignments = $DesiredState.PolicyAssignments 
@@ -3154,7 +3154,7 @@ if (`$policyDefinition -and `$desiredPolicyDefinition) {
         }
     }
    
-    if ($DeleteUnknownPolicyAssignment) {
+    if ($DeleteUnknownPolicyAssignments) {
         @($currentPolicyAssignments | %{
             $name = $_.Name
             $scope = $_.Scope
@@ -3192,7 +3192,7 @@ Function Set-DscPolicySetAssignment {
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
-        $DeleteUnknownPolicySetAssignment = $false
+        $DeleteUnknownPolicySetAssignments = $false
     )
 
     $RootPolicySetAssignments = $DesiredState.PolicySetAssignments 
@@ -3620,7 +3620,7 @@ if (`$policySetDefinition -and `$desiredPolicySetDefinition) {
         }
     }
    
-    if ($DeleteUnknownPolicySetAssignment) {
+    if ($DeleteUnknownPolicySetAssignments) {
         @($currentPolicySetAssignments | %{
             $name = $_.Name
             $scope = $_.Scope
@@ -3703,7 +3703,7 @@ Function Set-DscBlueprintAssignment {
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
-        $DeleteUnknownBlueprintAssignment = $false
+        $DeleteUnknownBlueprintAssignments = $false
     )
 
     $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
@@ -4049,7 +4049,7 @@ Save-AzBlueprintAssignment -SubscriptionId '$desiredSubscriptionId' -BlueprintAs
         }
     }
 
-    if ($DeleteUnknownBlueprintAssignment) {
+    if ($DeleteUnknownBlueprintAssignments) {
         @($currentBlueprintAssignments | %{
             $subscriptionId = $_.SubscriptionId
             $blueprintAssignmentName = $_.BlueprintAssignmentName
