@@ -17,7 +17,7 @@ Import-Module .\Subscriptionator.psm1 -Force
 #ensure the Az Context has been set for the tenant
 $currentWorkingDirectory = $PWD.Path
 $configPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'Config.json'
-$config = [System.IO.File]::ReadAllLines($configPath) | ConvertFrom-Json
+$config = [System.IO.File]::ReadAllText(($configPath) | ConvertFrom-Json
 $definitionManagementGroupName=$config.Tenant.DefinitionManagementGroup
 if (!$definitionManagementGroupName){
     $definitionManagementGroupName = $config.Tenant.Id
@@ -39,7 +39,7 @@ if (!$tenantContext.EnrollmentAccountId) {
 }
 
 $desiredStatePath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.json'
-$desiredState = [System.IO.File]::ReadAllLines($desiredStatePath) | ConvertFrom-Json 
+$desiredState = [System.IO.File]::ReadAllText(($desiredStatePath) | ConvertFrom-Json 
 
 #Create definitions at root, then all management groups can apply them at any level
 $deleteUnknownManagementGroups = $config.Tenant.DeleteUnknownManagementGroups

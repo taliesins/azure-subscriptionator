@@ -70,7 +70,7 @@ function Format-PolicyFiles([string]$Path){
         $azurePolicyPaths = Get-ChildItem PolicyDefinitions | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azurepolicy.json'} | ?{ Test-Path $_}
         $azurePolicyPaths | %{
             $azurePolicyPath = $_
-            $azurePolicy = ([System.IO.File]::ReadAllLines($azurePolicyPath)) | ConvertFrom-Json
+            $azurePolicy = ([System.IO.File]::ReadAllText($azurePolicyPath)) | ConvertFrom-Json
             $azurePolicyJson = $azurePolicy | ConvertTo-Json -Depth 99 | Format-Json
             [System.IO.File]::WriteAllLines($azurePolicyPath, $azurePolicyJson)
 
@@ -93,7 +93,7 @@ function Format-PolicySetFiles([string]$Path, [string]$ManagementGroupName){
         $azurePolicySetPaths = Get-ChildItem PolicySetDefinitions | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azurepolicyset.json'} | ?{ Test-Path $_}
         $azurePolicySetPaths | %{
             $azurePolicySetPath = $_
-            $azurePolicySet = ([System.IO.File]::ReadAllLines($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
+            $azurePolicySet = ([System.IO.File]::ReadAllText($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
             $azurePolicySetJson = $azurePolicySet | ConvertTo-Json -Depth 99 | Format-Json
             [System.IO.File]::WriteAllLines($azurePolicySetPath, $azurePolicySetJson)
 
@@ -112,16 +112,16 @@ function Format-PolicySetFiles([string]$Path, [string]$ManagementGroupName){
 
 $currentWorkingDirectory = $PWD.Path
 $configPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'Config.json'
-$config = [System.IO.File]::ReadAllLines($configPath) | ConvertFrom-Json
+$config = [System.IO.File]::ReadAllText($configPath) | ConvertFrom-Json
 $definitionManagementGroupName=$config.Tenant.DefinitionManagementGroup
 if (!$definitionManagementGroupName){
     $definitionManagementGroupName = $config.Tenant.Id
 }
 
 $desiredStatePath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.json'
-$json = [System.IO.File]::ReadAllLines($desiredStatePath)
+$json = [System.IO.File]::ReadAllText($desiredStatePath)
 $desiredStateSchemaPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.Schema.json'
-$schemaJson = [System.IO.File]::ReadAllLines($desiredStateSchemaPath)
+$schemaJson = [System.IO.File]::ReadAllText($desiredStateSchemaPath)
 $errorMessages = Test-JsonSchema -Json $json -SchemaJson $schemaJson
 $isValid = $errorMessages.Count -eq 0
 
