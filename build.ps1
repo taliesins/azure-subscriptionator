@@ -11,16 +11,38 @@ function Test-JsonSchema([Parameter(Mandatory)][String] $Json, [Parameter(Mandat
 
     $NewtonsoftJsonPath = Resolve-Path -Path "modules\newtonsoft.json.11.0.2\lib\$($dotNetType)\Newtonsoft.Json.dll"
     try{
-        if (-not [Newtonsoft.Json.Linq.JToken]){}
+        if (Get-Item ([Newtonsoft.Json.Linq.JToken].Assembly.Location).VersionInfo.ProductVersion -ne '11.0.2') {
+            Add-Type -Path $NewtonsoftJsonPath -Force
+        }
     } catch{
-        Add-Type -Path $NewtonsoftJsonPath
+        try
+        {
+            Add-Type -Path $NewtonsoftJsonPath
+        }
+        catch [System.Reflection.ReflectionTypeLoadException]
+        {
+            Write-Host "Message: $($_.Exception.Message)"
+            Write-Host "StackTrace: $($_.Exception.StackTrace)"
+            Write-Host "LoaderExceptions: $($_.Exception.LoaderExceptions)"
+        }
     }
 
     $NewtonsoftJsonSchemaPath = Resolve-Path -Path "modules\newtonsoft.json.schema.3.0.10\lib\$($dotNetType)\Newtonsoft.Json.Schema.dll"
     try{
-        if (-not [Newtonsoft.Json.Schema.JSchema]){}
+        if (Get-Item ([Newtonsoft.Json.Schema.JSchema].Assembly.Location).VersionInfo.ProductVersion -eq '3.0.10'){
+
+        }
     } catch{
-        Add-Type -Path $NewtonsoftJsonSchemaPath
+        try
+        {
+            Add-Type -Path $NewtonsoftJsonSchemaPath
+        }
+        catch [System.Reflection.ReflectionTypeLoadException]
+        {
+            Write-Host "Message: $($_.Exception.Message)"
+            Write-Host "StackTrace: $($_.Exception.StackTrace)"
+            Write-Host "LoaderExceptions: $($_.Exception.LoaderExceptions)"
+        }
     }
 
     try{
@@ -29,8 +51,11 @@ function Test-JsonSchema([Parameter(Mandatory)][String] $Json, [Parameter(Mandat
         $source = @'
     public class Validator
     {
-        public static System.Collections.Generic.IList<string> Validate(Newtonsoft.Json.Linq.JToken token, Newtonsoft.Json.Schema.JSchema schema)
+        public static System.Collections.Generic.IList<string> Validate(string tokenJson, string schemaJson)
         {
+            Newtonsoft.Json.Linq.JToken token = Newtonsoft.Json.Linq.JToken.Parse(tokenJson);
+            Newtonsoft.Json.Schema.JSchema schema = Newtonsoft.Json.Schema.JSchema.Parse(schemaJson);
+
             System.Collections.Generic.IList<string> messages;
             Newtonsoft.Json.Schema.SchemaExtensions.IsValid(token, schema, out messages);
             return messages;
@@ -40,10 +65,7 @@ function Test-JsonSchema([Parameter(Mandatory)][String] $Json, [Parameter(Mandat
         Add-Type -TypeDefinition $source -ReferencedAssemblies $NewtonsoftJsonPath,$NewtonsoftJsonSchemaPath
     }
 
-    $Token = [Newtonsoft.Json.Linq.JToken]::Parse($Json)
-    $Schema = [Newtonsoft.Json.Schema.JSchema]::Parse($SchemaJson)
-
-    $ErrorMessages = [Validator]::Validate($Token, $Schema)
+    $ErrorMessages = [Validator]::Validate($Json, $SchemaJson)
     return $ErrorMessages
 }
 

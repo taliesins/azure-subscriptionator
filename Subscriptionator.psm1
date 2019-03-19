@@ -1,7 +1,7 @@
 #$subscriptionOfferTypeProduction = 'MS-AZR-0017P'
 #$subscriptionOfferTypeDevTest = 'MS-AZR-0148P' #https://azure.microsoft.com/en-us/offers/ms-azr-0148p/
 
-function Connect-DscContext {
+function Get-DscContext {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
         [string] $TenantId
