@@ -112,26 +112,43 @@ function Format-PolicySetFiles([string]$Path, [string]$ManagementGroupName){
 
 $currentWorkingDirectory = $PWD.Path
 $configPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'Config.json'
-$config = [System.IO.File]::ReadAllText($configPath) | ConvertFrom-Json
+$configJson = [System.IO.File]::ReadAllText($configPath)
+$configSchemaPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'Config.Schema.json'
+$configSchemaJson = [System.IO.File]::ReadAllText($configSchemaPath)
+
+$errorMessages = Test-JsonSchema -Json $configJson -SchemaJson $configSchemaJson
+$isValid = $errorMessages.Count -eq 0
+
+if (!$isValid){
+    foreach ($errorMessage in $errorMessages) {
+        write-host $errorMessage -foregroundcolor "red"
+    }
+
+    throw "Schema is valid: $isValid"
+    exit 1
+}
+
+$config = $configJson | ConvertFrom-Json
 $definitionManagementGroupName=$config.Tenant.DefinitionManagementGroup
 if (!$definitionManagementGroupName){
     $definitionManagementGroupName = $config.Tenant.Id
 }
 
 $desiredStatePath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.json'
-$json = [System.IO.File]::ReadAllText($desiredStatePath)
+$desiredStateJson = [System.IO.File]::ReadAllText($desiredStatePath)
 $desiredStateSchemaPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'DesiredState.Schema.json'
-$schemaJson = [System.IO.File]::ReadAllText($desiredStateSchemaPath)
-$errorMessages = Test-JsonSchema -Json $json -SchemaJson $schemaJson
+$desiredStateSchemaJson = [System.IO.File]::ReadAllText($desiredStateSchemaPath)
+$errorMessages = Test-JsonSchema -Json $desiredStateJson -SchemaJson $desiredStateSchemaJson
 $isValid = $errorMessages.Count -eq 0
 
 if (!$isValid){
-    write-host "Schema is valid: $isValid" -foregroundcolor "white"
-
     foreach ($errorMessage in $errorMessages) {
         write-host $errorMessage -foregroundcolor "red"
     }
-} else {
-    Format-PolicyFiles -Path $currentWorkingDirectory
-    Format-PolicySetFiles -Path $currentWorkingDirectory -DefinitionManagementGroup $definitionManagementGroupName
+
+    throw "Schema is valid: $isValid"
+    exit 1
 }
+
+Format-PolicyFiles -Path $currentWorkingDirectory
+Format-PolicySetFiles -Path $currentWorkingDirectory -DefinitionManagementGroup $definitionManagementGroupName

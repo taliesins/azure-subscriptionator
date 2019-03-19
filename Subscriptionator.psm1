@@ -1199,7 +1199,7 @@ Function Set-DscBlueprintDefinition {
     $bluePrintVersionName = Initialize-AzBlueprintVersionName
 
     $BlueprintDefinitions = Get-ChildItem -Path $BlueprintDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprint.json'))} | %{
-        $bluePrint = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprint.json')) | ConvertFrom-Json
+        $bluePrint = [System.IO.File]::ReadAllText((Join-Path $_.FullName 'azureblueprint.json')) | ConvertFrom-Json
         $bluePrintName = $bluePrint.name
         if (!$bluePrintName){
             $bluePrintName = $_.Basename
@@ -1211,7 +1211,7 @@ Function Set-DscBlueprintDefinition {
         $resourceGroups = ConvertTo-Json $bluePrint.properties.resourceGroups -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
 
         $bluePrintArtifacts = Get-ChildItem -Path $_.FullName | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azureblueprintartifact.json'))} | %{
-            $bluePrintArtifact = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azureblueprintartifact.json')) | ConvertFrom-Json
+            $bluePrintArtifact = [System.IO.File]::ReadAllText((Join-Path $_.FullName 'azureblueprintartifact.json')) | ConvertFrom-Json
     
             $bluePrintArtifactName = $bluePrintArtifact.Name
             if (!$bluePrintArtifactName){
@@ -2048,7 +2048,7 @@ Function Set-DscRoleDefinition {
 
     $RoleDefinitions = Get-ChildItem -Path $RoleDefinitionPath -Filter *.json | %{
         $name = $_.Basename
-        $inputFileObject = [System.IO.File]::ReadAllLines($_.FullName) | ConvertFrom-Json
+        $inputFileObject = [System.IO.File]::ReadAllText($_.FullName) | ConvertFrom-Json
         if ($inputFileObject.IsCustom){
             $assignableScopes = @()
 
@@ -2161,7 +2161,7 @@ Function Set-DscPolicyDefinition {
     )
 
     $PolicyDefinitions = Get-ChildItem -Path $PolicyDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azurepolicy.json'))} | %{
-        $inputFileObject = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azurepolicy.json')) | ConvertFrom-Json
+        $inputFileObject = [System.IO.File]::ReadAllText((Join-Path $_.FullName 'azurepolicy.json')) | ConvertFrom-Json
         if ($inputFileObject.Properties.policyType -ne 'BuiltIn'){
             $name = $inputFileObject.name
             if (!$name){
@@ -2320,7 +2320,7 @@ Function Set-DscPolicySetDefinition {
     )
 
     $PolicySetDefinitions = Get-ChildItem -Path $PolicySetDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azurepolicyset.json'))} | %{
-        $inputFileObject = [System.IO.File]::ReadAllLines((Join-Path $_.FullName 'azurepolicyset.json')) | ConvertFrom-Json
+        $inputFileObject = [System.IO.File]::ReadAllText((Join-Path $_.FullName 'azurepolicyset.json')) | ConvertFrom-Json
         if ($inputFileObject.Properties.policyType -ne 'BuiltIn'){
             $name = $inputFileObject.name
             if (!$name){

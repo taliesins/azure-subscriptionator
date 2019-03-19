@@ -1,0 +1,191 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "definitions": {
+        "Tenant": {
+            "required": [
+                "Id",
+                "DefinitionManagementGroup",
+                "DeleteUnknownManagementGroups",
+                "CancelUnknownSubscriptions",
+                "DeleteUnknownAdGroups",
+                "DeleteUnknownAdGroupMembers",
+                "DeleteUnknownRoleDefinitions",
+                "DeleteUnknownPolicyDefinitions",
+                "DeleteUnknownPolicySetDefinitions",
+                "DeleteUnknownBlueprints",
+                "AutoPublishBlueprints",
+                "DeleteUnknownRoleAssignments",
+                "DeleteUnknownPolicyAssignments",
+                "DeleteUnknownPolicySetAssignments",
+                "DeleteUnknownBlueprintAssignments"
+            ],
+            "properties": {
+                "Id": {
+                    "$id": "#/properties/Id",
+                    "type": "string",
+                    "title": "The id of the tenant",
+                    "default": "",
+                    "examples": [
+                        "1931b7d3-bd07-4b36-9814-adf4ad406860"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "DefinitionManagementGroup": {
+                    "$id": "#/properties/DefinitionManagementGroup",
+                    "type": "string",
+                    "title": "The management group name where definitions should be stored in the tenant",
+                    "default": "",
+                    "examples": [
+                        "",
+                        "1931b7d3-bd07-4b36-9814-adf4ad406860",
+                        "TheTop"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "DeleteUnknownManagementGroups": {
+                    "$id": "#/properties/DeleteUnknownManagementGroups",
+                    "type": "boolean",
+                    "title": "Should delete unknown management groups in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "CancelUnknownSubscriptions": {
+                    "$id": "#/properties/CancelUnknownSubscriptions",
+                    "type": "boolean",
+                    "title": "Should cancel unknown subscriptions in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownAdGroups": {
+                    "$id": "#/properties/DeleteUnknownAdGroups",
+                    "type": "boolean",
+                    "title": "Should delete unknown ad groups in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownAdGroupMembers": {
+                    "$id": "#/properties/DeleteUnknownAdGroupMembers",
+                    "type": "boolean",
+                    "title": "Should delete unknown ad group members in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownRoleDefinitions": {
+                    "$id": "#/properties/DeleteUnknownRoleDefinitions",
+                    "type": "boolean",
+                    "title": "Should delete unknown role definitions in definition management group in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownPolicyDefinitions": {
+                    "$id": "#/properties/DeleteUnknownPolicyDefinitions",
+                    "type": "boolean",
+                    "title": "Should delete unknown policy definitions in definition management group in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownPolicySetDefinitions": {
+                    "$id": "#/properties/DeleteUnknownPolicySetDefinitions",
+                    "type": "boolean",
+                    "title": "Should delete unknown policy set definitions in definition management group in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownBlueprints": {
+                    "$id": "#/properties/DeleteUnknownBlueprints",
+                    "type": "boolean",
+                    "title": "Should delete unknown blueprint definitions in definition management group in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "AutoPublishBlueprints": {
+                    "$id": "#/properties/AutoPublishBlueprints",
+                    "type": "boolean",
+                    "title": "Should changes to blueprint definitions result in blueprint being published",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownRoleAssignments": {
+                    "$id": "#/properties/DeleteUnknownRoleAssignments",
+                    "type": "boolean",
+                    "title": "Should delete unknown role assignments in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownPolicyAssignments": {
+                    "$id": "#/properties/DeleteUnknownPolicyAssignments",
+                    "type": "boolean",
+                    "title": "Should delete unknown policy assignments in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownPolicySetAssignments": {
+                    "$id": "#/properties/DeleteUnknownPolicySetAssignments",
+                    "type": "boolean",
+                    "title": "Should delete unknown policy set assignments in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
+                "DeleteUnknownBlueprintAssignments": {
+                    "$id": "#/properties/DeleteUnknownBlueprintAssignments",
+                    "type": "boolean",
+                    "title": "Should delete unknown blueprint assignments in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+
+    "type": "object",
+    "properties": {
+        "Tenant": {
+            "$id": "#/properties/Tenant",         
+            "type": "object",
+            "$ref": "#/definitions/Tenant",
+            "title": "Tenant"
+        }
+    },
+    "additionalProperties": false
+}
