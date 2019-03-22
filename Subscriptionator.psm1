@@ -20,6 +20,15 @@ function Get-DscContext {
     @{'TenantId'=$TenantId;'EnrollmentAccountId'=$EnrollmentAccountId;'ManagementGroupName'=$ManagementGroupName;}
 }
 
+function TrimStart([String]$InputObject,[String]$Value){
+    if ($InputObject.StartsWith($Value)) {
+        return $InputObject.Substring($value.Length,$InputObject.Length - $value.Length)
+    }
+    else{
+        return $InputObject
+    }
+}
+
 function Get-ClonedObject {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -99,7 +108,7 @@ function Get-TopologicalSort {
   }
 
   if($currentEdgeList.Count -gt 0) {
-      throw 'Graph has at least one cycle!'
+      throw "Graph has at least one cycle! $(ConvertTo-Json $edgeList -depth 99) and $(ConvertTo-Json $currentEdgeList -Depth 99)"
   }
 
   return $topologicallySortedElements
@@ -172,7 +181,7 @@ Function Set-DscAdGroup {
     $desiredAdGroups += $createAdGroups
     $desiredAdGroups += $updateAdGroups
 
-    $desiredAdGroupResults = @(Get-TopologicalSortedAzAdGroups -AzureRmAdGroups $desiredAdGroups) | %{
+    $desiredAdGroupResults = $desiredAdGroups | %{
         $objectId = $_.Id
         $displayName = $_.DisplayName
         $members = @($_.Members)
@@ -183,7 +192,29 @@ Function Set-DscAdGroup {
             $currentAdGroup = New-AzADGroup -DisplayName $displayName -MailNickName $mailNickName
             $objectId = $currentAdGroup.Id
             
-            $currentMembers = $members | %{
+            $_.Id = $objectId
+            $_
+        } elseif ($updateAdGroups -and $updateAdGroups.DisplayName.Contains($displayName)) {
+            $desiredAdGroup = $AdGroups | ?{$_.DisplayName -eq $displayName}
+            if ($desiredAdGroup)
+            {
+                $_
+            }        
+        }
+    }
+
+    $desiredAdGroupResults = $desiredAdGroups | %{
+        $objectId = $_.Id
+        $displayName = $_.DisplayName
+        $members = @($_.Members)
+
+        if ($createAdGroups -and $createAdGroups.DisplayName.Contains($displayName)){
+            $objectId = Get-AzADGroup -Searchstring $displayName | ?{ $_.DisplayName -eq $displayName } | %{ $_.Id }
+
+            $currentMembers = $members | ?{$_} | %{
+                $memberDisplayName = $_.DisplayName
+
+                Write-Host "Get-AzADGroup -Searchstring '$memberDisplayName' | ?{ `$_.DisplayName -eq '$memberDisplayName' } | %{ `$_.Id }"
                 $memberObjectId = Get-AzADGroup -Searchstring $memberDisplayName | ?{ $_.DisplayName -eq $memberDisplayName } | %{ $_.Id }
                 Write-Host "Add-AzADGroupMember -TargetGroupObjectId '$($objectId)' -MemberObjectId '$memberObjectId'"
                 $result = Add-AzADGroupMember -TargetGroupObjectId $objectId -MemberObjectId $memberObjectId
@@ -232,7 +263,8 @@ Function Set-DscAdGroup {
     }
 
     if ($DeleteUnknownAdGroups) {
-        $deleteAdGroupObjectIds = Get-TopologicalSortedAzAdGroups -AzureRmAdGroups @($currentAdGroups | ?{!($AdGroups -and $AdGroups.DisplayName.Contains($_.DisplayName))}) | %{$_.Id}
+        $AzureRmAdGroups = @($currentAdGroups | ?{!($AdGroups -and $AdGroups.DisplayName.Contains($_.DisplayName))})
+        $deleteAdGroupObjectIds = Get-TopologicalSortedAzAdGroups -AzureRmAdGroups $AzureRmAdGroups | %{$_.Id}
         if ($deleteAdGroupObjectIds) {
             [array]::Reverse($deleteAdGroupObjectIds)
             $deleteAdGroupObjectIds | %{
@@ -258,8 +290,9 @@ function Get-TopologicalSortedAzManagementGroups {
     $AzureRmManagementGroups | %{
         $key = $_.Name
         $value = $_.ParentId
-        $azureRmManagementGroupNames[$key]=$value
+        $azureRmManagementGroupNames[$key]+=@($value)
     }
+
     $azureRmManagementGroupNames = Get-TopologicalSort -edgeList $azureRmManagementGroupNames | ?{$AzureRmManagementGroups.Name.Contains($_)}
   
     $topologicalSortedAzureRmManagementGroups = @()
@@ -348,24 +381,25 @@ Function Set-DscManagementGroup {
 
     $parentIdPrefix = '/providers/Microsoft.Management/managementGroups/'
 
-    $ManagementGroups = $ManagementGroups | %{
-        if (!$_.ParentId.Contains('/')){
-            $_.ParentId = $parentIdPrefix + $_.ParentId
-        }
-        $_
-    }
-
     $currentManagementGroups = @(Get-AzManagementGroup | %{
         $name = $_.Name
         $displayName = $_.DisplayName
         $parentId = (Get-AzManagementGroup -GroupName $name -Expand).ParentId
-        #if ($parentId){
-        #    $parentId = $parentId.TrimStart($parentIdPrefix)
-        #}
         @{'Name'=$name;'DisplayName'=$displayName;'ParentId'=$parentId;}
     })
 
     $rootManagementGroupName = $currentManagementGroups | ?{$null -eq $_.ParentId} | %{$_.Name}
+
+    $ManagementGroups = $ManagementGroups | %{
+        if (!$_.ParentId.Contains('/')){
+            $_.ParentId = $parentIdPrefix + $_.ParentId
+        } else {
+            $_.ParentId = $parentIdPrefix + $rootManagementGroupName
+        }
+        $_
+    }
+
+
     $updateManagementGroups = @($currentManagementGroups | ?{$null -ne $_.ParentId -and ($ManagementGroups -and $ManagementGroups.Name.Contains($_.Name))})
     
     $createManagementGroups = @($ManagementGroups | ?{!($updateManagementGroups -and $updateManagementGroups.Name.Contains($_.Name))} | %{
@@ -373,7 +407,7 @@ Function Set-DscManagementGroup {
         $displayName = $_.DisplayName
         $parentId = $_.ParentId
         if ($parentId){
-            $parentId = $parentId.TrimStart($parentIdPrefix)
+            $parentId = TrimStart -InputObject $parentId -Value $parentIdPrefix
         } 
         
         if (!$parentId) {
@@ -392,7 +426,7 @@ Function Set-DscManagementGroup {
         $displayName = $_.DisplayName
         $parentId = $_.ParentId
         if ($parentId){
-            $parentId = $parentId.TrimStart($parentIdPrefix)
+            $parentId = TrimStart -InputObject $parentId -Value $parentIdPrefix
         } 
         if (!$parentId) {
             #Non specified parent id means root management group is parent
@@ -400,8 +434,25 @@ Function Set-DscManagementGroup {
         }
 
         if ($createManagementGroups -and $createManagementGroups.Name.Contains($name)){
-            Write-Host "New-AzManagementGroup -GroupName '$name' -DisplayName '$displayName' -ParentId '$($parentIdPrefix)$($parentId)'"
-            $result = New-AzManagementGroup -GroupName $name -DisplayName $displayName -ParentId "$($parentIdPrefix)$($parentId)"
+            Write-Host @"
+`$parentId='$parentId'            
+`$NewAzManagementGroupArgs = @{}
+`$NewAzManagementGroupArgs.GroupName = '$name'
+`$NewAzManagementGroupArgs.DisplayName = '$displayName'
+if (`$parentId){
+    `$NewAzManagementGroupArgs.ParentId = "$($parentIdPrefix)`$(`$parentId)"
+} 
+
+New-AzManagementGroup @NewAzManagementGroupArgs
+"@
+            $NewAzManagementGroupArgs = @{}
+            $NewAzManagementGroupArgs.GroupName = $name
+            $NewAzManagementGroupArgs.DisplayName = $displayName
+            if ($parentId){
+                $NewAzManagementGroupArgs.ParentId = "$($parentIdPrefix)$($parentId)"
+            } 
+
+            $result = New-AzManagementGroup @NewAzManagementGroupArgs
             $_
         } elseif ($updateManagementGroups -and $updateManagementGroups.Name.Contains($name)) {
             $desiredManagementGroup = $ManagementGroups | ?{$_.Name -eq $name}
@@ -410,15 +461,57 @@ Function Set-DscManagementGroup {
                 $desiredDisplayName = $desiredManagementGroup.DisplayName
                 $desiredParentId = $desiredManagementGroup.ParentId
                 if ($desiredParentId){
-                    $desiredParentId = $desiredParentId.TrimStart($parentIdPrefix)
+                    $desiredParentId = TrimStart -InputObject $desiredParentId -Value $parentIdPrefix
                 } 
                 if (!$desiredParentId) {
                     #Non specified parent id means root management group is parent
                     $desiredParentId = $rootManagementGroupName
                 }
+
+                if ($desiredDisplayName -ne $DisplayName){
+                    Write-Host @"
+                    Desired Display Name:
+                    $desiredDisplayName
+
+                    Current Display Name:
+                    $DisplayName
+"@
+                }
+
+                if ($desiredParentId -ne $ParentId){
+                    Write-Host @"
+                    Desired Parent Id:
+                    $desiredParentId
+
+                    Current Parent Id:
+                    $ParentId
+"@
+                }
+
                 if ($desiredDisplayName -ne $displayName -or $desiredParentId -ne $parentId) {
-                    Write-Host "Update-AzManagementGroup -GroupName '$name' -DisplayName '$desiredDisplayName' -ParentId '$($parentIdPrefix)$($desiredParentId)'"
-                    $result = Update-AzManagementGroup -GroupName $name -DisplayName $desiredDisplayName -ParentId "$($parentIdPrefix)$($desiredParentId)"
+                    Write-Host @"
+`$parentId='$desiredParentId'            
+`$UpdateAzManagementGroupArgs = @{}
+`$UpdateAzManagementGroupArgs.GroupName = '$name'
+`$UpdateAzManagementGroupArgs.DisplayName = '$desiredDisplayName'
+if (`$parentId){
+    `$UpdateAzManagementGroupArgs.ParentId = "$($parentIdPrefix)`$(`$parentId)"
+} else {
+    `$UpdateAzManagementGroupArgs.ParentId = ''
+}
+
+Update-AzManagementGroup @UpdateAzManagementGroupArgs                    
+"@
+                    $UpdateAzManagementGroupArgs = @{}
+                    $UpdateAzManagementGroupArgs.GroupName = $name
+                    $UpdateAzManagementGroupArgs.DisplayName = $desiredDisplayName
+                    if ($desiredParentId){
+                        $UpdateAzManagementGroupArgs.ParentId = "$($parentIdPrefix)$($desiredParentId)"
+                    } else {
+                        $UpdateAzManagementGroupArgs.ParentId = ''
+                    }
+
+                    $result = Update-AzManagementGroup @UpdateAzManagementGroupArgs
                 }
                 $_
             }
@@ -2063,7 +2156,7 @@ Function Set-DscRoleDefinition {
                 if ($_ -eq '/' -or $_ -eq '/providers/Microsoft.Management/managementGroups/' -or $_.StartsWith('/providers/Microsoft.Management/managementGroups/*')) {
                     $assignableScopes += @(Get-SubscriptionForTenant -TenantId $TenantId)
                 } elseif ($_.StartsWith('/providers/Microsoft.Management/managementGroups/')) {
-                    $groupName = $_.TrimStart('/providers/Microsoft.Management/managementGroups/').split('/')[0]
+                    $groupName = (TrimStart -InputObject $_ -Value '/providers/Microsoft.Management/managementGroups/').split('/')[0]
                     $managementGroupHiearchy = Get-AzManagementGroup -GroupName $groupName -Expand -Recurse
                     $assignableScopes += @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy)
                 } else {
@@ -2169,6 +2262,12 @@ Function Set-DscPolicyDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
+
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('createdBy')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('createdOn')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('updatedBy')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('updatedOn')
+
             $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
             $policy = ConvertTo-Json $inputFileObject.properties.policyRule -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
             $parameter = ConvertTo-Json $inputFileObject.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
@@ -2182,6 +2281,12 @@ Function Set-DscPolicyDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
+
+        $_.properties.metadata.PSObject.Properties.Remove('createdBy')
+        $_.properties.metadata.PSObject.Properties.Remove('createdOn')
+        $_.properties.metadata.PSObject.Properties.Remove('updatedBy')
+        $_.properties.metadata.PSObject.Properties.Remove('updatedOn')
+
         $metadata = ConvertTo-Json $_.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         $policy = ConvertTo-Json $_.properties.policyRule -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         $parameter = ConvertTo-Json $_.properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
@@ -2319,6 +2424,19 @@ Function Set-DscPolicySetDefinition {
         $DeleteUnknownPolicySetDefinitions = $false
     )
 
+    
+
+    if (!$ManagementGroupName){
+        $currentManagementGroups = @(Get-AzManagementGroup | %{
+            $name = $_.Name
+            $displayName = $_.DisplayName
+            $parentId = (Get-AzManagementGroup -GroupName $name -Expand).ParentId
+            @{'Name'=$name;'DisplayName'=$displayName;'ParentId'=$parentId;}
+        })
+    
+        $ManagementGroupName = $currentManagementGroups | ?{$null -eq $_.ParentId} | %{$_.Name}
+    }
+
     $PolicySetDefinitions = Get-ChildItem -Path $PolicySetDefinitionPath | ?{ $_.PSIsContainer -and (Test-Path -Path (Join-Path $_.FullName 'azurepolicyset.json'))} | %{
         $inputFileObject = [System.IO.File]::ReadAllText((Join-Path $_.FullName 'azurepolicyset.json')) | ConvertFrom-Json
         if ($inputFileObject.Properties.policyType -ne 'BuiltIn'){
@@ -2328,6 +2446,12 @@ Function Set-DscPolicySetDefinition {
             }
             $description = $inputFileObject.properties.description
             $displayName = $inputFileObject.properties.displayName
+
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('createdBy')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('createdOn')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('updatedBy')
+            $inputFileObject.properties.metadata.PSObject.Properties.Remove('updatedOn')
+            
             $metadata = ConvertTo-Json $inputFileObject.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
             $policyDefinitions = ConvertTo-Json ($inputFileObject.properties.policyDefinitions | %{
                 #Dynamically created, so we have to ignore it
@@ -2349,6 +2473,12 @@ Function Set-DscPolicySetDefinition {
         $name = $_.Name
         $description = $_.properties.description
         $displayName = $_.properties.displayName
+
+        $_.properties.metadata.PSObject.Properties.Remove('createdBy')
+        $_.properties.metadata.PSObject.Properties.Remove('createdOn')
+        $_.properties.metadata.PSObject.Properties.Remove('updatedBy')
+        $_.properties.metadata.PSObject.Properties.Remove('updatedOn')
+
         $metadata = ConvertTo-Json $_.properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         $policyDefinitions = ConvertTo-Json ($_.properties.policyDefinitions | %{
             #Dynamically created, so we have to ignore it
@@ -3663,7 +3793,7 @@ function Get-BlueprintAssignmentFromConfig {
         $ConfigItem
     )
 
-    $SubscriptionId = $Scope.TrimStart('/subscription/')
+    $SubscriptionId = TrimStart -InputObject $Scope -Value '/subscription/'
 
     $BlueprintAssignmentName = $ConfigItem.BlueprintAssignmentName
     

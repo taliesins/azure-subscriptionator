@@ -29,8 +29,8 @@ function Test-JsonSchema([Parameter(Mandatory)][String] $Json, [Parameter(Mandat
 
     $NewtonsoftJsonSchemaPath = Resolve-Path -Path "modules\newtonsoft.json.schema.3.0.10\lib\$($dotNetType)\Newtonsoft.Json.Schema.dll"
     try{
-        if (Get-Item ([Newtonsoft.Json.Schema.JSchema].Assembly.Location).VersionInfo.ProductVersion -eq '3.0.10'){
-
+        if (Get-Item ([Newtonsoft.Json.Schema.JSchema].Assembly.Location).VersionInfo.ProductVersion -ne '3.0.10'){
+            Add-Type -Path $NewtonsoftJsonSchemaPath
         }
     } catch{
         try
@@ -173,4 +173,4 @@ if (!$isValid){
 }
 
 Format-PolicyFiles -Path $currentWorkingDirectory
-Format-PolicySetFiles -Path $currentWorkingDirectory -DefinitionManagementGroup $definitionManagementGroupName
+Format-PolicySetFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
