@@ -148,7 +148,7 @@ function Format-BlueprintFiles([string]$Path, [string]$ManagementGroupName){
         $blueprintPaths = Get-ChildItem Blueprints | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azureblueprint.json'} | ?{ Test-Path $_}
         $blueprintPaths | %{
             $blueprintPath = $_
-            $blueprint = ([System.IO.File]::ReadAllText($blueprintPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" | ConvertFrom-Json
+            $blueprint = ([System.IO.File]::ReadAllText($blueprintPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
             $blueprintJson = ConvertTo-Json $blueprint -Depth 99 | Format-Json
             [System.IO.File]::WriteAllText($blueprintPath, $blueprintJson)
 
@@ -163,7 +163,7 @@ function Format-BlueprintFiles([string]$Path, [string]$ManagementGroupName){
             $blueprintArtifactPaths = Get-ChildItem (Split-Path $blueprintPath) | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azureblueprintartifact.json'} | ?{ Test-Path $_}
             $blueprintArtifactPaths | %{
                 $blueprintArtifactPath = $_
-                $blueprintArtifact = ([System.IO.File]::ReadAllText($blueprintArtifactPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" | ConvertFrom-Json
+                $blueprintArtifact = ([System.IO.File]::ReadAllText($blueprintArtifactPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
                 $blueprintArtifactJson = ConvertTo-Json $blueprintArtifact -Depth 99 | Format-Json
                 [System.IO.File]::WriteAllText($blueprintArtifactPath, $blueprintArtifactJson)
             }

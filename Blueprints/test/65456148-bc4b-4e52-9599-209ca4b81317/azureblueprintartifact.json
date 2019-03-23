@@ -1,6 +1,6 @@
 {
   "properties" : {
-    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/naming-automation-account",
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/naming-automation-account",
     "parameters" : {
       "effect" : {
         "value" : "[parameters('namingofAzureautomationaccounts_effect')]"
