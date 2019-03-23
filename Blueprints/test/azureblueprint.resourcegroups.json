@@ -1,0 +1,20 @@
+{
+  "ResourceGroup" : {
+    "metadata" : {
+      "displayName" : "TestResourceGroup"
+    },
+    "dependsOn" : [
+      
+    ]
+  },
+  "ResourceGroup2" : {
+    "name" : "ResourceGroup2",
+    "location" : "eastasia",
+    "metadata" : {
+      
+    },
+    "dependsOn" : [
+      
+    ]
+  }
+}

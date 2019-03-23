@@ -12,7 +12,7 @@
     },
     "policyDefinitions": [
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
         "parameters": {
           "type": {
             "value": [
@@ -25,7 +25,7 @@
         }
       },
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-git-commit",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-commit",
         "parameters": {
           "type": {
             "value": [
@@ -38,7 +38,7 @@
         }
       },
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-git-url",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-url",
         "parameters": {
           "type": {
             "value": [
@@ -51,7 +51,7 @@
         }
       },
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
         "parameters": {
           "type": {
             "value": [
@@ -64,7 +64,7 @@
         }
       },
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-expiry-date",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-expiry-date",
         "parameters": {
           "type": {
             "value": [
@@ -77,7 +77,7 @@
         }
       },
       {
-        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/1931b7d3-bd07-4b36-9814-adf4ad406860/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-owner",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-owner",
         "parameters": {
           "type": {
             "value": [

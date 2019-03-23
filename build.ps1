@@ -71,14 +71,24 @@ function Test-JsonSchema([Parameter(Mandatory)][String] $Json, [Parameter(Mandat
 
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
-    ($json -replace "\\u003c","<" -replace "\\u003e",">" -replace "\\u0027","'" -Split '\n' |
-      % {
-        if ($_ -match '[\}\]]') {
+    $updatedJson = $json
+    $updatedJson = $updatedJson -replace "\\u003c","<"
+    $updatedJson = $updatedJson -replace "\\u003e",">"
+    $updatedJson = $updatedJson -replace "\\u0027","'"
+    $updatedJsonLines = $updatedJson -Split '\n'
+    
+    ($updatedJsonLines | ?{$_} | %{
+        $withoutStuffInQuotes = $_ -replace '"([^"\\]*(\\.[^"\\]*)*)"', ""
+
+        if ($withoutStuffInQuotes -match '[\}\]]') {
           # This line contains  ] or }, decrement the indentation level
           $indent--
         }
-        $line = (' ' * $indent * 2) + $_.TrimStart().Replace(':  ', ': ')
-        if ($_ -match '[\{\[]') {
+
+        $line = (' ' * $indent * 2) + $_.TrimStart()
+        $line = $line -replace '"([^"\\]*(\\.[^"\\]*)*)"\s*:\s*', '"$1" : '
+
+        if ($withoutStuffInQuotes -match '[\{\[]') {
           # This line contains [ or {, increment the indentation level
           $indent++
         }
@@ -93,16 +103,16 @@ function Format-PolicyFiles([string]$Path){
         $azurePolicyPaths | %{
             $azurePolicyPath = $_
             $azurePolicy = ([System.IO.File]::ReadAllText($azurePolicyPath)) | ConvertFrom-Json
-            $azurePolicyJson = $azurePolicy | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicyPath, $azurePolicyJson)
+            $azurePolicyJson = ConvertTo-Json $azurePolicy -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicyPath, $azurePolicyJson)
 
             $azurePolicyParameterPath = Join-Path -Path (Split-Path $azurePolicyPath -Parent) -ChildPath 'azurepolicy.parameters.json'  
-            $azurePolicyParameterJson = $azurePolicy.properties.parameters | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicyParameterPath, $azurePolicyParameterJson)
+            $azurePolicyParameterJson = ConvertTo-Json $azurePolicy.properties.parameters -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicyParameterPath, $azurePolicyParameterJson)
 
             $azurePolicyPolicyRulePath = Join-Path -Path (Split-Path $azurePolicyPath -Parent) -ChildPath 'azurepolicy.rules.json'
-            $azurePolicyPolicyRuleJson =  $azurePolicy.properties.policyRule | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicyPolicyRulePath, $azurePolicyPolicyRuleJson)
+            $azurePolicyPolicyRuleJson =  ConvertTo-Json $azurePolicy.properties.policyRule -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicyPolicyRulePath, $azurePolicyPolicyRuleJson)
         }
     } finally {
         Pop-Location
@@ -116,16 +126,47 @@ function Format-PolicySetFiles([string]$Path, [string]$ManagementGroupName){
         $azurePolicySetPaths | %{
             $azurePolicySetPath = $_
             $azurePolicySet = ([System.IO.File]::ReadAllText($azurePolicySetPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Authorization/policyDefinitions/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Authorization/policyDefinitions/" | ConvertFrom-Json
-            $azurePolicySetJson = $azurePolicySet | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicySetPath, $azurePolicySetJson)
+            $azurePolicySetJson = ConvertTo-Json $azurePolicySet -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicySetPath, $azurePolicySetJson)
 
             $azurePolicyParameterPath = Join-Path -Path (Split-Path $azurePolicySetPath -Parent) -ChildPath 'azurepolicyset.parameters.json'  
-            $azurePolicyParameterJson = $azurePolicySet.properties.parameters | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicyParameterPath, $azurePolicyParameterJson)
+            $azurePolicyParameterJson = ConvertTo-Json $azurePolicySet.properties.parameters -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicyParameterPath, $azurePolicyParameterJson)
 
             $azurePolicyPolicyDefinitionPath = Join-Path -Path (Split-Path $azurePolicySetPath -Parent) -ChildPath 'azurepolicyset.definitions.json'
-            $azurePolicyPolicyDefinitionJson =  $azurePolicySet.properties.policyDefinitions | ConvertTo-Json -Depth 99 | Format-Json
-            [System.IO.File]::WriteAllLines($azurePolicyPolicyDefinitionPath, $azurePolicyPolicyDefinitionJson)
+            $azurePolicyPolicyDefinitionJson =  ConvertTo-Json $azurePolicySet.properties.policyDefinitions -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($azurePolicyPolicyDefinitionPath, $azurePolicyPolicyDefinitionJson)
+        }
+    } finally {
+        Pop-Location
+    }
+}
+
+function Format-BlueprintFiles([string]$Path, [string]$ManagementGroupName){
+    Push-Location -Path $Path
+    try{
+        $blueprintPaths = Get-ChildItem Blueprints | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azureblueprint.json'} | ?{ Test-Path $_}
+        $blueprintPaths | %{
+            $blueprintPath = $_
+            $blueprint = ([System.IO.File]::ReadAllText($blueprintPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" | ConvertFrom-Json
+            $blueprintJson = ConvertTo-Json $blueprint -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($blueprintPath, $blueprintJson)
+
+            $blueprintParameterPath = Join-Path -Path (Split-Path $blueprintPath -Parent) -ChildPath 'azureblueprint.parameters.json'  
+            $blueprintParameterJson = ConvertTo-Json $blueprint.properties.parameters -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($blueprintParameterPath, $blueprintParameterJson)
+
+            $blueprintResourceGroupPath = Join-Path -Path (Split-Path $blueprintPath -Parent) -ChildPath 'azureblueprint.resourcegroups.json'
+            $blueprintResourceGroupJson =  ConvertTo-Json $blueprint.properties.resourceGroups -Depth 99 | Format-Json
+            [System.IO.File]::WriteAllText($blueprintResourceGroupPath, $blueprintResourceGroupJson)
+
+            $blueprintArtifactPaths = Get-ChildItem (Split-Path $blueprintPath) | ?{ $_.PSIsContainer } | %{Join-Path -Path $_.FullName -ChildPath 'azureblueprintartifact.json'} | ?{ Test-Path $_}
+            $blueprintArtifactPaths | %{
+                $blueprintArtifactPath = $_
+                $blueprintArtifact = ([System.IO.File]::ReadAllText($blueprintArtifactPath)) -replace "/providers/Microsoft.Management/managementgroups/([^/]*)/providers/Microsoft.Blueprint/blueprints/", "/providers/Microsoft.Management/managementgroups/$($ManagementGroupName)/providers/Microsoft.Blueprint/blueprints/" | ConvertFrom-Json
+                $blueprintArtifactJson = ConvertTo-Json $blueprintArtifact -Depth 99 | Format-Json
+                [System.IO.File]::WriteAllText($blueprintArtifactPath, $blueprintArtifactJson)
+            }
         }
     } finally {
         Pop-Location
@@ -172,5 +213,11 @@ if (!$isValid){
     exit 1
 }
 
-Format-PolicyFiles -Path $currentWorkingDirectory
-Format-PolicySetFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
+Write-Host 'Formatting policies'
+#Format-PolicyFiles -Path $currentWorkingDirectory
+
+Write-Host 'Formatting policy sets'
+#Format-PolicySetFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
+
+Write-Host 'Formatting blueprints'
+Format-BlueprintFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
