@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-virtual-network-peering",
-  "properties": {
-    "displayName": "Naming of Azure virtual network peering",
-    "description": "Naming of Azure virtual network peering. Example virtual network name M-UKS-L01-MGMT01-RG-VNET-VN-CORE_M-UKS-L01-VS0601-RG-VNET-VN-CORE",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-virtual-network-peering",
+  "properties" : {
+    "displayName" : "Naming of Azure virtual network peering",
+    "description" : "Naming of Azure virtual network peering. Example virtual network name M-UKS-L01-MGMT01-RG-VNET-VN-CORE_M-UKS-L01-VS0601-RG-VNET-VN-CORE",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,121 +25,121 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+            "field" : "type",
+            "equals" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "M-*"
+                      "field" : "name",
+                      "match" : "M-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?-UKS-*"
+                      "field" : "name",
+                      "match" : "?-UKS-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-UKW-*"
+                      "field" : "name",
+                      "match" : "?-UKW-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?-???-L##-*"
+                      "field" : "name",
+                      "match" : "?-???-L##-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-R##-*"
+                      "field" : "name",
+                      "match" : "?-???-R##-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-T##-*"
+                      "field" : "name",
+                      "match" : "?-???-T##-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?-???-?##-.-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-.-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-..-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-..-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-...-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-...-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-....-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-....-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-.....-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-.....-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-......-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-......-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-.......-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-.......-RG-*"
                     },
                     {
-                      "field": "name",
-                      "match": "?-???-?##-........-RG-*"
+                      "field" : "name",
+                      "match" : "?-???-?##-........-RG-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-VN-."
+                      "field" : "name",
+                      "match" : "*-VN-."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-.."
+                      "field" : "name",
+                      "match" : "*-VN-.."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-..."
+                      "field" : "name",
+                      "match" : "*-VN-..."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-...."
+                      "field" : "name",
+                      "match" : "*-VN-...."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-....."
+                      "field" : "name",
+                      "match" : "*-VN-....."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-......"
+                      "field" : "name",
+                      "match" : "*-VN-......"
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-......."
+                      "field" : "name",
+                      "match" : "*-VN-......."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-........"
+                      "field" : "name",
+                      "match" : "*-VN-........"
                     }
                   ]
                 }
@@ -148,8 +148,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

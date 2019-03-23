@@ -1,19 +1,19 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.KeyVault/vaults"
+        "field" : "type",
+        "equals" : "Microsoft.KeyVault/vaults"
       },
       {
-        "not": {
-          "field": "name",
-          "match": "................................"
+        "not" : {
+          "field" : "name",
+          "match" : "................................"
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

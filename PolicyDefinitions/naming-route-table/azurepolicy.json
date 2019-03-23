@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-route-table",
-  "properties": {
-    "displayName": "Naming of Azure route tables",
-    "description": "Naming of Azure route tables. Example route table name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND-RT",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-route-table",
+  "properties" : {
+    "displayName" : "Naming of Azure route tables",
+    "description" : "Naming of Azure route tables. Example route table name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-SN-FRONTEND-RT",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,85 +25,85 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Network/routeTables"
+            "field" : "type",
+            "equals" : "Microsoft.Network/routeTables"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-..-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-..-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-...-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-...-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-....-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-....-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.....-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.....-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-......-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-......-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.......-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.......-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-........-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-........-SN-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-SN-.-RT"
+                      "field" : "name",
+                      "match" : "*-SN-.-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-..-RT"
+                      "field" : "name",
+                      "match" : "*-SN-..-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-...-RT"
+                      "field" : "name",
+                      "match" : "*-SN-...-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-....-RT"
+                      "field" : "name",
+                      "match" : "*-SN-....-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-.....-RT"
+                      "field" : "name",
+                      "match" : "*-SN-.....-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-......-RT"
+                      "field" : "name",
+                      "match" : "*-SN-......-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-.......-RT"
+                      "field" : "name",
+                      "match" : "*-SN-.......-RT"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-........-RT"
+                      "field" : "name",
+                      "match" : "*-SN-........-RT"
                     }
                   ]
                 }
@@ -112,8 +112,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

@@ -1,140 +1,140 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-      "in": "[parameters('type')]"
+        "field" : "type",
+        "in" : "[parameters('type')]"
       },
       {
-        "not": {
-          "anyOf": [
+        "not" : {
+          "anyOf" : [
             {
-              "allOf": [
+              "allOf" : [
                 {
-                  "field": "type",
-                  "equals": "Microsoft.KeyVault/vaults"
+                  "field" : "type",
+                  "equals" : "Microsoft.KeyVault/vaults"
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-.."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-.."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-..."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-..."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-...."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-...."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-....."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-....."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-......"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-......"
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-......."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-......."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-KV-........"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-KV-........"
                     }
                   ]
                 }
               ]
             },
             {
-              "allOf": [
+              "allOf" : [
                 {
-                  "field": "type",
-                  "equals": "Microsoft.Storage/storageAccounts"
+                  "field" : "type",
+                  "equals" : "Microsoft.Storage/storageAccounts"
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-.."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-.."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-..."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-..."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-...."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-...."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-....."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-....."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-......"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-......"
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-......."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-......."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-SA-........"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-SA-........"
                     }
                   ]
                 }
               ]
             },
             {
-              "allOf": [
+              "allOf" : [
                 {
-                  "field": "type",
-                  "equals": "Microsoft.OperationalInsights/workspaces"
+                  "field" : "type",
+                  "equals" : "Microsoft.OperationalInsights/workspaces"
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-.."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-.."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-..."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-..."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-...."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-...."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-....."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-....."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-......"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-......"
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-......."
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-......."
                     },
                     {
-                    "field": "[concat('tags[','real_name', ']')]",
-                    "match": "[resourceGroup().id]-WS-........"
+                      "field" : "[concat('tags[','real_name', ']')]",
+                      "match" : "[resourceGroup().id]-WS-........"
                     }
                   ]
                 }
@@ -145,7 +145,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

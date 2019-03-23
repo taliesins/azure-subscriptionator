@@ -1,23 +1,23 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-      "in": "[parameters('type')]"
+        "field" : "type",
+        "in" : "[parameters('type')]"
       },
       {
-        "not": {
-          "anyOf": [
+        "not" : {
+          "anyOf" : [
             {
-            "field": "[concat('tags[','troux_id', ']')]",
-              "match": "AL#####"
+              "field" : "[concat('tags[','troux_id', ']')]",
+              "match" : "AL#####"
             }
           ]
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

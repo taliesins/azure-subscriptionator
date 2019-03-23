@@ -1,82 +1,82 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/virtualNetworkGateways"
+        "field" : "type",
+        "equals" : "Microsoft.Network/virtualNetworkGateways"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-..-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-..-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-...-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-...-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-....-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-....-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.....-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.....-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-......-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-......-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.......-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.......-GW-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-........-GW-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-........-GW-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-GW-."
+                  "field" : "name",
+                  "match" : "*-GW-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-.."
+                  "field" : "name",
+                  "match" : "*-GW-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-..."
+                  "field" : "name",
+                  "match" : "*-GW-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-...."
+                  "field" : "name",
+                  "match" : "*-GW-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-....."
+                  "field" : "name",
+                  "match" : "*-GW-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-......"
+                  "field" : "name",
+                  "match" : "*-GW-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-......."
+                  "field" : "name",
+                  "match" : "*-GW-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-GW-........"
+                  "field" : "name",
+                  "match" : "*-GW-........"
                 }
               ]
             }
@@ -85,7 +85,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

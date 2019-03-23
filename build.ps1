@@ -214,10 +214,10 @@ if (!$isValid){
 }
 
 Write-Host 'Formatting policies'
-#Format-PolicyFiles -Path $currentWorkingDirectory
+Format-PolicyFiles -Path $currentWorkingDirectory
 
 Write-Host 'Formatting policy sets'
-#Format-PolicySetFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
+Format-PolicySetFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName
 
 Write-Host 'Formatting blueprints'
 Format-BlueprintFiles -Path $currentWorkingDirectory -ManagementGroupName $definitionManagementGroupName

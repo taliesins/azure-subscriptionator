@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-subscription",
-  "properties": {
-    "displayName": "Naming of Azure subscriptions",
-    "description": "Naming of Azure subscriptions. Example subscription name ITS-SS-L01-MGMT01",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-subscription",
+  "properties" : {
+    "displayName" : "Naming of Azure subscriptions",
+    "description" : "Naming of Azure subscriptions. Example subscription name ITS-SS-L01-MGMT01",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,69 +25,69 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Resources/subscriptions"
+            "field" : "type",
+            "equals" : "Microsoft.Resources/subscriptions"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "ITS-*"
+                      "field" : "name",
+                      "match" : "ITS-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???-SS-*"
+                      "field" : "name",
+                      "match" : "???-SS-*"
                     },
                     {
-                      "field": "name",
-                      "match": "???-BA-*"
+                      "field" : "name",
+                      "match" : "???-BA-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???-??-L##-*"
+                      "field" : "name",
+                      "match" : "???-??-L##-*"
                     },
                     {
-                      "field": "name",
-                      "match": "???-??-R##-*"
+                      "field" : "name",
+                      "match" : "???-??-R##-*"
                     },
                     {
-                      "field": "name",
-                      "match": "???-??-T##-*"
+                      "field" : "name",
+                      "match" : "???-??-T##-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???-??-?##-.##"
+                      "field" : "name",
+                      "match" : "???-??-?##-.##"
                     },
                     {
-                      "field": "name",
-                      "match": "???-??-?##-..##"
+                      "field" : "name",
+                      "match" : "???-??-?##-..##"
                     },
                     {
-                      "field": "name",
-                      "match": "???-??-?##-...##"
+                      "field" : "name",
+                      "match" : "???-??-?##-...##"
                     },
                     {
-                      "field": "name",
-                      "match": "???-??-?##-....##"
+                      "field" : "name",
+                      "match" : "???-??-?##-....##"
                     }
                   ]
                 }
@@ -96,8 +96,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

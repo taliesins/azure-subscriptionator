@@ -1,23 +1,23 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-      "in": "[parameters('type')]"
+        "field" : "type",
+        "in" : "[parameters('type')]"
       },
       {
-        "not": {
-          "anyOf": [
+        "not" : {
+          "anyOf" : [
             {
-            "field": "[concat('tags[','build_tag', ']')]",
-              "match": "https://*"
+              "field" : "[concat('tags[','build_tag', ']')]",
+              "match" : "https://*"
             }
           ]
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

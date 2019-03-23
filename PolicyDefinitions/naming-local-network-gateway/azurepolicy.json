@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-local-network-gateway",
-  "properties": {
-    "displayName": "Naming of Azure local network gateways",
-    "description": "Naming of Azure local network gateways. Example local network gateway name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-GW-HUB",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-local-network-gateway",
+  "properties" : {
+    "displayName" : "Naming of Azure local network gateways",
+    "description" : "Naming of Azure local network gateways. Example local network gateway name M-UKS-L01-MGMT01-RG-VNET-VN-CORE-GW-HUB",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,85 +25,85 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Network/localNetworkGateways"
+            "field" : "type",
+            "equals" : "Microsoft.Network/localNetworkGateways"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-..-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-..-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-...-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-...-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-....-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-....-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.....-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.....-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-......-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-......-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.......-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.......-GW-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-........-GW-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-........-GW-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-GW-."
+                      "field" : "name",
+                      "match" : "*-GW-."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-.."
+                      "field" : "name",
+                      "match" : "*-GW-.."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-..."
+                      "field" : "name",
+                      "match" : "*-GW-..."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-...."
+                      "field" : "name",
+                      "match" : "*-GW-...."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-....."
+                      "field" : "name",
+                      "match" : "*-GW-....."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-......"
+                      "field" : "name",
+                      "match" : "*-GW-......"
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-......."
+                      "field" : "name",
+                      "match" : "*-GW-......."
                     },
                     {
-                      "field": "name",
-                      "match": "*-GW-........"
+                      "field" : "name",
+                      "match" : "*-GW-........"
                     }
                   ]
                 }
@@ -112,8 +112,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

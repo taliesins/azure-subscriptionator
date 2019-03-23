@@ -1,54 +1,54 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/publicIPAddresses"
+        "field" : "type",
+        "equals" : "Microsoft.Network/publicIPAddresses"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-PIP-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-PIP-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-PIP-."
+                  "field" : "name",
+                  "match" : "*-PIP-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-.."
+                  "field" : "name",
+                  "match" : "*-PIP-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-..."
+                  "field" : "name",
+                  "match" : "*-PIP-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-...."
+                  "field" : "name",
+                  "match" : "*-PIP-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-....."
+                  "field" : "name",
+                  "match" : "*-PIP-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-......"
+                  "field" : "name",
+                  "match" : "*-PIP-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-......."
+                  "field" : "name",
+                  "match" : "*-PIP-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-PIP-........"
+                  "field" : "name",
+                  "match" : "*-PIP-........"
                 }
               ]
             }
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

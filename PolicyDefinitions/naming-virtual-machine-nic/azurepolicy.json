@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-virtual-machine-nic",
-  "properties": {
-    "displayName": "Naming of Azure network interfaces",
-    "description": "Naming of Azure network interfaces. Example network interface name MLWMGTJENKINS01-NIC1",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-virtual-machine-nic",
+  "properties" : {
+    "displayName" : "Naming of Azure network interfaces",
+    "description" : "Naming of Azure network interfaces. Example network interface name MLWMGTJENKINS01-NIC1",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,65 +25,65 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Network/networkInterfaces"
+            "field" : "type",
+            "equals" : "Microsoft.Network/networkInterfaces"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "M*"
+                      "field" : "name",
+                      "match" : "M*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?T*"
+                      "field" : "name",
+                      "match" : "?T*"
                     },
                     {
-                      "field": "name",
-                      "match": "?N*"
+                      "field" : "name",
+                      "match" : "?N*"
                     },
                     {
-                      "field": "name",
-                      "match": "?R*"
+                      "field" : "name",
+                      "match" : "?R*"
                     },
                     {
-                      "field": "name",
-                      "match": "?L*"
+                      "field" : "name",
+                      "match" : "?L*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "??B*"
+                      "field" : "name",
+                      "match" : "??B*"
                     },
                     {
-                      "field": "name",
-                      "match": "??L*"
+                      "field" : "name",
+                      "match" : "??L*"
                     },
                     {
-                      "field": "name",
-                      "match": "??W*"
+                      "field" : "name",
+                      "match" : "??W*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???............-NIC#"
+                      "field" : "name",
+                      "match" : "???............-NIC#"
                     }
                   ]
                 }
@@ -92,8 +92,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

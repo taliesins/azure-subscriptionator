@@ -1,54 +1,54 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Compute/availabilitySets"
+        "field" : "type",
+        "equals" : "Microsoft.Compute/availabilitySets"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-AS-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-AS-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-AS-."
+                  "field" : "name",
+                  "match" : "*-AS-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-.."
+                  "field" : "name",
+                  "match" : "*-AS-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-..."
+                  "field" : "name",
+                  "match" : "*-AS-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-...."
+                  "field" : "name",
+                  "match" : "*-AS-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-....."
+                  "field" : "name",
+                  "match" : "*-AS-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-......"
+                  "field" : "name",
+                  "match" : "*-AS-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-......."
+                  "field" : "name",
+                  "match" : "*-AS-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AS-........"
+                  "field" : "name",
+                  "match" : "*-AS-........"
                 }
               ]
             }
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

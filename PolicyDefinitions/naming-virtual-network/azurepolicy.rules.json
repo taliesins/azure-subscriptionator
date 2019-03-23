@@ -1,54 +1,54 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/virtualNetworks"
+        "field" : "type",
+        "equals" : "Microsoft.Network/virtualNetworks"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-VN-."
+                  "field" : "name",
+                  "match" : "*-VN-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-.."
+                  "field" : "name",
+                  "match" : "*-VN-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-..."
+                  "field" : "name",
+                  "match" : "*-VN-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-...."
+                  "field" : "name",
+                  "match" : "*-VN-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-....."
+                  "field" : "name",
+                  "match" : "*-VN-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-......"
+                  "field" : "name",
+                  "match" : "*-VN-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-......."
+                  "field" : "name",
+                  "match" : "*-VN-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-VN-........"
+                  "field" : "name",
+                  "match" : "*-VN-........"
                 }
               ]
             }
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

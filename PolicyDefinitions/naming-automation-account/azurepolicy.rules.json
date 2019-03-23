@@ -1,54 +1,54 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Automation/automationAccounts"
+        "field" : "type",
+        "equals" : "Microsoft.Automation/automationAccounts"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-AA-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-AA-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-AA-."
+                  "field" : "name",
+                  "match" : "*-AA-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-.."
+                  "field" : "name",
+                  "match" : "*-AA-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-..."
+                  "field" : "name",
+                  "match" : "*-AA-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-...."
+                  "field" : "name",
+                  "match" : "*-AA-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-....."
+                  "field" : "name",
+                  "match" : "*-AA-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-......"
+                  "field" : "name",
+                  "match" : "*-AA-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-......."
+                  "field" : "name",
+                  "match" : "*-AA-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-AA-........"
+                  "field" : "name",
+                  "match" : "*-AA-........"
                 }
               ]
             }
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

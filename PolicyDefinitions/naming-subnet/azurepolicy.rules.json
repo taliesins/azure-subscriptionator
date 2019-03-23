@@ -1,82 +1,82 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/virtualNetworks/subnets"
+        "field" : "type",
+        "equals" : "Microsoft.Network/virtualNetworks/subnets"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-..-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-..-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-...-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-...-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-....-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-....-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.....-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.....-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-......-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-......-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.......-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.......-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-........-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-........-SN-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-SN-."
+                  "field" : "name",
+                  "match" : "*-SN-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-.."
+                  "field" : "name",
+                  "match" : "*-SN-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-..."
+                  "field" : "name",
+                  "match" : "*-SN-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-...."
+                  "field" : "name",
+                  "match" : "*-SN-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-....."
+                  "field" : "name",
+                  "match" : "*-SN-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-......"
+                  "field" : "name",
+                  "match" : "*-SN-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-......."
+                  "field" : "name",
+                  "match" : "*-SN-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-........"
+                  "field" : "name",
+                  "match" : "*-SN-........"
                 }
               ]
             }
@@ -85,7 +85,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

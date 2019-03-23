@@ -1,82 +1,82 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/routeTables"
+        "field" : "type",
+        "equals" : "Microsoft.Network/routeTables"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-..-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-..-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-...-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-...-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-....-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-....-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.....-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.....-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-......-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-......-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-.......-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-.......-SN-*"
                 },
                 {
-                  "field": "name",
-                "match": "[resourceGroup().id]-VN-........-SN-*"
+                  "field" : "name",
+                  "match" : "[resourceGroup().id]-VN-........-SN-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-SN-.-RT"
+                  "field" : "name",
+                  "match" : "*-SN-.-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-..-RT"
+                  "field" : "name",
+                  "match" : "*-SN-..-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-...-RT"
+                  "field" : "name",
+                  "match" : "*-SN-...-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-....-RT"
+                  "field" : "name",
+                  "match" : "*-SN-....-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-.....-RT"
+                  "field" : "name",
+                  "match" : "*-SN-.....-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-......-RT"
+                  "field" : "name",
+                  "match" : "*-SN-......-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-.......-RT"
+                  "field" : "name",
+                  "match" : "*-SN-.......-RT"
                 },
                 {
-                  "field": "name",
-                  "match": "*-SN-........-RT"
+                  "field" : "name",
+                  "match" : "*-SN-........-RT"
                 }
               ]
             }
@@ -85,7 +85,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

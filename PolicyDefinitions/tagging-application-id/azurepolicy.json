@@ -1,29 +1,29 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "tagging-application-id",
-  "properties": {
-    "displayName": "Application ID tag on Azure resource",
-    "description": "Application ID tag on Azure resource. Example tag would look like troux_id=AL12345",
-    "metadata": {
-      "category": "Tagging"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "tagging-application-id",
+  "properties" : {
+    "displayName" : "Application ID tag on Azure resource",
+    "description" : "Application ID tag on Azure resource. Example tag would look like troux_id=AL12345",
+    "metadata" : {
+      "category" : "Tagging"
     },
-    "mode": "All",
-    "parameters": {
-      "type": {
-        "type": "array",
-        "metadata": {
-          "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
-          "displayName": "type",
-          "strongType": "resourceTypes"
+    "mode" : "All",
+    "parameters" : {
+      "type" : {
+        "type" : "array",
+        "metadata" : {
+          "description" : "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+          "displayName" : "type",
+          "strongType" : "resourceTypes"
         }
       },
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -33,27 +33,27 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-          "in": "[parameters('type')]"
+            "field" : "type",
+            "in" : "[parameters('type')]"
           },
           {
-            "not": {
-              "anyOf": [
+            "not" : {
+              "anyOf" : [
                 {
-                "field": "[concat('tags[','troux_id', ']')]",
-                  "match": "AL#####"
+                  "field" : "[concat('tags[','troux_id', ']')]",
+                  "match" : "AL#####"
                 }
               ]
             }
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

@@ -1,11 +1,11 @@
 {
-  "effect": {
-    "type": "string",
-    "metadata": {
-      "displayName": "effect",
-      "description": "Effect of policy, such as audit or deny"
+  "effect" : {
+    "type" : "string",
+    "metadata" : {
+      "displayName" : "effect",
+      "description" : "Effect of policy, such as audit or deny"
     },
-    "allowedValues": [
+    "allowedValues" : [
       "Append",
       "Audit",
       "AuditIfNotExists",

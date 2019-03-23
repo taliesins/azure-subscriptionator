@@ -1,79 +1,79 @@
 [
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-application-id",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-commit",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-commit",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-url",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-git-url",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-lbg-cost-center",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-expiry-date",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-expiry-date",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   },
   {
-    "policyDefinitionId": "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-owner",
-    "parameters": {
-      "type": {
-        "value": [
+    "policyDefinitionId" : "/providers/Microsoft.Management/managementgroups/e0f36ce9-600f-458d-9cad-19fa589415af/providers/Microsoft.Authorization/policyDefinitions/tagging-resource-owner",
+    "parameters" : {
+      "type" : {
+        "value" : [
           "Microsoft.Resources/subscriptions/resourceGroups"
         ]
       },
-      "effect": {
-        "value": "Audit"
+      "effect" : {
+        "value" : "Audit"
       }
     }
   }

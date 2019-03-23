@@ -1,29 +1,29 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "tagging-resource-expiry-date",
-  "properties": {
-    "displayName": "Resource expiry date tag on Azure resource",
-    "description": "Resource expiry date tag on Azure resource. Example tag would look like resource_expiry_date=2019-12-31",
-    "metadata": {
-      "category": "Tagging"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "tagging-resource-expiry-date",
+  "properties" : {
+    "displayName" : "Resource expiry date tag on Azure resource",
+    "description" : "Resource expiry date tag on Azure resource. Example tag would look like resource_expiry_date=2019-12-31",
+    "metadata" : {
+      "category" : "Tagging"
     },
-    "mode": "All",
-    "parameters": {
-      "type": {
-        "type": "array",
-        "metadata": {
-          "description": "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
-          "displayName": "type",
-          "strongType": "resourceTypes"
+    "mode" : "All",
+    "parameters" : {
+      "type" : {
+        "type" : "array",
+        "metadata" : {
+          "description" : "Type of Azure Resource, such as Microsoft.Resources/subscriptions/resourceGroups",
+          "displayName" : "type",
+          "strongType" : "resourceTypes"
         }
       },
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -33,27 +33,27 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-          "in": "[parameters('type')]"
+            "field" : "type",
+            "in" : "[parameters('type')]"
           },
           {
-            "not": {
-              "anyOf": [
+            "not" : {
+              "anyOf" : [
                 {
-                "field": "[concat('tags[','resource_expiry_date', ']')]",
-                  "match": "####-##-##"
+                  "field" : "[concat('tags[','resource_expiry_date', ']')]",
+                  "match" : "####-##-##"
                 }
               ]
             }
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

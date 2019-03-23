@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-virtual-network",
-  "properties": {
-    "displayName": "Naming of Azure virtual networks",
-    "description": "Naming of Azure virtual networks. Example virtual network name M-UKS-L01-MGMT01-RG-VNET-VN-CORE",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-virtual-network",
+  "properties" : {
+    "displayName" : "Naming of Azure virtual networks",
+    "description" : "Naming of Azure virtual networks. Example virtual network name M-UKS-L01-MGMT01-RG-VNET-VN-CORE",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,57 +25,57 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Network/virtualNetworks"
+            "field" : "type",
+            "equals" : "Microsoft.Network/virtualNetworks"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-VN-."
+                      "field" : "name",
+                      "match" : "*-VN-."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-.."
+                      "field" : "name",
+                      "match" : "*-VN-.."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-..."
+                      "field" : "name",
+                      "match" : "*-VN-..."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-...."
+                      "field" : "name",
+                      "match" : "*-VN-...."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-....."
+                      "field" : "name",
+                      "match" : "*-VN-....."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-......"
+                      "field" : "name",
+                      "match" : "*-VN-......"
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-......."
+                      "field" : "name",
+                      "match" : "*-VN-......."
                     },
                     {
-                      "field": "name",
-                      "match": "*-VN-........"
+                      "field" : "name",
+                      "match" : "*-VN-........"
                     }
                   ]
                 }
@@ -84,8 +84,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

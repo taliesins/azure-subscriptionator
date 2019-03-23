@@ -1,19 +1,19 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.OperationalInsights/workspaces"
+        "field" : "type",
+        "equals" : "Microsoft.OperationalInsights/workspaces"
       },
       {
-        "not": {
-          "field": "name",
-          "match": "................................"
+        "not" : {
+          "field" : "name",
+          "match" : "................................"
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

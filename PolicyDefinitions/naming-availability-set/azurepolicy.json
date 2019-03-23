@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-availability-set",
-  "properties": {
-    "displayName": "Naming of Azure availability sets",
-    "description": "Naming of Azure availability sets. Example availability set name M-UKS-L01-VS0501-RG-AIP-AS-AIPWEB",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-availability-set",
+  "properties" : {
+    "displayName" : "Naming of Azure availability sets",
+    "description" : "Naming of Azure availability sets. Example availability set name M-UKS-L01-VS0501-RG-AIP-AS-AIPWEB",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,57 +25,57 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Compute/availabilitySets"
+            "field" : "type",
+            "equals" : "Microsoft.Compute/availabilitySets"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-AS-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-AS-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-AS-."
+                      "field" : "name",
+                      "match" : "*-AS-."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-.."
+                      "field" : "name",
+                      "match" : "*-AS-.."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-..."
+                      "field" : "name",
+                      "match" : "*-AS-..."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-...."
+                      "field" : "name",
+                      "match" : "*-AS-...."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-....."
+                      "field" : "name",
+                      "match" : "*-AS-....."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-......"
+                      "field" : "name",
+                      "match" : "*-AS-......"
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-......."
+                      "field" : "name",
+                      "match" : "*-AS-......."
                     },
                     {
-                      "field": "name",
-                      "match": "*-AS-........"
+                      "field" : "name",
+                      "match" : "*-AS-........"
                     }
                   ]
                 }
@@ -84,8 +84,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

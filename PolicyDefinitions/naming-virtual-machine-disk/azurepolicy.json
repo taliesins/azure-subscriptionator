@@ -1,21 +1,21 @@
 {
-  "type": "Microsoft.Authorization/policyDefinitions",
-  "name": "naming-virtual-machine-disk",
-  "properties": {
-    "displayName": "Naming of Azure virtual machine disks",
-    "description": "Naming of Azure virtual machine disks. Example virtual machine disk name MLWMGTJENKINS01-OSDISK or MLWMGTJENKINS01-DATADISK-BACKUPS",
-    "metadata": {
-      "category": "Naming"
+  "type" : "Microsoft.Authorization/policyDefinitions",
+  "name" : "naming-virtual-machine-disk",
+  "properties" : {
+    "displayName" : "Naming of Azure virtual machine disks",
+    "description" : "Naming of Azure virtual machine disks. Example virtual machine disk name MLWMGTJENKINS01-OSDISK or MLWMGTJENKINS01-DATADISK-BACKUPS",
+    "metadata" : {
+      "category" : "Naming"
     },
-    "mode": "All",
-    "parameters": {
-      "effect": {
-        "type": "string",
-        "metadata": {
-          "displayName": "effect",
-          "description": "Effect of policy, such as audit or deny"
+    "mode" : "All",
+    "parameters" : {
+      "effect" : {
+        "type" : "string",
+        "metadata" : {
+          "displayName" : "effect",
+          "description" : "Effect of policy, such as audit or deny"
         },
-        "allowedValues": [
+        "allowedValues" : [
           "Append",
           "Audit",
           "AuditIfNotExists",
@@ -25,97 +25,97 @@
         ]
       }
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "policyRule" : {
+      "if" : {
+        "allOf" : [
           {
-            "field": "type",
-            "equals": "Microsoft.Compute/disks"
+            "field" : "type",
+            "equals" : "Microsoft.Compute/disks"
           },
           {
-            "not": {
-              "allOf": [
+            "not" : {
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "M*"
+                      "field" : "name",
+                      "match" : "M*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?T*"
+                      "field" : "name",
+                      "match" : "?T*"
                     },
                     {
-                      "field": "name",
-                      "match": "?N*"
+                      "field" : "name",
+                      "match" : "?N*"
                     },
                     {
-                      "field": "name",
-                      "match": "?R*"
+                      "field" : "name",
+                      "match" : "?R*"
                     },
                     {
-                      "field": "name",
-                      "match": "?L*"
+                      "field" : "name",
+                      "match" : "?L*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "??B*"
+                      "field" : "name",
+                      "match" : "??B*"
                     },
                     {
-                      "field": "name",
-                      "match": "??L*"
+                      "field" : "name",
+                      "match" : "??L*"
                     },
                     {
-                      "field": "name",
-                      "match": "??W*"
+                      "field" : "name",
+                      "match" : "??W*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???............-OSDISK"
+                      "field" : "name",
+                      "match" : "???............-OSDISK"
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-.."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-.."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-..."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-..."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-...."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-...."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-....."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-....."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-......"
+                      "field" : "name",
+                      "match" : "???............-DATADISK-......"
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-......."
+                      "field" : "name",
+                      "match" : "???............-DATADISK-......."
                     },
                     {
-                      "field": "name",
-                      "match": "???............-DATADISK-........"
+                      "field" : "name",
+                      "match" : "???............-DATADISK-........"
                     }
                   ]
                 }
@@ -124,8 +124,8 @@
           }
         ]
       },
-      "then": {
-      "effect": "[parameters('effect')]"
+      "then" : {
+        "effect" : "[parameters('effect')]"
       }
     }
   }

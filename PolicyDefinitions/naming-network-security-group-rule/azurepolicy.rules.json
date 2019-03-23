@@ -1,178 +1,178 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/networkSecurityGroups"
+        "field" : "type",
+        "equals" : "Microsoft.Network/networkSecurityGroups"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-.-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-.-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-.-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-.-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-.-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-.-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-.-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-.-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-..-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-..-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-..-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-..-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-..-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-..-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-..-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-..-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-...-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-...-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-...-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-...-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-...-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-...-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-...-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-...-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-....-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-....-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-....-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-....-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-.....-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-.....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-.....-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-.....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-.....-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-.....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-.....-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-.....-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-......-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-......-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-......-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-......-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-.......-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-.......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-.......-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-.......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-.......-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-.......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-.......-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-.......-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-INBOUND-........-*"
+                  "field" : "name",
+                  "match" : "ALLOW-INBOUND-........-*"
                 },
                 {
-                  "field": "name",
-                  "match": "ALLOW-OUTBOUND-........-*"
+                  "field" : "name",
+                  "match" : "ALLOW-OUTBOUND-........-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-INBOUND-........-*"
+                  "field" : "name",
+                  "match" : "DENY-INBOUND-........-*"
                 },
                 {
-                  "field": "name",
-                  "match": "DENY-OUTBOUND-........-*"
+                  "field" : "name",
+                  "match" : "DENY-OUTBOUND-........-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-."
+                  "field" : "name",
+                  "match" : "*-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-.."
+                  "field" : "name",
+                  "match" : "*-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-..."
+                  "field" : "name",
+                  "match" : "*-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-...."
+                  "field" : "name",
+                  "match" : "*-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-....."
+                  "field" : "name",
+                  "match" : "*-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-......"
+                  "field" : "name",
+                  "match" : "*-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-......."
+                  "field" : "name",
+                  "match" : "*-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-........"
+                  "field" : "name",
+                  "match" : "*-........"
                 }
               ]
             }
@@ -181,7 +181,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

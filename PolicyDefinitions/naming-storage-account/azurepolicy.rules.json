@@ -1,19 +1,19 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Storage/storageAccounts"
+        "field" : "type",
+        "equals" : "Microsoft.Storage/storageAccounts"
       },
       {
-        "not": {
-          "field": "name",
-          "match": "................................"
+        "not" : {
+          "field" : "name",
+          "match" : "................................"
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

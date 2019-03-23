@@ -1,51 +1,51 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-      "in": "[parameters('type')]"
+        "field" : "type",
+        "in" : "[parameters('type')]"
       },
       {
-        "not": {
-          "anyOf": [
+        "not" : {
+          "anyOf" : [
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "RHEL #"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "RHEL #"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "Windows Server ####"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "Windows Server ####"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "Imperva SecureSphere v##.#"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "Imperva SecureSphere v##.#"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "Imperva SecureSphere v##.##"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "Imperva SecureSphere v##.##"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "F5 BIG-IP Best ##.##.##"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "F5 BIG-IP Best ##.##.##"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "F5 BIG-IP Best ##.#.##"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "F5 BIG-IP Best ##.#.##"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "F5 BIG-IP Best ##.##.#"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "F5 BIG-IP Best ##.##.#"
             },
             {
-            "field": "[concat('tags[','operating_system', ']')]",
-              "match": "F5 BIG-IP Best ##.#.#"
+              "field" : "[concat('tags[','operating_system', ']')]",
+              "match" : "F5 BIG-IP Best ##.#.#"
             }
           ]
         }
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

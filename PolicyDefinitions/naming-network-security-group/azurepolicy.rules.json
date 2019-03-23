@@ -1,140 +1,140 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/networkSecurityGroups"
+        "field" : "type",
+        "equals" : "Microsoft.Network/networkSecurityGroups"
       },
       {
-        "not": {
-          "anyOf": [
+        "not" : {
+          "anyOf" : [
             {
-              "allOf": [
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-..-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-..-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-...-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-...-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-....-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-....-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.....-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.....-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-......-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-......-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-.......-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-.......-SN-*"
                     },
                     {
-                      "field": "name",
-                    "match": "[resourceGroup().id]-VN-........-SN-*"
+                      "field" : "name",
+                      "match" : "[resourceGroup().id]-VN-........-SN-*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "*-SN-.-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-.-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-..-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-..-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-...-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-...-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-....-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-....-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-.....-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-.....-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-......-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-......-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-.......-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-.......-NSG"
                     },
                     {
-                      "field": "name",
-                      "match": "*-SN-........-NSG"
+                      "field" : "name",
+                      "match" : "*-SN-........-NSG"
                     }
                   ]
                 }
               ]
             },
             {
-              "allOf": [
+              "allOf" : [
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "M*"
+                      "field" : "name",
+                      "match" : "M*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "?T*"
+                      "field" : "name",
+                      "match" : "?T*"
                     },
                     {
-                      "field": "name",
-                      "match": "?N*"
+                      "field" : "name",
+                      "match" : "?N*"
                     },
                     {
-                      "field": "name",
-                      "match": "?R*"
+                      "field" : "name",
+                      "match" : "?R*"
                     },
                     {
-                      "field": "name",
-                      "match": "?L*"
+                      "field" : "name",
+                      "match" : "?L*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "??B*"
+                      "field" : "name",
+                      "match" : "??B*"
                     },
                     {
-                      "field": "name",
-                      "match": "??L*"
+                      "field" : "name",
+                      "match" : "??L*"
                     },
                     {
-                      "field": "name",
-                      "match": "??W*"
+                      "field" : "name",
+                      "match" : "??W*"
                     }
                   ]
                 },
                 {
-                  "anyOf": [
+                  "anyOf" : [
                     {
-                      "field": "name",
-                      "match": "???............-NIC#-NSG"
+                      "field" : "name",
+                      "match" : "???............-NIC#-NSG"
                     }
                   ]
                 }
@@ -145,7 +145,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }

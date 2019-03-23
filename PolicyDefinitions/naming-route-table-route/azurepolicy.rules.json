@@ -1,214 +1,214 @@
 {
-  "if": {
-    "allOf": [
+  "if" : {
+    "allOf" : [
       {
-        "field": "type",
-        "equals": "Microsoft.Network/routeTables/routes"
+        "field" : "type",
+        "equals" : "Microsoft.Network/routeTables/routes"
       },
       {
-        "not": {
-          "allOf": [
+        "not" : {
+          "allOf" : [
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": ".-M-UKS-*"
+                  "field" : "name",
+                  "match" : ".-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": "..-M-UKS-*"
+                  "field" : "name",
+                  "match" : "..-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": "...-M-UKS-*"
+                  "field" : "name",
+                  "match" : "...-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": "....-M-UKS-*"
+                  "field" : "name",
+                  "match" : "....-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".....-M-UKS-*"
+                  "field" : "name",
+                  "match" : ".....-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": "......-M-UKS-*"
+                  "field" : "name",
+                  "match" : "......-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".......-M-UKS-*"
+                  "field" : "name",
+                  "match" : ".......-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": "........-M-UKS-*"
+                  "field" : "name",
+                  "match" : "........-M-UKS-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".-M-UKW-*"
+                  "field" : "name",
+                  "match" : ".-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": "..-M-UKW-*"
+                  "field" : "name",
+                  "match" : "..-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": "...-M-UKW-*"
+                  "field" : "name",
+                  "match" : "...-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": "....-M-UKW-*"
+                  "field" : "name",
+                  "match" : "....-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".....-M-UKW-*"
+                  "field" : "name",
+                  "match" : ".....-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": "......-M-UKW-*"
+                  "field" : "name",
+                  "match" : "......-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".......-M-UKW-*"
+                  "field" : "name",
+                  "match" : ".......-M-UKW-*"
                 },
                 {
-                  "field": "name",
-                  "match": "........-M-UKW-*"
+                  "field" : "name",
+                  "match" : "........-M-UKW-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": ".-?-???-L##-*"
+                  "field" : "name",
+                  "match" : ".-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "..-?-???-L##-*"
+                  "field" : "name",
+                  "match" : "..-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "...-?-???-L##-*"
+                  "field" : "name",
+                  "match" : "...-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "....-?-???-L##-*"
+                  "field" : "name",
+                  "match" : "....-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".....-?-???-L##-*"
+                  "field" : "name",
+                  "match" : ".....-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "......-?-???-L##-*"
+                  "field" : "name",
+                  "match" : "......-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".......-?-???-L##-*"
+                  "field" : "name",
+                  "match" : ".......-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "........-?-???-L##-*"
+                  "field" : "name",
+                  "match" : "........-?-???-L##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".-?-???-R##-*"
+                  "field" : "name",
+                  "match" : ".-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "..-?-???-R##-*"
+                  "field" : "name",
+                  "match" : "..-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "...-?-???-R##-*"
+                  "field" : "name",
+                  "match" : "...-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "....-?-???-R##-*"
+                  "field" : "name",
+                  "match" : "....-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".....-?-???-R##-*"
+                  "field" : "name",
+                  "match" : ".....-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "......-?-???-R##-*"
+                  "field" : "name",
+                  "match" : "......-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".......-?-???-R##-*"
+                  "field" : "name",
+                  "match" : ".......-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "........-?-???-R##-*"
+                  "field" : "name",
+                  "match" : "........-?-???-R##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".-?-???-T##-*"
+                  "field" : "name",
+                  "match" : ".-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "..-?-???-T##-*"
+                  "field" : "name",
+                  "match" : "..-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "...-?-???-T##-*"
+                  "field" : "name",
+                  "match" : "...-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "....-?-???-T##-*"
+                  "field" : "name",
+                  "match" : "....-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".....-?-???-T##-*"
+                  "field" : "name",
+                  "match" : ".....-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "......-?-???-T##-*"
+                  "field" : "name",
+                  "match" : "......-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": ".......-?-???-T##-*"
+                  "field" : "name",
+                  "match" : ".......-?-???-T##-*"
                 },
                 {
-                  "field": "name",
-                  "match": "........-?-???-T##-*"
+                  "field" : "name",
+                  "match" : "........-?-???-T##-*"
                 }
               ]
             },
             {
-              "anyOf": [
+              "anyOf" : [
                 {
-                  "field": "name",
-                  "match": "*-."
+                  "field" : "name",
+                  "match" : "*-."
                 },
                 {
-                  "field": "name",
-                  "match": "*-.."
+                  "field" : "name",
+                  "match" : "*-.."
                 },
                 {
-                  "field": "name",
-                  "match": "*-..."
+                  "field" : "name",
+                  "match" : "*-..."
                 },
                 {
-                  "field": "name",
-                  "match": "*-...."
+                  "field" : "name",
+                  "match" : "*-...."
                 },
                 {
-                  "field": "name",
-                  "match": "*-....."
+                  "field" : "name",
+                  "match" : "*-....."
                 },
                 {
-                  "field": "name",
-                  "match": "*-......"
+                  "field" : "name",
+                  "match" : "*-......"
                 },
                 {
-                  "field": "name",
-                  "match": "*-......."
+                  "field" : "name",
+                  "match" : "*-......."
                 },
                 {
-                  "field": "name",
-                  "match": "*-........"
+                  "field" : "name",
+                  "match" : "*-........"
                 }
               ]
             }
@@ -217,7 +217,7 @@
       }
     ]
   },
-  "then": {
-  "effect": "[parameters('effect')]"
+  "then" : {
+    "effect" : "[parameters('effect')]"
   }
 }
