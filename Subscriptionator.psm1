@@ -2150,9 +2150,6 @@ Function Set-DscRoleDefinition {
 
             #lets emulate this functionality for now
             $inputFileObject.AssignableScopes | %{
-                if (!$_){
-
-                }
                 if ($_ -eq '/' -or $_ -eq '/providers/Microsoft.Management/managementGroups/' -or $_.StartsWith('/providers/Microsoft.Management/managementGroups/*')) {
                     $assignableScopes += @(Get-SubscriptionForTenant -TenantId $TenantId)
                 } elseif ($_.StartsWith('/providers/Microsoft.Management/managementGroups/')) {
@@ -2851,16 +2848,22 @@ Function Set-DscRoleAssignment {
 
     $RootRoleAssignments = $DesiredState.RoleAssignments 
     $ManagementGroups = $DesiredState.ManagementGroups
+    $roleDefinitions = Get-AzRoleDefinition
 
     $RoleAssignments = $RootRoleAssignments | ?{$_} | %{
         $scope = "/"
         $roleAssignment = Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
-        
-        $scopes = @(Get-SubscriptionForTenant -TenantId $TenantId)
-        $scopes | %{
-            $roleAssignmentForTenant = $roleAssignment.PsObject.Copy()
-            $roleAssignmentForTenant.Scope = $_
-            $roleAssignmentForTenant
+        $roleDefinition = $roleDefinitions |?{$_.Name -eq $roleAssignment.RoleDefinitionName}
+
+        if ($roleDefinition -and ($roleDefinition.AssignableScopes -eq '/')){
+            $roleAssignment
+        } else {   
+            $scopes = @(Get-SubscriptionForTenant -TenantId $TenantId)
+            $scopes | %{
+                $roleAssignmentForTenant = $roleAssignment.PsObject.Copy()
+                $roleAssignmentForTenant.Scope = $_
+                $roleAssignmentForTenant
+            }
         }
     }
 
@@ -2869,13 +2872,18 @@ Function Set-DscRoleAssignment {
         $_.RoleAssignments | ?{$_} | %{
             $scope = "/providers/Microsoft.Management/managementGroups/$ManagementGroupName"
             $roleAssignment = Get-RoleAssignmentFromConfig -Scope $scope -ConfigItem $_
+            $roleDefinition = $roleDefinitions |?{$_.Name -eq $roleAssignment.RoleDefinitionName}
 
-            $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
-            $scopes = @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy) 
-            $scopes | %{
-                $roleAssignmentForSubscription = $roleAssignment.PsObject.Copy()
-                $roleAssignmentForSubscription.Scope = $_
-                $roleAssignmentForSubscription
+            if ($roleDefinition -and ($roleDefinition.AssignableScopes -eq '/' -or $roleDefinition.AssignableScopes.StartsWith('/providers/Microsoft.Management/managementGroups/'))){
+                $roleAssignment
+            } else {
+                $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
+                $scopes = @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy) 
+                $scopes | %{
+                    $roleAssignmentForSubscription = $roleAssignment.PsObject.Copy()
+                    $roleAssignmentForSubscription.Scope = $_
+                    $roleAssignmentForSubscription
+                }
             }
         }  
         $_.Subscriptions | %{
@@ -2992,9 +3000,9 @@ Get-AzRoleAssignment -Scope '$scope' -RoleDefinitionName '$roleDefinitionName' -
 Remove-AzRoleAssignment
 "@
                 #Scope and ObjectId are not honoured as filters :<
-                #$result = Get-AzRoleAssignment -Scope $scope -RoleDefinitionName $roleDefinitionName -ObjectId $objectId | 
-                #?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId} |
-                #Remove-AzRoleAssignment 
+                $result = Get-AzRoleAssignment -Scope $scope -RoleDefinitionName $roleDefinitionName -ObjectId $objectId | 
+                ?{$_.Scope -eq $scope -and $_.RoleDefinitionName -eq $roleDefinitionName -and $_.ObjectId -eq $objectId} |
+                Remove-AzRoleAssignment 
             }
         })
     }
