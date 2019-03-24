@@ -4,19 +4,20 @@ Setup a pipeline that will make it possible to source control and deploy everyth
 
 Definitions:
 - Management Group
+- AAD Group
+- Subscription
+- Resource Provider Registration
 - Role Definition
 - Policy Definition
 - Policy Set Definition
 - Azure Blueprint Definition
-- AAD Group
-- Subscription
 
 Assignments:
 - Assign Subscription to Management Group 
 - Role Assignment (to AAD group, AAD User, AAD application)
 - Policy Assignment (to subscription and management group)
 - Policy Set Assignment (to subscription and management group)
-- Azure Blueprint Assignment (to subscription)
+- Azure Blueprint Assignment (to subscription). This requires the `Microsoft.Blueprint` resource provider to be registered with each subscription that has a Blueprint assigned to it.
 
 # Status
 Alpha. Code is still being implemented. 
@@ -37,8 +38,6 @@ Apache 2.0 - see LICENSE.txt
 
 # Framework limitations
 
-- Role assignment: will be assigned to a group and not to an individual or application.
-- Role assignment: will be applied at management group or subscription level to an AAD Group.
 - Role assignment: only supports assignment against management group and subscription, so can't be applied directly against other providers. Possible work around is to abstracted this by using RoleDefinition that is applied at management group or subscription
 - Auto publish of Azure Blueprint will generate a release version name based on current date time.
 - Subscription: Azure api only allows EA Azure customers to create subscriptions programmatically. One day the framework might provide browser automation or direct api usage equivalent to do so. https://docs.microsoft.com/en-us/azure/azure-resource-manager/programmatically-create-subscription?tabs=rest
@@ -47,5 +46,6 @@ Apache 2.0 - see LICENSE.txt
 
 - AAD Group: topologically sort AAD groups so that they get created and deleted in the correct order
 - Management Group: topologically sort management groups so that they get created and deleted in the correct order
+- Resource Provider registration: AssignmentScope currently cannot be set to the root scope ("/") or a management group scope so we provide this functionality by expanding root scope or management group scope into multiple subscription scopes. This does mean if you add a new subscription or change a subscriptions management group hiearchy the ci/cd process will need to be re-run to fix it. 
 - Role definition: AssignmentScope currently cannot be set to the root scope ("/") or a management group scope https://feedback.azure.com/forums/911473-azure-management-groups/suggestions/34391878-allow-custom-rbac-definitions-at-the-management-gr so we provide this functionality by expanding root scope or management group scope into multiple subscription scopes. This does mean if you add a new subscription or change a subscriptions management group hiearchy the ci/cd process will need to be re-run to fix it.
 - Blueprint assignment: Assignments currently cannot be set to the root scope ("/") or a management group scope https://feedback.azure.com/forums/915958-azure-governance/suggestions/35803750-azure-blueprints-assignment-to-management-group so we provide this functionality by expanding root scope or management group scope into multiple subscription scopes. This does mean if you add a new subscription or change a subscriptions management group hiearchy the ci/cd process will need to be re-run to fix it.
