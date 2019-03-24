@@ -552,27 +552,172 @@ function Get-SubscriptionForTenant {
     @(Get-AzSubscription -TenantId $TenantId | %{"/subscriptions/$($_.Id)"})
 }
 
+function Flatten-ManagementGroups {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $ManagementGroups
+    )
+
+    $managementGroupName = $ManagementGroups.Name
+    $managementGroupDisplayName = $ManagementGroups.DisplayName
+
+    if ($ManagementGroups.Children){
+        $ManagementGroups.Children | ?{$_.Type -ne "/subscriptions"} | %{
+            Flatten-ManagementGroups -ManagementGroups $_
+        }
+
+        $ManagementGroups.Children | ?{$_.Type -eq "/subscriptions"} | %{
+            $subscriptionName = $_.Name
+            $subscriptionDisplayName = $_.DisplayName
+
+            @{'ManagementGroupName'=$managementGroupName;'ManagementGroupDisplayName'=$managementGroupDisplayName;'SubscriptionName'=$subscriptionName;'SubscriptionDisplayName'=$subscriptionDisplayName;}
+        }
+    }
+}
+
 Function Set-DscSubscription {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
+        [Parameter(Mandatory = $false, Position = 2)]
         $CancelUnknownSubscriptions = $false
     )
 
-    
     #Create subscription and assign owner
     #https://docs.microsoft.com/en-us/azure/azure-resource-manager/programmatically-create-subscription?tabs=azure-powershell
     #https://docs.microsoft.com/en-us/powershell/module/azurerm.subscription/new-azurermsubscription?view=azurermps-6.10.0
-    #Set-AzureSubscription
-    #Get-AzureSubscription
 
-    #Add subscription to management group
-    #$ManagementGroupName = "ProductionHub1LOB2CICDBYOP"
-    #$SubscriptionId = "87c5bf6c-dcba-43d2-bf32-6f16f072b472"
-    #New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $SubscriptionId
+    $ManagementGroups = $DesiredState.ManagementGroups
 
-    Write-Host "Set-DscSubscription is not implemented yet"
+    $Subscriptions = $ManagementGroups | %{
+        $managementGroupName = $_.Name
+        $_.Subscriptions | ?{$_} | %{
+            $id = ''
+            $name = $_.Name
+            $offerType = $_.OfferType
+            @{'ManagementGroupName'=$managementGroupName;'Id'=$id;'Name'=$name;'OfferType'=$offerType;} 
+        }
+    }
+
+    $managementGroupHiearchy = Get-AzManagementGroup -GroupName $TenantId -Expand -Recurse
+    $subscriptionInManagementGroups = Flatten-ManagementGroups -ManagementGroups $managementGroupHiearchy
+
+    $currentSubscriptions = @(Get-AzSubscription -TenantId $TenantId | %{
+        $id = $_.Id
+        $name = $_.Name
+        $offerType = ''
+        $managementGroupName = $subscriptionInManagementGroups | ?{$_.SubscriptionDisplayName -eq $name} | %{$_.ManagementGroupName}
+        @{'ManagementGroupName'=$managementGroupName;'Name'=$name;'Id'=$id;'OfferType'=$offerType;} 
+    })
+
+    $updateSubscriptions = @($currentSubscriptions | %{
+        $name = $_.Name
+
+        if ($Subscriptions | ?{$_.Name -eq $name}){
+           $_ 
+        }
+    })
+
+    $createSubscriptions = @($Subscriptions | %{
+        $name = $_.Name
+
+        if (!($updateSubscriptions | ?{$_.Name -eq $name})){
+            $_ 
+         }
+    })
+    
+    $desiredSubscriptions = @()
+    $desiredSubscriptions += $createSubscriptions
+    $desiredSubscriptions += $updateSubscriptions
+
+    $desiredSubscriptionResults = $desiredSubscriptions | %{
+        $managementGroupName = $_.ManagementGroupName
+        $name = $_.Name
+        $id = $_.Id
+        $offerType = $_.OfferType
+
+        if ($createSubscriptions | ?{$_.Name -eq $name}){
+            Write-Host @"
+#Not yet implemented
+#New-AzSubscription -OfferType '$offerType' -Name '$name' -EnrollmentAccountObjectId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -OwnerObjectId <userObjectId>,<servicePrincipalObjectId>
+"@
+            #New-AzSubscription -OfferType '$offerType' -Name '$name' -EnrollmentAccountObjectId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -OwnerObjectId <userObjectId>,<servicePrincipalObjectId>
+            $_
+        } elseif ($updateSubscriptions | ?{$_.Name -eq $name}) {
+            $desiredSubscription = $Subscriptions | ?{$_.Name -eq $name}
+            if ($desiredSubscription)
+            {
+                $desiredManagementGroupName = $desiredSubscription.ManagementGroupName
+                $desiredId = $desiredSubscription.Id
+                if (!$desiredId){
+                    $desiredId = $id
+                }
+                $desiredName = $desiredSubscription.Name
+                $desiredOfferType = $desiredSubscription.OfferType
+
+                if ($desiredName -ne $name){
+                    Write-Host @"
+                    Desired Name:
+                    $desiredName
+
+                    Actual Name:
+                    $name
+"@
+                }                    
+
+                if ($desiredManagementGroupName -ne $managementGroupName){
+                    Write-Host @"
+                    Desired Management Group Name:
+                    $desiredManagementGroupName
+
+                    Actual Management Group Name:
+                    $managementGroupName
+"@
+                }
+
+                if ($desiredId -ne $id){
+                    Write-Host @"
+                    Desired Id:
+                    $desiredId
+
+                    Actual Id:
+                    $id
+"@
+                }
+
+                if ($desiredManagementGroupName -ne $managementGroupName) {
+                    Write-Host @"
+New-AzManagementGroupSubscription -GroupName '$desiredManagementGroupName' -SubscriptionId '$desiredId'
+"@
+                    $result = New-AzManagementGroupSubscription -GroupName $desiredManagementGroupName -SubscriptionId $desiredId
+                }
+
+                $_
+            }
+        }
+    }
+   
+    if ($CancelUnknownSubscriptions) {
+        @($currentSubscriptions | %{
+            $managementGroupName = $_.ManagementGroupName
+            $name = $_.Name
+            $id = $_.Id
+            $offerType = $_.OfferType
+        
+            if (!($Subscriptions | ?{$_.Name -eq $name})){
+                Write-Host @"
+Open browser and cancel subscription:
+- name = $name
+- id = $id
+"@
+                #There is no way to cancel subscription
+            }
+        })
+    }
+
+    $desiredSubscriptionResults
 }
 
 Function Get-AzBlueprintDefinitions {
@@ -3092,7 +3237,13 @@ Function Set-DscPolicyAssignment {
         $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
-        $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+
+        $_.Properties.metadata.PSObject.Properties.Remove('createdBy')
+        $_.Properties.metadata.PSObject.Properties.Remove('createdOn')
+        $_.Properties.metadata.PSObject.Properties.Remove('updatedBy')
+        $_.Properties.metadata.PSObject.Properties.Remove('updatedOn')
+
+        $metadata = ConvertTo-Json $_.Properties.metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($metadata)){
             $metadata = ConvertTo-Json @{}
         }
@@ -3552,25 +3703,25 @@ Function Set-DscPolicySetAssignment {
     $PolicySetDefinitions = Get-AzPolicySetDefinition
 
     #Only deal with policy set assignments against root, management groups and subscriptions. 
-    $currentPolicySetAssignments = @(Get-AzPolicyAssignment |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/' -and $_.Properties.Scope} | ?{$_.Properties.Scope -eq '/' -or $_.Properties.Scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.Scope.StartsWith('/subscriptions/')} | %{        
+    $currentPolicySetAssignments = @(Get-AzPolicyAssignment -IncludeDescendent |?{$_.Properties -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/' -and $_.Properties.scope} | ?{$_.Properties.scope -eq '/' -or $_.Properties.scope.StartsWith('/providers/Microsoft.Management/managementGroups/') -or $_.Properties.scope.StartsWith('/subscriptions/')} | %{        
         $name = $_.Name
-        $scope = $_.Properties.Scope
+        $scope = $_.Properties.scope
         $notScope = @($_.Properties.NotScope |? {$_})
         $displayName = $_.Properties.DisplayName
         $description = $_.Properties.Description
+        $_.Properties.metadata.PSObject.Properties.Remove('createdBy')
+        $_.Properties.metadata.PSObject.Properties.Remove('createdOn')
+        $_.Properties.metadata.PSObject.Properties.Remove('updatedBy')
+        $_.Properties.metadata.PSObject.Properties.Remove('updatedOn')
         $metadata = ConvertTo-Json $_.Properties.Metadata -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($metadata)){
             $metadata = ConvertTo-Json @{}
         }
-        $policyDefinitionId = $_.Properties.policyDefinitionId
-
         $policyDefinitionName = "" 
-        
-        $policySetDefinitionName = ""
-        if ($policyDefinitionId -and $_.Properties.policyDefinitionId -match '/policySetDefinitions/') {
-            $policySetDefinition = $PolicySetDefinitions |? {$_.PolicyDefinitionId -eq $policyDefinitionId}
-            $policySetDefinitionName = $policySetDefinition.Name
-        }
+
+        $policySetDefinitionId = $_.Properties.policyDefinitionId     
+        $policySetDefinition = $PolicySetDefinitions |? {$_.PolicySetDefinitionId -eq $policySetDefinitionId}
+        $policySetDefinitionName = $policySetDefinition.Name
 
         $policyParameter = ConvertTo-Json $_.Properties.parameters -Depth 99 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
         if ([string]::IsNullOrWhitespace($policyParameter)){
