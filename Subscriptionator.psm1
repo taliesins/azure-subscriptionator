@@ -3,8 +3,8 @@
 
 function Get-DscContext {
     param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        [string] $TenantId
+        [Parameter(Mandatory = $false, Position = 0)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
     )
 
     $selectedTenantId = Get-AzTenant |?{$_.Id -eq $TenantId } | %{$_.Id}
@@ -546,8 +546,8 @@ function Get-SubscriptionForManagementGroupHiearchy {
 
 function Get-SubscriptionForTenant {
     param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        $TenantId
+        [Parameter(Mandatory = $false, Position = 0)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
     )
     @(Get-AzSubscription -TenantId $TenantId | %{"/subscriptions/$($_.Id)"})
 }
@@ -580,7 +580,7 @@ Function Get-AzBlueprintDefinitions {
         [Parameter(Mandatory = $true, Position = 0)]
         $ManagementGroupName,
         [Parameter(Mandatory = $false, Position = 1)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 2)]
         $AccessToken
     )
@@ -615,7 +615,7 @@ Function Get-AzBlueprintDefinition {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -649,7 +649,7 @@ Function Get-AzBlueprintDefinitionArtifacts {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -694,7 +694,7 @@ Function Save-AzBlueprintDefinition {
         [ValidateSet('subscription')][Parameter(Mandatory = $false, Position = 6)] #'managementGroup' does not work yet
         $TargetScope = 'subscription',
         [Parameter(Mandatory = $false, Position = 7)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 8)]
         $AccessToken
     )
@@ -746,7 +746,7 @@ Function Delete-AzBlueprintDefinition {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -809,7 +809,7 @@ Function Save-AzBlueprintDefinitionArtifact {
         [Parameter(Mandatory = $true, ParameterSetName="template")]
         $Template,
         [Parameter(Mandatory = $false)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false)]
         $AccessToken
     )
@@ -879,7 +879,7 @@ Function Delete-AzBlueprintDefinitionArtifact {
         [Parameter(Mandatory = $true, Position = 2)]
         $BlueprintArtifactName,
         [Parameter(Mandatory = $false, Position = 5)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 6)]
         $AccessToken
     )
@@ -911,7 +911,7 @@ Function Get-AzBlueprintDefinitionVersions {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -948,7 +948,7 @@ Function Get-AzBlueprintDefinitionVersion {
         [Parameter(Mandatory = $true, Position = 2)]
         $BlueprintVersionName,
         [Parameter(Mandatory = $false, Position = 3)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 4)]
         $AccessToken
     )
@@ -984,7 +984,7 @@ Function Save-AzBlueprintDefinitionVersion {
         [Parameter(Mandatory = $true, Position = 2)]
         $BlueprintVersionName,
         [Parameter(Mandatory = $false, Position = 3)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 4)]
         $AccessToken
     )
@@ -1018,7 +1018,7 @@ Function Delete-AzBlueprintDefinitionVersion {
         [Parameter(Mandatory = $true, Position = 2)]
         $BlueprintVersionName,
         [Parameter(Mandatory = $false, Position = 3)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 4)]
         $AccessToken
     )
@@ -1053,10 +1053,10 @@ Function Get-AzBlueprintServicePrincipal {
 
 Function Get-AzBlueprintAssignments {
     param(
-        [Parameter(ParameterSetName='Tenant', Mandatory = $true, Position = 0)]
+        [Parameter(ParameterSetName='Tenant', Mandatory = $false, Position = 0)]
         [Parameter(ParameterSetName='ManagementGroup', Mandatory = $false, Position = 1)]
         [Parameter(ParameterSetName='Subscription', Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(ParameterSetName='ManagementGroup', Mandatory = $true, Position = 1)]
         $ManagementGroupName,
         [Parameter(ParameterSetName='Subscription', Mandatory = $true, Position = 2)]
@@ -1107,7 +1107,7 @@ Function Get-AzBlueprintAssignment {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintAssignmentName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -1171,7 +1171,7 @@ Function Save-AzBlueprintAssignment {
         $ResourceGroups,
        
         [Parameter(Mandatory = $false, Position = 13)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 14)]
         $AccessToken
     )
@@ -1237,7 +1237,7 @@ Function Delete-AzBlueprintAssignment {
         [Parameter(Mandatory = $true, Position = 1)]
         $BlueprintAssignmentName,
         [Parameter(Mandatory = $false, Position = 2)]
-        $TenantId,
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $AccessToken
     )
@@ -1275,8 +1275,8 @@ Function Set-DscBlueprintDefinition {
         $BlueprintDefinitionPath,
         [Parameter(Mandatory = $true, Position = 1)]
         $ManagementGroupName,
-        [Parameter(Mandatory = $true, Position = 2)]
-        $TenantId,
+        [Parameter(Mandatory = $false, Position = 2)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 3)]
         $DeleteUnknownBlueprints = $false,
         [Parameter(Mandatory = $false, Position = 4)]
@@ -2133,8 +2133,8 @@ Function Set-DscRoleDefinition {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
         $RoleDefinitionPath,
-        [Parameter(Mandatory = $true, Position = 1)]
-        $TenantId,
+        [Parameter(Mandatory = $false, Position = 1)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
         [Parameter(Mandatory = $false, Position = 2)]
         $DeleteUnknownRoleDefinitions = $false
     )
@@ -3833,10 +3833,10 @@ Function Set-DscBlueprintAssignment {
         [Parameter(Mandatory = $true, Position = 0)]
         $DesiredState,
         [Parameter(Mandatory = $false, Position = 1)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
+        [Parameter(Mandatory = $false, Position = 2)]
         $DeleteUnknownBlueprintAssignments = $false
     )
-
-    $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
 
     #Assign blueprint to a subscription
     #https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/lifecycle#assignments
