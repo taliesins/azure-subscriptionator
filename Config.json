@@ -1,6 +1,6 @@
 {
     "Tenant" : {
-        "Id" : "1931b7d3-bd07-4b36-9814-adf4ad406860",
+        "Id" : "e0f36ce9-600f-458d-9cad-19fa589415af",
         "DefinitionManagementGroup" : "",
         "DeleteUnknownManagementGroups" : true,
         "CancelUnknownSubscriptions" : true,
@@ -10,6 +10,7 @@
         "DeleteUnknownPolicyDefinitions" : true,
         "DeleteUnknownPolicySetDefinitions" : true,
         "DeleteUnknownBlueprints" : true,
+        "UnregisterUnknownResourceProviderRegistrations" : true,
         "AutoPublishBlueprints" : true,
         "DeleteUnknownRoleAssignments" : true,
         "DeleteUnknownPolicyAssignments" : true,

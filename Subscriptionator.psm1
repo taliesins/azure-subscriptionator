@@ -2614,6 +2614,192 @@ Set-AzPolicySetDefinition -ManagementGroupName '$ManagementGroupName' -Name '$na
     $desiredPolicySetDefinitionResults
 }
 
+function Get-ResourceProviderRegistrationFromConfig {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Scope,
+        [Parameter(Mandatory = $true, Position = 1)]
+        $ConfigItem
+    )
+
+    $providerNamespace = $ConfigItem.ProviderNamespace
+    $registrationState = $ConfigItem.RegistrationState
+
+    @{'ProviderNamespace'=$providerNamespace;'RegistrationState'=$registrationState;'Scope'=$Scope;}   
+}
+
+
+Function Set-DscResourceProviderRegistration {
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        $DesiredState,
+        [Parameter(Mandatory = $false, Position = 1)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id,
+        [Parameter(Mandatory = $false, Position = 2)]
+        $UnregisterUnknownResourceProviderRegistrations = $false
+    )
+
+    $RootResourceProviderRegistrations = $DesiredState.ResourceProviderRegistrations 
+    $ManagementGroups = $DesiredState.ManagementGroups
+
+    $ResourceProviderRegistrations = $RootResourceProviderRegistrations | ?{$_} | %{
+        $scope = "/"
+        $resourceProviderRegistration = Get-ResourceProviderRegistrationFromConfig -Scope $scope -ConfigItem $_
+        
+        $scopes = @(Get-SubscriptionForTenant -TenantId $TenantId)
+        $scopes | %{
+            $resourceProviderRegistrationForTenant = $resourceProviderRegistration.PsObject.Copy()
+            $resourceProviderRegistrationForTenant.Scope = $_
+            $resourceProviderRegistrationForTenant
+        }
+    }
+
+    $ResourceProviderRegistrations += $ManagementGroups | %{
+        $ManagementGroupName = $_.Name
+        $_.ResourceProviderRegistrations | ?{$_} | %{
+            $scope = "/providers/Microsoft.Management/managementGroups/$ManagementGroupName"
+            $resourceProviderRegistration = Get-ResourceProviderRegistrationFromConfig -Scope $scope -ConfigItem $_
+
+            $managementGroupHiearchy = Get-AzManagementGroup -GroupName $ManagementGroupName -Expand -Recurse
+            $scopes = @(Get-SubscriptionForManagementGroupHiearchy -ManagementGroupHiearchy $managementGroupHiearchy) 
+            $scopes | %{
+                $resourceProviderRegistrationForSubscription = $resourceProviderRegistration.PsObject.Copy()
+                $resourceProviderRegistrationForSubscription.Scope = $_
+                $resourceProviderRegistrationForSubscription
+            }
+        }  
+        $_.Subscriptions | %{
+            $ResourceProviderRegistrationsForSubscription = $_.ResourceProviderRegistrations | ?{$_}
+
+            if ($ResourceProviderRegistrationsForSubscription) {
+                $subscriptionName = $_.Name
+                $subscription = Get-AzSubscription -SubscriptionName $subscriptionName
+                $subscriptionId = $subscription.Id
+
+                $ResourceProviderRegistrationsForSubscription | %{
+                    $scope = "/subscriptions/$subscriptionId"
+                    Get-ResourceProviderRegistrationFromConfig -Scope $scope -ConfigItem $_
+                }
+            }
+        }
+    }
+
+    $currentResourceProviderRegistrations = @(Get-AzSubscription -TenantId $TenantId | %{
+        $subscriptionId = $_.Id
+        Set-AzContext -SubscriptionId $subscriptionId
+        $scope = "/subscriptions/$subscriptionId"
+        Get-AzResourceProvider -ListAvailable | %{
+            @{'ProviderNamespace'=$_.ProviderNamespace;'RegistrationState'=$_.RegistrationState;'Scope'=$scope;} 
+        }
+    })
+
+    $updateResourceProviderRegistrations = @($currentResourceProviderRegistrations | %{
+        $scope = $_.Scope
+        $providerNamespace = $_.ProviderNamespace
+
+        if ($ResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace}){
+           $_ 
+        }
+    })
+
+    $createResourceProviderRegistrations = @($ResourceProviderRegistrations | %{
+        $scope = $_.Scope
+        $providerNamespace = $_.ProviderNamespace
+
+        if (!($updateResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace})){
+            $_ 
+         }
+    })
+    
+    $desiredResourceProviderRegistrations = @()
+    $desiredResourceProviderRegistrations += $createResourceProviderRegistrations
+    $desiredResourceProviderRegistrations += $updateResourceProviderRegistrations
+
+    $desiredResourceProviderRegistrationResults = $desiredResourceProviderRegistrations | %{
+        $scope = $_.Scope
+        $subscriptionId = TrimStart -InputObject $scope -Value '/subscriptions/'
+        $providerNamespace = $_.ProviderNamespace
+        $registrationState = $_.RegistrationState
+      
+        if ($createResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace}){
+            Write-Host @"
+`$subscriptionId = '$subscriptionId'
+`$providerNamespace = '$providerNamespace'
+`$registrationState = '$registrationState'
+
+Set-AzContext -Subscription `$subscriptionId
+if (`$registrationState -eq 'Registered') {
+    Register-AzResourceProvider -ProviderNamespace `$providerNamespace
+} elseif (`$registrationState -eq 'NotRegistered'){
+    Unregister-AzResourceProvider -ProviderNamespace `$providerNamespace
+}
+"@
+            Set-AzContext -Subscription $subscriptionId
+            if ($registrationState -eq 'Registered') {
+                $result = Register-AzResourceProvider -ProviderNamespace $providerNamespace
+            } elseif ($registrationState -eq 'NotRegistered'){
+                $result = Unregister-AzResourceProvider -ProviderNamespace $providerNamespace
+            }
+
+            $_
+        } elseif ($updateResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace}) {
+            $desiredResourceProviderRegistration = $ResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace}
+            if ($desiredResourceProviderRegistration)
+            {
+                $desiredScope = $desiredResourceProviderRegistration.Scope
+                $desiredProviderNamespace = $desiredResourceProviderRegistration.ProviderNamespace
+                $desiredRegistrationState = $desiredResourceProviderRegistration.RegistrationState
+                
+                if ($desiredRegistrationState -ne $registrationState) {
+                    Write-Host @"
+`$subscriptionId = '$subscriptionId'
+`$providerNamespace = '$desiredProviderNamespace'
+`$registrationState = '$desiredRegistrationState'
+
+Set-AzContext -Subscription `$subscriptionId
+if (`$registrationState -eq 'Registered') {
+    Register-AzResourceProvider -ProviderNamespace `$providerNamespace
+} elseif (`$registrationState -eq 'NotRegistered'){
+    Unregister-AzResourceProvider -ProviderNamespace `$providerNamespace
+}
+"@
+                    Set-AzContext -Subscription $subscriptionId
+                    if ($desiredRegistrationState -eq 'Registered') {
+                        $result = Register-AzResourceProvider -ProviderNamespace $desiredProviderNamespace
+                    } elseif ($desiredRegistrationState -eq 'NotRegistered'){
+                        $result = Unregister-AzResourceProvider -ProviderNamespace $desiredProviderNamespace
+                    }
+                    
+                    $_
+                }
+            }
+        }
+    }
+
+    if ($UnregisterUnknownResourceProviderRegistrations) {
+        @($currentResourceProviderRegistrations | %{
+            $scope = $_.Scope
+            $subscriptionId = TrimStart -InputObject $scope -Value '/subscriptions/'
+            $providerNamespace = $_.ProviderNamespace
+            $registrationState = $_.RegistrationState
+    
+            if ($registrationState -eq 'Registered' -and (!($ResourceProviderRegistrations | ?{$_.Scope -eq $scope -and $_.ProviderNamespace -eq $providerNamespace}))){
+                Write-Host @"
+`$subscriptionId = '$subscriptionId'
+`$providerNamespace = '$providerNamespace'
+
+Set-AzContext -Subscription `$subscriptionId
+Unregister-AzResourceProvider -ProviderNamespace `$providerNamespace
+"@
+                Set-AzContext -Subscription $subscriptionId
+                $result = Unregister-AzResourceProvider -ProviderNamespace $providerNamespace            
+            }
+        })
+    }
+
+    $desiredResourceProviderRegistrationResults
+}
+
 function Get-RoleAssignmentFromConfig {
     param(
         [Parameter(Mandatory = $true, Position = 0)]

@@ -83,6 +83,16 @@
                         false
                     ]
                 },
+                "UnregisterUnknownResourceProviderRegistrations": {
+                    "$id": "#/properties/UnregisterUnknownResourceProviderRegistrations",
+                    "type": "boolean",
+                    "title": "Should unregister unknown resource provider registration in subscriptions in tenant",
+                    "default": false,
+                    "examples": [
+                        true,
+                        false
+                    ]
+                },
                 "DeleteUnknownRoleDefinitions": {
                     "$id": "#/properties/DeleteUnknownRoleDefinitions",
                     "type": "boolean",

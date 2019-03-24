@@ -233,6 +233,15 @@
                     },
                     "title": "PolicySets assigned to management group"
                 },
+                "ResourceProviderRegistrations": {
+                    "$id": "#/properties/ResourceProviderRegistrations",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/ResourceProviderRegistration"
+                    },
+                    "title": "Resource providers assigned to management group's subscriptions"
+                },
                 "BlueprintAssignments": {
                     "$id": "#/properties/BlueprintAssignments",
                     "type": "array",
@@ -396,6 +405,50 @@
             },
             "additionalProperties": false
         },
+        "ResourceProviderRegistration": {
+            "required": [
+                "ProviderNamespace",
+                "RegistrationState"
+            ],
+            "properties": {
+                "ProviderNamespace": {
+                    "$id": "#/properties/ProviderNamespace",
+                    "type": "string",
+                    "title": "The name of the provider namespace",
+                    "default": "",
+                    "examples": [
+                        "Microsoft.Management",            
+                        "Microsoft.ADHybridHealthService", 
+                        "Microsoft.Authorization",         
+                        "Microsoft.Billing",               
+                        "Microsoft.ClassicSubscription",   
+                        "Microsoft.Commerce",              
+                        "Microsoft.Consumption",           
+                        "Microsoft.CostManagement",        
+                        "Microsoft.Features",              
+                        "Microsoft.MarketplaceOrdering",   
+                        "Microsoft.Portal",                
+                        "Microsoft.Resources",             
+                        "microsoft.support",               
+                        "Microsoft.WorkloadMonitor",       
+                        "Microsoft.Blueprint"
+                    ],
+                    "pattern": "^(.*)$"
+                },
+                "RegistrationState": {
+                    "$id": "#/properties/RegistrationState",
+                    "type": "string",
+                    "enum": ["Registered", "NotRegistered"],
+                    "title": "The registration status of resource provider.",
+                    "default": "NotRegistered",
+                    "examples": [
+                        "Registered", "NotRegistered"
+                    ],
+                    "pattern": "^(.*)$"
+                }
+            },
+            "additionalProperties": false            
+        },
         "RoleAssignment": {
             "required": [
                 "RoleDefinitionName",
@@ -502,6 +555,15 @@
                     },
                     "title": "PolicySets assigned to subscription"
                 },
+                "ResourceProviderRegistrations": {
+                    "$id": "#/properties/ResourceProviderRegistrations",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "#/definitions/ResourceProviderRegistration"
+                    },
+                    "title": "Resource providers assigned to subscription"
+                },
                 "BlueprintAssignments": {
                     "$id": "#/properties/BlueprintAssignments",
                     "type": "array",
@@ -553,6 +615,15 @@
                 "$ref": "#/definitions/PolicySetAssignment"
             },
             "title": "PolicySets assigned to tenant"
+        },
+        "ResourceProviderRegistrations": {
+            "$id": "#/properties/ResourceProviderRegistrations",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#/definitions/ResourceProviderRegistration"
+            },
+            "title": "Resource providers assigned to tenant's subscriptions"
         },
         "ManagementGroups" : {
             "$id": "#/properties/ManagementGroups",

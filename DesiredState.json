@@ -8,6 +8,68 @@
     "PolicySetAssignments" : [
 
     ],
+    "ResourceProviderRegistrations" : [
+        {
+           "ProviderNamespace" : "Microsoft.Management",
+           "RegistrationState" : "Registered"
+        },            
+        {
+            "ProviderNamespace" : "Microsoft.ADHybridHealthService",
+            "RegistrationState" : "Registered"
+        }, 
+        {
+            "ProviderNamespace" : "Microsoft.Authorization",
+            "RegistrationState" : "Registered"
+        },         
+        {
+            "ProviderNamespace" : "Microsoft.Billing",
+            "RegistrationState" : "Registered"
+        },               
+        {
+            "ProviderNamespace" : "Microsoft.ClassicSubscription",
+            "RegistrationState" : "Registered"
+        },   
+        {
+            "ProviderNamespace" : "Microsoft.Commerce",
+            "RegistrationState" : "Registered"
+        },              
+        {
+            "ProviderNamespace" : "Microsoft.Consumption",
+            "RegistrationState" : "Registered"
+        },           
+        {
+            "ProviderNamespace" : "Microsoft.CostManagement",
+            "RegistrationState" : "Registered"
+        },        
+        {
+            "ProviderNamespace" : "Microsoft.Features",
+            "RegistrationState" : "Registered"
+        },              
+        {
+            "ProviderNamespace" : "Microsoft.MarketplaceOrdering",
+            "RegistrationState" : "Registered"
+        },   
+        {
+            "ProviderNamespace" : "Microsoft.Portal",
+            "RegistrationState" : "Registered"
+        },                
+        {
+            "ProviderNamespace" : "Microsoft.Resources",
+            "RegistrationState" : "Registered"
+        },             
+        {
+            "ProviderNamespace" : "microsoft.support",
+            "RegistrationState" : "Registered"
+        },               
+        {
+            "ProviderNamespace" : "Microsoft.WorkloadMonitor",
+            "RegistrationState" : "Registered"
+        },       
+        {
+            "ProviderNamespace" : "Microsoft.Blueprint",
+            "RegistrationState" : "Registered"
+        }
+    ],
     "AdGroups" : [
         {
             "DisplayName": "DevTest",
@@ -78,7 +140,7 @@
             "Subscriptions": [
                 {
                     "Name": "DevTestTenant1",
-                    "OfferType":  "MS-AZR-0148P",
+                    "OfferType":  "MS-AZR-0029P",
                     "RoleAssignments":[
 
                     ],
@@ -89,20 +151,7 @@
 
                     ],
                     "BlueprintAssignments" : [
-                        {
-                            "Name": "",
-                            "DisplayName" : "Tagging resource group assignment",
-                            "Description" : "Ensure that tagging is applied on resource group",
-                            "ManagedIdentityResourceGroup": "",
-                            "ManagedIdentityUser": "",
-                            "Location": "",
-                            "BluePrintManagementGroupName": "",
-                            "BluePrintName": "",
-                            "BluePrintVersionName": "",
-                            "LockMode": "none",
-                            "Parameters" : {},
-                            "ResourceGroups" : {}
-                        }
+ 
                     ]
                 }
             ]

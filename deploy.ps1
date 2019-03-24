@@ -46,25 +46,29 @@ $desiredState = [System.IO.File]::ReadAllText(($desiredStatePath)) | ConvertFrom
 Write-Host 'Deploying AD groups'
 $deleteUnknownAdGroups=$config.Tenant.DeleteUnknownAdGroups 
 $deleteUnknownAdGroupMembers=$config.Tenant.DeleteUnknownAdGroupMembers
-#$adGroups = Set-DscAdGroup -DesiredState $desiredState -DeleteUnknownAdGroups $deleteUnknownAdGroups -DeleteUnknownAdGroupMembers $deleteUnknownAdGroupMembers
+$adGroups = Set-DscAdGroup -DesiredState $desiredState -DeleteUnknownAdGroups $deleteUnknownAdGroups -DeleteUnknownAdGroupMembers $deleteUnknownAdGroupMembers
 
 Write-Host 'Deploying management groups'
 $deleteUnknownManagementGroups = $config.Tenant.DeleteUnknownManagementGroups
-#$managementGroups = Set-DscManagementGroup -DesiredState $desiredState -DeleteUnknownManagementGroups $deleteUnknownManagementGroups
+$managementGroups = Set-DscManagementGroup -DesiredState $desiredState -DeleteUnknownManagementGroups $deleteUnknownManagementGroups
 
 Write-Host 'Deploying subscriptions'
 $cancelUnknownSubscriptions=$config.Tenant.CancelUnknownSubscriptions
-#$subscriptions = Set-DscSubscription -DesiredState $desiredState -CancelUnknownSubscriptions $cancelUnknownSubscriptions
+$subscriptions = Set-DscSubscription -DesiredState $desiredState -CancelUnknownSubscriptions $cancelUnknownSubscriptions
+
+Write-Host 'Deploying resource provider registrations'
+$unregisterUnknownResourceProviderRegistrations=$config.Tenant.UnregisterUnknownResourceProviderRegistrations
+$resourceProviderRegistrations = Set-DscResourceProviderRegistration -DesiredState $desiredState -TenantId $tenantId -UnregisterUnknownResourceProviderRegistrations $unregisterUnknownResourceProviderRegistrations
 
 Write-Host 'Deploying role definitions'
 $roleDefinitionsPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'RoleDefinitions'
 $deleteUnknownRoleDefinitions = $config.Tenant.DeleteUnknownRoleDefinitions
-#$roleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath $roleDefinitionsPath -TenantId $tenantId -DeleteUnknownRoleDefinitions $deleteUnknownRoleDefinitions
+$roleDefinitions = Set-DscRoleDefinition -RoleDefinitionPath $roleDefinitionsPath -TenantId $tenantId -DeleteUnknownRoleDefinitions $deleteUnknownRoleDefinitions
 
 Write-Host 'Deploying policy definitions'
 $policyDefinitionsPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'PolicyDefinitions'
 $deleteUnknownPolicyDefinitions = $config.Tenant.DeleteUnknownPolicyDefinitions
-#$policyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $definitionManagementGroupName -PolicyDefinitionPath $policyDefinitionsPath -DeleteUnknownPolicyDefinitions $deleteUnknownPolicyDefinitions
+$policyDefinitions = Set-DscPolicyDefinition -ManagementGroupName $definitionManagementGroupName -PolicyDefinitionPath $policyDefinitionsPath -DeleteUnknownPolicyDefinitions $deleteUnknownPolicyDefinitions
 
 Write-Host 'Deploying policy set definitions'
 $policySetDefinitionsPath = Join-Path -Path $currentWorkingDirectory -ChildPath 'PolicySetDefinitions'
