@@ -3,12 +3,12 @@
         {
             "RoleDefinitionName": "User Access Administrator",
             "ObjectName": "Taliesin Sisson",
-            "ObjectType": "user"
+            "ObjectType": "User"
         },
         {
             "RoleDefinitionName": "Owner",
             "ObjectName": "Taliesin Sisson",
-            "ObjectType": "user"
+            "ObjectType": "User"
         }
     ],
     "PolicyAssignments" : [
