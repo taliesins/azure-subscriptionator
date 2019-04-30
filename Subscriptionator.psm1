@@ -980,6 +980,9 @@ Function Save-AzBlueprintDefinitionArtifact {
     if ($DependsOn -is [String]) {
         $DependsOn = ConvertFrom-Json $DependsOn
     }
+    if (!$DependsOn){
+        $DependsOn = @()
+    }
 
     if (!$Parameters) {
         $Parameters = "{}"
