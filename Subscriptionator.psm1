@@ -720,6 +720,32 @@ Open browser and cancel subscription:
     $desiredSubscriptionResults
 }
 
+function Get-AzAccessToken {
+    param(
+        [Parameter(Mandatory = $false, Position = 0)]
+        [string] $TenantId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Tenant.Id
+    )
+
+    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
+    
+    try{
+        $token = $profileClient.AcquireAccessToken($TenantId)
+        $AccessToken = $token.AccessToken
+    } catch {
+        $SubscriptionId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Subscription.Id
+        #populate token cache
+        $subscription = Get-AzSubscription -SubscriptionId $SubscriptionId 
+        $AccountId = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext.Account.Id
+        $context = Get-AzContext
+        $cache = $context.TokenCache
+        $cacheItems = $cache.ReadItems() | ?{$_.TenantId -eq $TenantId -and $_.DisplayableId -eq $AccountId -and $_.Resource -eq 'https://management.core.windows.net/'} | Sort-Object -Property ExpiresOn -Descending
+        $AccessToken = $cacheItems[0].AccessToken
+    }
+
+    $AccessToken
+}
+
 Function Get-AzBlueprintDefinitions {
     param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -731,10 +757,7 @@ Function Get-AzBlueprintDefinitions {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintHeaders = @{
@@ -766,10 +789,7 @@ Function Get-AzBlueprintDefinition {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintHeaders = @{
@@ -800,10 +820,7 @@ Function Get-AzBlueprintDefinitionArtifacts {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintHeaders = @{
@@ -845,10 +862,7 @@ Function Save-AzBlueprintDefinition {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     if (!$Parameters) {
@@ -897,10 +911,7 @@ Function Delete-AzBlueprintDefinition {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
   
     $putBlueprintHeaders = @{
@@ -960,10 +971,14 @@ Function Save-AzBlueprintDefinitionArtifact {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
+    }
+
+    if (!$DependsOn){
+        $DependsOn = "[]"
+    }
+    if ($DependsOn -is [String]) {
+        $DependsOn = ConvertFrom-Json $DependsOn
     }
 
     if (!$Parameters) {
@@ -1030,10 +1045,7 @@ Function Delete-AzBlueprintDefinitionArtifact {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $deleteBlueprintArtifactHeaders = @{
@@ -1062,10 +1074,7 @@ Function Get-AzBlueprintDefinitionVersions {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintVersionsHeaders = @{
@@ -1099,10 +1108,7 @@ Function Get-AzBlueprintDefinitionVersion {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintVersionHeaders = @{
@@ -1135,10 +1141,7 @@ Function Save-AzBlueprintDefinitionVersion {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
     
     $putBlueprintVersionHeaders = @{
@@ -1169,10 +1172,7 @@ Function Delete-AzBlueprintDefinitionVersion {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $deleteBlueprintVersionHeaders = @{
@@ -1220,10 +1220,7 @@ Function Get-AzBlueprintAssignments {
     }
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $bluePrintAssignments = @()
@@ -1258,10 +1255,7 @@ Function Get-AzBlueprintAssignment {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $getBlueprintAssignmentHeaders = @{
@@ -1322,10 +1316,7 @@ Function Save-AzBlueprintAssignment {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     #$scopeId = "/subscriptions/$($SubscriptionId)"
@@ -1388,10 +1379,7 @@ Function Delete-AzBlueprintAssignment {
     )
 
     if (!$AccessToken) {
-        $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-        $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-        $token = $profileClient.AcquireAccessToken($TenantId)
-        $AccessToken = $token.AccessToken
+        $AccessToken = Get-AzAccessToken -TenantId $TenantId
     }
 
     $deleteBlueprintAssignmentHeaders = @{
@@ -1503,11 +1491,8 @@ Function Set-DscBlueprintDefinition {
         @{'Name'=$bluePrintName;'Description'=$description;'DisplayName'=$displayName;'Parameters'=$parameters;'ResourceGroups'=$resourceGroups;'Artifacts'=$bluePrintArtifacts;}
     }
 
-    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-    $token = $profileClient.AcquireAccessToken($TenantId)
-    $accessToken = $token.AccessToken
-
+    $accessToken = Get-AzAccessToken -TenantId $TenantId
+    
     $currentBlueprintDefinitions = Get-AzBlueprintDefinitions -ManagementGroupName $ManagementGroupName -AccessToken $accessToken | %{
         $bluePrintName = $_.Name
         $bluePrint = Get-AzBlueprintDefinition -ManagementGroupName $ManagementGroupName -BlueprintName $bluePrintName -AccessToken $accessToken
@@ -3004,8 +2989,9 @@ Function Set-DscRoleAssignment {
             $roleAssignment
         } else {   
             $scopes = @(Get-SubscriptionForTenant -TenantId $TenantId)
-            $scopes | %{
+            $scopes | ?{$_} | %{
                 $roleAssignmentForTenant = $roleAssignment.PsObject.Copy()
+                write-host "`$roleAssignmentForTenant = $(ConvertTo-Json $roleAssignmentForTenant) "
                 $roleAssignmentForTenant.Scope = $_
                 $roleAssignmentForTenant
             }
@@ -4220,10 +4206,7 @@ Function Set-DscBlueprintAssignment {
         }
     }
 
-    $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
-    $token = $profileClient.AcquireAccessToken($TenantId)
-    $accessToken = $token.AccessToken
+    $accessToken = Get-AzAccessToken -TenantId $TenantId
 
     $currentBlueprintAssignments = @(Get-AzBlueprintAssignments -TenantId $TenantId -AccessToken $accessToken  | %{        
         # "/subscriptions/<subscription>"
