@@ -1341,12 +1341,12 @@ Function Save-AzBlueprintAssignment {
 
     if ($ManagedIdentityUser -and $ManagedIdentityResourceGroup) {
         if ($ManagedIdentitySubscriptionId) {
-            $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';'userAssignedIdentities'=@{"/subscriptions/$($ManagedIdentitySubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
+            $Identity = [pscustomobject][ordered] @{'type' = 'userAssigned';'userAssignedIdentities'=@{"/subscriptions/$($ManagedIdentitySubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
         } else {
-            $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';'userAssignedIdentities'=@{"/subscriptions/$($SubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
+            $Identity = [pscustomobject][ordered] @{'type' = 'userAssigned';'userAssignedIdentities'=@{"/subscriptions/$($SubscriptionId)/resourceGroups/$($ManagedIdentityResourceGroup)/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$($ManagedIdentityUser)"=@{}}}
         }
     } else {
-        $Identity = [pscustomobject][ordered] @{'type' = 'userAssigned';}
+        $Identity = [pscustomobject][ordered] @{'type' = 'systemAssigned';}
     }
 
     $Locks=[pscustomobject][ordered] @{'mode' = $LockMode;}
