@@ -23,7 +23,7 @@ Assignments:
 Alpha. Code is still being implemented. 
 
 # LICENSE
-Apache 2.0 - see LICENSE.txt
+MIT - see LICENSE.txt
 
 # Best practices
 
